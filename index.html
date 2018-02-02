@@ -1,0 +1,514 @@
+<head>
+    <link href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css" rel="stylesheet">
+        <script src="https://code.jquery.com/jquery-1.7.1.min.js">
+        </script>
+        <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js">
+        </script>
+        <script src="https://api.trello.com/1/client.js?key=83fbbffdca68e9e5655f409d9b204618">
+        </script>
+        <script src="https://apis.google.com/js/api.js">
+        </script>
+        <script src="rules.js">
+        </script>
+        <script src="calendar.js">
+        </script>
+        <script src="list.js">
+        </script>
+        <script src="trello.js">
+        </script>
+        <script src="card.js">
+        </script>
+        <script src="graph.js">
+        </script>
+        <!--  python -m http.server -->
+    </link>
+</head>
+<body>
+	<div id="percs" style="width: 640px; height: 480px;"></div>
+	<button id="reset-button" style="display: block;">Reset</button>
+	<div id="p1">Hello World!</div>
+	<button id="authorize-button" style="display: block;">Authorize</button>
+	<script>
+
+"use strict";
+var authorizeButton = document.getElementById('authorize-button');
+
+var resetButton = document.getElementById('reset-button');
+resetButton.onclick = function(){
+		localStorage.setItem("WeekStart", undefined);
+		localStorage.setItem("TodayStart", undefined);
+}
+var g_data = {errorCount:0};
+
+var counter = 0; // TODO: no global state please
+var moved = false;
+var globalWarning = "";
+var globalError = "";
+var gItemID = undefined;
+var cur=true;
+var lists = {};
+var incrementator;
+var listthatneed;
+var timethatlistneed;
+var graph = new Graph();
+var requiredLists = ["Today", "Tomorrow", "Week", "Next Week", "Month", "3 Month", "6 Month", "Year", "3 Year", "Inbox", "One Day"];
+
+var addMessage = function(message){
+	globalWarning = globalWarning + message;
+}
+
+var addWarning = function(message){
+	globalWarning = globalWarning + message;
+	g_data.errorCount = g_data.errorCount + 1;
+}
+
+var addError = function(message){
+	globalWarning = globalWarning + message;
+	globalError = globalError + message;
+	g_data.errorCount = g_data.errorCount + 1;
+}
+
+var doOver = function(){
+	if(moved){
+		// dont sort if at least one card has been moved
+		return;
+	}
+	if(incrementator < arraySortedBySize.length){
+		var card = arraySortedBySize[incrementator];
+		incrementator = incrementator +1;
+		var cVal = arraySortedByPos.indexOf(card);
+		var value = "bottom";
+
+		console.log("Sorting");
+		console.log(card.name + " " + card.size)
+		Trello.put('/cards/' + card.id + "/pos",{"value":value},
+			doOver, console.log);
+	} else {
+		window.location.reload();
+	}
+}
+
+var reas2 = function() {
+
+}
+
+	function subsumate(list){
+		var addIfNeedBes = true;
+		var cards = list.cards;
+		var dada = Object.keys(cards).map(function (key) { return cards[key]; });
+		var baba = dada.slice(0);
+		baba.sort(sortScore);
+		cards = baba;
+		for(c in cards){
+			var card = cards[c];
+			if( list.sumTicks > list.ticks){
+				break;
+			}
+			list.sumTicks = list.sumTicks + card.tick;
+			graph.add(list.name,"Free", 0);
+		}
+		if( list.sumTicks > list.ticks){
+			var cc = c;
+			var flag = false;
+			var nn = list.next;
+			var lnn = lists[nn];
+			for(var c in cards){
+				flag = flag || c == cc;
+				if(flag){
+					var card = cards[c];
+				//Trello.put('/cards/' + card.id + "/idList",{"value":lnn.id}, console.log, console.log);
+				list.sumTicks = list.sumTicks + card.tick;
+			}
+		}
+		return true;
+	}
+	return true;
+}
+var getOut = function(){
+	var myReqlist = requiredLists.slice(0,-2);
+	var data = [];
+	var pulame = function (a, type) {
+		var colors = {"Work":'rgb(0,121,191)', "Unlabeled":'rgb(0,0,0)', "Free":'rgb(97,189,79)', "Facultate":'rgb(195,119,224)', "Facultate-TA":'rgb(195,119,224)', "DownTime":'rgb(0,194,224)', "Grow":'rgb(0,194,224)', "Social":'rgb(255,128,206)', "Health":'rgb(81,232,152)', "Weekly":'rgb(211,211,211)',};
+		return colors[type];
+	}
+	for(let type of graph.types){
+		var Percs = {
+			x: myReqlist.map(a => a + " " + lists[a].cardCount + "/" + lists[a].maxCount),
+			y: myReqlist.map(a => graph.returnScaled(a, type, lists[a].ticks)),
+			type: 'bar',
+			name: type,
+			marker:{
+				color: myReqlist.map(a => pulame(a, type))
+			},
+		};
+		data.push(Percs);
+	};
+	var layout = {
+		barmode: 'stack',
+		xaxis: {tickfont: {
+			size: 17,
+		}},
+		legend: {
+			y: 0.5,
+    //traceorder: 'reversed',
+    font: {size: 16},
+    yref: 'paper',
+
+}};
+data.reverse();
+console.log(graph._sumsCount);
+Plotly.newPlot('percs', data, layout);
+}
+
+var done = function(){
+	document.getElementById("p1").innerHTML = "";
+	counter = counter + 1;
+	if(cur) {
+		GclientInit();
+		cur = false;
+	}
+	if(counter >= Object.keys(lists).length +1){
+		var prevFree = 0;
+		for(var l in requiredLists){
+			var name = requiredLists[l];
+			graph.initCount(name, lists[name].ticks);
+			if(! trelloApi.parseTasks(lists[name])){
+				document.getElementById("p1").innerHTML = globalError;
+				return getOut();
+			}
+		}
+
+		for(var a in asserts){
+			var assert = asserts[a];
+			console.log(a);
+			if(! assert(lists)){
+				document.getElementById("p1").innerHTML = globalError;
+				return getOut();
+			}
+		}
+		/*
+		prevValue = 1;
+		for (var i = reqList.length - 1; i >= 0; --i) {
+			name = reqList[i];
+			if(name == "Inbox"){
+				continue;
+			}
+			if(name == "One Day"){
+				continue;
+			}
+			value = 100.0 * (graph.sumsCount[name]["Free"] + graph.sumsCount[name]["DownTime"] )/lists[name].ticks;
+			if(value >= 20){
+				value = 0;
+			} else if (value >= 10){
+				value = 1;
+			} else if (value >= 5){
+				value = 2;
+			} else {
+				value = 3;
+			}
+			value = value + prevValue;
+			prevValue = value - 1;
+			if(prevValue < 0){
+				prevValuex = 0;
+			}
+			graph.sumsCount[name]["Level"] = value;
+		}
+		powerLevel = graph.sumsCount["Week"]["Level"];
+		if(powerLevel >= 3) {
+			powerLevel = "Ask for help";
+			levelLine = 5;
+		} else if(powerLevel >= 2) {
+			powerLevel = "Can't help others at this point";
+			levelLine = 10;
+		} else if(powerLevel >= 1) {
+			powerLevel = "You can help others";
+			levelLine = 20;
+		} else {
+			powerLevel = "Relax, no pressure";
+			levelLine = 20;
+		}
+		*/
+		var powerLevel = "undefined";
+		// TODO: add one day like inbox is and remove it from the printing
+		var aaaux = //"The forecast for this week is: <b>" + powerLevel + "</b><br/>" +
+		"You currently have <b>" + g_data.errorCount + "</b> errors<br>" +
+		"Inbox costs around <b>" + lists["Inbox"].sumTicks + "</b> hours <br/> ";
+		if(listthatneed !== undefined) {
+			aaaux = aaaux + listthatneed + " needs at least <b>" + timethatlistneed + "</b> hours <br/> " ;
+		}
+		globalWarning = aaaux + globalWarning;
+//---------------------------
+getOut();
+//-----------------------------
+}
+document.getElementById("p1").innerHTML = document.getElementById("p1").innerHTML + globalWarning;
+globalWarning = "";
+
+}
+var populateLists = function(){
+	var curry = function(listName){
+		return function(answer) {
+			var cards = {};
+			for(var i in answer){
+				var card = answer[i];
+				cards[card.id] = new Card(card, listName);
+				card.listLink = lists[listName];
+			}
+			lists[listName].cards = cards;
+			lists[listName].cardCount = Object.keys(cards).length;
+			done();
+		};
+	};
+	console.log(lists);
+	for(var listName in lists){
+		var listID = lists[listName].id;
+		Trello.get('/lists/'+ listID +'/cards', curry(listName), console.log);
+	}
+}
+
+var llllll;
+var boardSelect = function(boardID){
+	var success = function(answer) {
+		llllll = answer;
+		document.getElementById("p1").innerHTML = "";
+		for(var i in answer){
+			var list = answer[i];
+
+			list.backlink = list;
+			if(lists[list.name] === undefined){
+				lists[list.name] = list;
+			} else {
+				Object.assign(lists[list.name], list);
+			}
+		}
+		populateLists();
+	};
+
+	Trello.get('/boards/51d3f043a536c77a09000a40/lists', success, console.log);
+}
+
+function base(){
+	Trello.authorize({
+		type: 'popup',
+		name: 'Getting Started Application',
+		scope: {
+			read: 'true',
+			write: 'true' },
+			expiration: 'never',
+			success: every5,
+			error: console.log
+		});
+
+}
+
+var onceADayFlag = false;
+var onceAWeekFlag = false;
+
+var todayStart;
+var weekStart;
+var scoreMultiplier;
+var mult;
+
+var move_all_cards_not_in_range = function(l1, l2){
+	for (var c in l1.cards) {
+        var card = cards[c];
+        if(card.date < l1.start || card.date > l1.end) {
+			if(l2.canTakeCard(card)){
+				l2.takeCardFrom(card, l1);
+			}
+        }
+    }
+}
+
+function every5(){
+	moved = false;
+	lists = {}
+
+	var dayLenghtInMs = (1000 * 60 * 60 * 24);
+	var weekLengthInMs = (dayLenghtInMs * 7);
+
+	var timezoneOffset = 2*60*60*1000; // We need 3 extra hours for the timezone setting
+
+	var nowDate = new Date();
+	var now = nowDate.getTime() + timezoneOffset;
+
+	/* let todayStart be global */
+	todayStart = now - now % dayLenghtInMs;
+	var currentHour = ((nowDate.getTime()) - todayStart + timezoneOffset) / (1000 * 60 * 60);
+	currentHour = Math.round(Number(currentHour*4))/4;
+	if(currentHour >= 24){
+		currentHour -= 24;
+		todayStart = todayStart + dayLenghtInMs;
+	}
+	if (currentHour < 7) {
+		currentHour = 7;
+	}
+
+	var aux = (todayStart + 3.5 * dayLenghtInMs);
+	/* let weekStart be global */
+	weekStart = aux - aux % (7 * dayLenghtInMs) - 3 * dayLenghtInMs; /* because 1 Jan 1970 was a Thursday */
+
+	var localStorageWeekStart = localStorage.getItem("WeekStart");
+	if(localStorageWeekStart != weekStart){
+		localStorage.setItem("WeekStart", weekStart);
+		onceAWeekFlag = true;
+		console.log("Working for once this week");
+	} else {
+		console.log("Already worked this week");
+	}
+
+	var localStorageTodayStart = localStorage.getItem("TodayStart");
+	if(localStorageTodayStart != todayStart){
+		localStorage.setItem("TodayStart", todayStart);
+		onceADayFlag = true;
+		console.log("Working for once today");
+	} else {
+		console.log("Already worked today");
+	}
+
+	var baseDay = 12;
+	var normalDay = 17;
+	var weekHabbitOffset = (normalDay - baseDay)*7;
+
+	var yesterStart   = todayStart - dayLenghtInMs;
+	var tomorrowStart = todayStart + dayLenghtInMs;
+	var tomorrowEnd   = todayStart +           2 * dayLenghtInMs;
+	var weekEnd       = weekStart  +           7 * dayLenghtInMs;
+	if(weekEnd === tomorrowStart) {
+		weekEnd = weekEnd + 7 * dayLenghtInMs;
+	}
+	var nextWeekEnd   = weekEnd    +           7 * dayLenghtInMs;
+	var monthEnd      = todayStart +          31 * dayLenghtInMs;
+	var _3monthEnd    = todayStart +      3 * 31 * dayLenghtInMs;
+	var _6monthEnd    = todayStart +      6 * 31 * dayLenghtInMs;
+	var yearEnd       = todayStart +     12 * 31 * dayLenghtInMs;
+	var _3yearEnd     = todayStart + 3 * 12 * 31 * dayLenghtInMs;
+
+	var daysInThisWeek = (weekEnd - todayStart) / dayLenghtInMs;
+
+	var todayLen    = 24 - currentHour;
+	var tomorrowLen = normalDay;
+	var weekLen     = normalDay * (daysInThisWeek -1);
+	var nWeekLen    = baseDay*7+weekHabbitOffset;
+	// add 30 hours as an overlap buffer -- this should protect from the need to push out a ww prematurely
+	var monLen      = baseDay * 31 + weekHabbitOffset + 30;
+	var _3monLen    = monLen *3 + weekHabbitOffset;
+	var _6monLen    = monLen *6 + weekHabbitOffset;
+	var yearLen     = baseDay * 365 + weekHabbitOffset;
+	var _3yearLen   = yearLen *3 + weekHabbitOffset;
+
+	if(true) {
+		var baseMonthInt = 7;
+		var baseYearInt = 17;
+
+		var monEndInt;
+		var _3monEndInt;
+		var _6monthInt;
+		var yearInt;
+		var _3yearEnd;
+
+		var computeDate = function (monthInt, yearInt, monthPush, min)
+		{;
+			var ret;
+			ret = new Date(0);
+			while(ret < min) {
+				monthInt = monthInt + monthPush;
+				while(monthInt > 12){
+					yearInt = yearInt + 1;
+					monthInt = monthInt - 12;
+				}
+				ret = new Date(monthInt+"/1/"+yearInt+" GMT");
+			}
+			return ret;
+		}
+		var getDays = function(stop, start){
+			return (stop - start)/dayLenghtInMs -1;
+		}
+		var max = function(a,b){
+			if (a>b)
+				return a;
+			return b;
+		}
+		monthEnd = computeDate(baseMonthInt, baseYearInt, 1,  nowDate).getTime();
+
+		if(monthEnd	- weekEnd < 7 * dayLenghtInMs) {
+		           	monLen = weekLen;
+		}
+		var aux = weekEnd;
+		while(aux < monthEnd) {
+			aux = aux + 7 * dayLenghtInMs;
+		}
+		monthEnd = aux;
+
+		_3monthEnd = computeDate(baseMonthInt, baseYearInt, 3,  nowDate).getTime();
+		_6monthEnd = computeDate(baseMonthInt, baseYearInt, 6,  nowDate).getTime();
+		yearEnd    = computeDate(baseMonthInt, baseYearInt, 12, nowDate).getTime();
+		_3yearEnd  = computeDate(baseMonthInt, baseYearInt, 36, nowDate).getTime();
+
+		_3monthEnd = max(_3monthEnd,   monthEnd);
+		_6monthEnd = max(_3monthEnd, _6monthEnd);
+		yearEnd    = max(   yearEnd, _6monthEnd);
+		_3yearEnd  = max( _3yearEnd,    yearEnd);
+
+		monLen    = baseDay * getDays(  monthEnd, todayStart) + weekHabbitOffset;
+		_3monLen  = baseDay * getDays(_3monthEnd, todayStart) + weekHabbitOffset;
+		_6monLen  = baseDay * getDays(_6monthEnd, todayStart) + weekHabbitOffset;
+		yearLen   = baseDay * getDays(   yearEnd, todayStart) + weekHabbitOffset;
+		_3yearLen = baseDay * getDays( _3yearEnd, todayStart) + weekHabbitOffset;
+	}
+
+	var maxInt = Number.MAX_SAFE_INTEGER;
+
+	var prevMonth = "Next Week";
+	var postNextWeek = "Month";
+	var prev3Month = "Month";
+	var _3monthStart = monthEnd;
+	if(nextWeekEnd > monthEnd) {
+		postNextWeek = "3 Month";
+		prevMonth = "Week";
+		prev3Month = "Next Week";
+		_3monthStart = nextWeekEnd;
+	}
+
+	scoreMultiplier = {};
+	mult = 1.5;
+	scoreMultiplier["Today"]     = mult = mult /1.5;
+	scoreMultiplier["Tomorrow"]  = mult = mult /1.5;
+	scoreMultiplier["Week"]      = mult = mult /1.5;
+	scoreMultiplier["Next Week"] = mult = mult /1.5;
+	scoreMultiplier["Month"]     = mult = mult /1.5;
+	scoreMultiplier["3 Month"]   = mult = mult /1.5;
+	scoreMultiplier["6 Month"]   = mult = mult /1.5;
+	scoreMultiplier["Year"]      = mult = mult /1.5;
+	scoreMultiplier["3 Year"]    = mult = mult /1.5;
+	scoreMultiplier["Inbox"]     = mult = mult /1.5;
+	scoreMultiplier["One Day"]   = mult = mult /1.5;
+
+	/* make today start at the start of time. This should allow inbox to be scheduled, if time constraints allow it */
+	lists["Today"]     = new List( todayStart,     tomorrowStart,    todayLen,  ONCE_A_DAY,       null,         null,  sortTime,     15, 1);
+	lists["Tomorrow"]  = new List(tomorrowStart,   tomorrowEnd, tomorrowLen,  ONCE_A_DAY,    "Today",       "Week", sortScore,     15, 1);
+	lists["Week"]      = new List(  tomorrowEnd,       weekEnd,     weekLen,  ONCE_A_DAY, "Tomorrow",      "Month", sortScore,    15 * (daysInThisWeek-1), 5);
+
+	lists["Next Week"] = new List(      weekEnd,   nextWeekEnd,    nWeekLen, ONCE_A_DAY ,     "Week", postNextWeek, sortScore,     70, 5);
+	lists["Month"]     = new List(  nextWeekEnd,      monthEnd,      monLen, ONCE_A_WEEK,  prevMonth,    "3 Month", sortScore,    200, 5);
+	lists["3 Month"]   = new List( _3monthStart,    _3monthEnd,    _3monLen, ONCE_A_WEEK, prev3Month,    "6 Month", sortScore,    250, 5);
+	lists["6 Month"]   = new List(   _3monthEnd,    _6monthEnd,    _6monLen, ONCE_A_WEEK,  "3 Month",       "Year", sortScore,    300, 5);
+	lists["Year"]      = new List(   _6monthEnd,       yearEnd,     yearLen, ONCE_A_WEEK,  "6 Month",     "3 Year", sortScore,    350, 5);
+	lists["3 Year"]    = new List(      yearEnd,     _3yearEnd,   _3yearLen, ONCE_A_WEEK,     "Year",    "One Day", sortScore,    400, 5);
+	lists["One Day"]   = new List(    _3yearEnd,        maxInt,      maxInt, NEVER      ,   "3 Year",         null, sortScore, maxInt, undefined);
+	lists["Inbox"]     = new List(            0,        maxInt,      maxInt, NEVER      ,       null,         null, sortScore, maxInt, undefined);
+	boardSelect(gItemID);
+
+	if(onceADayFlag){
+		// move all cards to inbox
+		move_all_cards_not_in_range(lists["Today"], lists["Inbox"]);
+		move_all_cards_not_in_range(lists["Tomorrow"], lists["Today"]);
+	}
+
+	setInterval(function() {window.location.reload();}, 1000*60*10);
+}
+base();
+    </script>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js">
+    </script>
+</body>
