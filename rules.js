@@ -204,6 +204,7 @@ var inbox_schedule = function() {
             continue;
         }
         targetList.takeCardFrom(card, lists["Inbox"]);
+        addToGcal(card);
         console.log(card.name + " moved to " + targetList.name );
     }
     return true;

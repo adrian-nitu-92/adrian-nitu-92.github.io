@@ -1,27 +1,27 @@
 <head>
-    <link href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css" rel="stylesheet">
-        <script src="https://code.jquery.com/jquery-1.7.1.min.js">
-        </script>
-        <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js">
-        </script>
-        <script src="https://api.trello.com/1/client.js?key=83fbbffdca68e9e5655f409d9b204618">
-        </script>
-        <script src="https://apis.google.com/js/api.js">
-        </script>
-        <script src="rules.js">
-        </script>
-        <script src="calendar.js">
-        </script>
-        <script src="list.js">
-        </script>
-        <script src="trello.js">
-        </script>
-        <script src="card.js">
-        </script>
-        <script src="graph.js">
-        </script>
-        <!--  python -m http.server -->
-    </link>
+	<link href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css" rel="stylesheet">
+		<script src="https://code.jquery.com/jquery-1.7.1.min.js">
+		</script>
+		<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js">
+		</script>
+		<script src="https://api.trello.com/1/client.js?key=83fbbffdca68e9e5655f409d9b204618">
+		</script>
+		<script src="https://apis.google.com/js/api.js">
+		</script>
+		<script src="rules.js">
+		</script>
+		<script src="calendar.js">
+		</script>
+		<script src="list.js">
+		</script>
+		<script src="trello.js">
+		</script>
+		<script src="card.js">
+		</script>
+		<script src="graph.js">
+		</script>
+		<!--  python -m http.server -->
+	</link>
 </head>
 <body>
 	<div id="percs" style="width: 640px; height: 480px;"></div>
@@ -150,9 +150,9 @@ var getOut = function(){
 		}},
 		legend: {
 			y: 0.5,
-    //traceorder: 'reversed',
-    font: {size: 16},
-    yref: 'paper',
+	//traceorder: 'reversed',
+	font: {size: 16},
+	yref: 'paper',
 
 }};
 data.reverse();
@@ -309,15 +309,15 @@ var weekStart;
 var scoreMultiplier;
 var mult;
 
-var move_all_cards_not_in_range = function(l1, l2){
+var move_all_cards_in_range = function(start, end, l1, l2){
 	for (var c in l1.cards) {
-        var card = cards[c];
-        if(card.date < l1.start || card.date > l1.end) {
+		var card = cards[c];
+		if(card.date > start || card.date < end) {
 			if(l2.canTakeCard(card)){
 				l2.takeCardFrom(card, l1);
 			}
-        }
-    }
+		}
+	}
 }
 
 function every5(){
@@ -432,7 +432,7 @@ function every5(){
 		monthEnd = computeDate(baseMonthInt, baseYearInt, 1,  nowDate).getTime();
 
 		if(monthEnd	- weekEnd < 7 * dayLenghtInMs) {
-		           	monLen = weekLen;
+					monLen = weekLen;
 		}
 		var aux = weekEnd;
 		while(aux < monthEnd) {
@@ -501,14 +501,15 @@ function every5(){
 
 	if(onceADayFlag){
 		// move all cards to inbox
-		move_all_cards_not_in_range(lists["Today"], lists["Inbox"]);
-		move_all_cards_not_in_range(lists["Tomorrow"], lists["Today"]);
+		move_all_cards_in_range(0, todayStart, lists["Today"], lists["Inbox"]);
+		move_all_cards_in_range(todayStart, tomorrowStart, lists["Tomorrow"], lists["Today"]);
+		move_all_cards_in_range(tomorrowStart, tomorrowEnd, lists["Week"], lists["Tomorrow"]);
 	}
 
 	setInterval(function() {window.location.reload();}, 1000*60*10);
 }
 base();
-    </script>
-    <script src="https://cdn.plot.ly/plotly-latest.min.js">
-    </script>
+	</script>
+	<script src="https://cdn.plot.ly/plotly-latest.min.js">
+	</script>
 </body>
