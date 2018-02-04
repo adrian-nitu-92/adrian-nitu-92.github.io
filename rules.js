@@ -185,6 +185,9 @@ var inbox_schedule = function() {
         if(card.date === undefined) {
             continue;
         }
+        if(card.date < lists["Today"].start){
+            card.reschedule();
+        }
         for(var l in lists){
             if(l === "Inbox" || l === "One Day" || l === "Done"){
                 continue;

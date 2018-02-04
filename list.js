@@ -19,6 +19,7 @@ var List = function(start, end, duration, updateFrequency, previous, next, sortF
 	this.counts = {};
 	this.mitCount = 0;
 	this.maxMitCount = maxMitCount;
+	this.gap = 0.1; // 10% default free
 
 	this.shouldUpdate = function() {
 		return  this.sumTicks > this.ticks ||
@@ -28,7 +29,7 @@ var List = function(start, end, duration, updateFrequency, previous, next, sortF
 	}
 
 	this._cardCheck = function (card){
-		var gap = 0.1; // 10% default free
+		var gap = this.gap;
 		if(card.date > lists[card.listname].end) {
 			return false;
 		}
@@ -129,8 +130,12 @@ var List = function(start, end, duration, updateFrequency, previous, next, sortF
 					quickExit = true;
 				}
 			}
-			else{
+			else {
 				if(nnlist !== undefined && due > nnlist.end){
+					nnlist.takeCardFrom(card, this);
+				}
+				if(nnlist !== undefined && due > this.end && 
+					this.sumTicks > (this.ticks * (1-this.gap))){
 					nnlist.takeCardFrom(card, this);
 				}
 				if(flag && card.tick > prevList.ticks/4){

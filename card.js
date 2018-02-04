@@ -33,6 +33,16 @@ var Card = function(cardObject, listname) {
 		}
 	}
 
+	this.reschedule = function() {
+		if(this.repeating) {
+			this.dueComplete = true;
+			this.dueCompleteProcess();
+		} else {
+			this.due = lists["Today"].start/2 + lists["Today"].end/2;
+			Trello.put('/cards/' + this.id + "/due",{"value":this.due}, console.log, console.log);
+		}
+	}
+
 	this.scrub = function() {
 		if(this.due) {
 			Trello.put('/cards/' + this.id + "/due",{"value":"null"}, function(v){console.log(v);}, function(v){console.log(v);});
