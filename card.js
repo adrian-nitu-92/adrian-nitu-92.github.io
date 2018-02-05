@@ -39,6 +39,7 @@ var Card = function(cardObject, listname) {
 			this.dueCompleteProcess();
 		} else {
 			this.due = lists["Today"].start/2 + lists["Today"].end/2;
+			this.date = this.due;
 			Trello.put('/cards/' + this.id + "/due",{"value":this.due}, console.log, console.log);
 		}
 	}

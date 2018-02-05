@@ -135,7 +135,11 @@ var List = function(start, end, duration, updateFrequency, previous, next, sortF
 					nnlist.takeCardFrom(card, this);
 				}
 				if(nnlist !== undefined && due > this.end && 
-					this.sumTicks > (this.ticks * (1-this.gap))){
+					this.sumTicks - card.tick > (this.ticks * (1-this.gap))){
+					nnlist.takeCardFrom(card, this);
+				}
+				if(nnlist !== undefined && due > this.end && 
+					this.cardCount - 1 > (this.maxCount * (1-this.gap))){
 					nnlist.takeCardFrom(card, this);
 				}
 				if(flag && card.tick > prevList.ticks/4){
