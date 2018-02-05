@@ -39,6 +39,7 @@ var resetButton = document.getElementById('reset-button');
 resetButton.onclick = function(){
 		localStorage.setItem("WeekStart", undefined);
 		localStorage.setItem("TodayStart", undefined);
+		localStorage.setItem("reset", undefined);
 }
 var endbutton = document.getElementById('end-button');
 var g_data = {errorCount:0};
@@ -181,7 +182,7 @@ var done = function(){
 			}
 		}
 
-	if(onceADayFlag){
+	if(onceADayFlag && ! justReset){
 		// move all cards to inbox
 		move_all_cards_in_range(0, lists["Today"].start, lists["Today"], lists["Inbox"]);
 		move_all_cards_in_range(lists["Today"].start, lists["Tomorrow"].start, lists["Tomorrow"], lists["Today"]);
@@ -297,7 +298,14 @@ var boardSelect = function(boardID){
 	Trello.get('/boards/51d3f043a536c77a09000a40/lists', success, console.log);
 }
 
+var justReset;
+
 function base(){
+
+	justReset = (localStorage.getItem("reset") === "undefined");
+
+	localStorage.setItem("reset", "value");
+
 	Trello.authorize({
 		type: 'popup',
 		name: 'Getting Started Application',
@@ -322,7 +330,7 @@ var mult;
 var move_all_cards_in_range = function(start, end, l1, l2){
 	for (var c in l1.cards) {
 		var card = l1.cards[c];
-		if(card.date > start || card.date < end) {
+		if(card.date > start && card.date < end) {
 			if(l2.canTakeCard(card)){
 				l2.takeCardFrom(card, l1);
 			}
@@ -332,7 +340,7 @@ var move_all_cards_in_range = function(start, end, l1, l2){
 
 function every5(){
 	moved = false;
-	lists = {}
+	lists = {};
 
 	var dayLenghtInMs = (1000 * 60 * 60 * 24);
 	var weekLengthInMs = (dayLenghtInMs * 7);

@@ -28,12 +28,13 @@ asserts["less work tickets, more focus"] = function() {
     return false;
 }
 asserts["Delete Done"] = function(lists) {
+    if (! onceAWeekFlag || justReset) {
+        return true;
+    }
     var cards = lists["Done"].cards;
     for (var c in cards) {
         var card = cards[c];
-        if (onceAWeekFlag) {
-            card.delete();
-        }
+        card.delete();
         card.deleteGoogleEvent();
     }
     return true;
