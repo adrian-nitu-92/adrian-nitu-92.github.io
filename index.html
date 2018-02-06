@@ -92,57 +92,21 @@ var doOver = function(){
 	}
 }
 
-var reas2 = function() {
-
-}
-
-	function subsumate(list){
-		var addIfNeedBes = true;
-		var cards = list.cards;
-		var dada = Object.keys(cards).map(function (key) { return cards[key]; });
-		var baba = dada.slice(0);
-		baba.sort(sortScore);
-		cards = baba;
-		for(c in cards){
-			var card = cards[c];
-			if( list.sumTicks > list.ticks){
-				break;
-			}
-			list.sumTicks = list.sumTicks + card.tick;
-			graph.add(list.name,"Free", 0);
-		}
-		if( list.sumTicks > list.ticks){
-			var cc = c;
-			var flag = false;
-			var nn = list.next;
-			var lnn = lists[nn];
-			for(var c in cards){
-				flag = flag || c == cc;
-				if(flag){
-					var card = cards[c];
-				//Trello.put('/cards/' + card.id + "/idList",{"value":lnn.id}, console.log, console.log);
-				list.sumTicks = list.sumTicks + card.tick;
-			}
-		}
-		return true;
-	}
-	return true;
-}
 var getOut = function(){
 	var myReqlist = requiredLists.slice(0,-2);
 	var data = [];
-	var pulame = function (a, type) {
+	var colorme = function (a, type) {
 		var colors = {"Work":'rgb(0,121,191)', "Unlabeled":'rgb(0,0,0)', "Free":'rgb(97,189,79)', "Facultate":'rgb(195,119,224)', "Facultate-TA":'rgb(195,119,224)', "DownTime":'rgb(0,194,224)', "Grow":'rgb(0,194,224)', "Social":'rgb(255,128,206)', "Health":'rgb(81,232,152)', "Weekly":'rgb(211,211,211)',};
 		return colors[type];
 	}
-	for(let type of graph.types){
+	for(var type in graph._sumsCount["3 Year"]){
 		var Percs = {
 			x: myReqlist.map(a => a + " " + lists[a].cardCount + "/" + lists[a].maxCount),
 			y: myReqlist.map(a => graph.returnScaled(a, type, lists[a].ticks)),
 			type: 'bar',
 			name: type,
 			marker:{
-				color: myReqlist.map(a => pulame(a, type))
+				color: myReqlist.map(a => colorme(a, type))
 			},
 		};
 		data.push(Percs);
@@ -154,14 +118,13 @@ var getOut = function(){
 		}},
 		legend: {
 			y: 0.5,
-	//traceorder: 'reversed',
-	font: {size: 16},
-	yref: 'paper',
-
-}};
-data.reverse();
-console.log(graph._sumsCount);
-Plotly.newPlot('percs', data, layout);
+		//traceorder: 'reversed',
+		font: {size: 16},
+		yref: 'paper',
+		}};
+	data.reverse();
+	console.log(graph._sumsCount);
+	Plotly.newPlot('percs', data, layout);
 }
 
 var done = function(){
@@ -175,7 +138,6 @@ var done = function(){
 		var prevFree = 0;
 		for(var l in requiredLists){
 			var name = requiredLists[l];
-			graph.initCount(name, lists[name].ticks);
 			if(! trelloApi.parseTasks(lists[name])){
 				document.getElementById("p1").innerHTML = globalError;
 				return getOut();
@@ -197,56 +159,13 @@ var done = function(){
 				return getOut();
 			}
 		}
-		/*
-		prevValue = 1;
-		for (var i = reqList.length - 1; i >= 0; --i) {
-			name = reqList[i];
-			if(name == "Inbox"){
-				continue;
-			}
-			if(name == "One Day"){
-				continue;
-			}
-			value = 100.0 * (graph.sumsCount[name]["Free"] + graph.sumsCount[name]["DownTime"] )/lists[name].ticks;
-			if(value >= 20){
-				value = 0;
-			} else if (value >= 10){
-				value = 1;
-			} else if (value >= 5){
-				value = 2;
-			} else {
-				value = 3;
-			}
-			value = value + prevValue;
-			prevValue = value - 1;
-			if(prevValue < 0){
-				prevValuex = 0;
-			}
-			graph.sumsCount[name]["Level"] = value;
-		}
-		powerLevel = graph.sumsCount["Week"]["Level"];
-		if(powerLevel >= 3) {
-			powerLevel = "Ask for help";
-			levelLine = 5;
-		} else if(powerLevel >= 2) {
-			powerLevel = "Can't help others at this point";
-			levelLine = 10;
-		} else if(powerLevel >= 1) {
-			powerLevel = "You can help others";
-			levelLine = 20;
-		} else {
-			powerLevel = "Relax, no pressure";
-			levelLine = 20;
-		}
-		*/
-		var powerLevel = "undefined";
-		// TODO: add one day like inbox is and remove it from the printing
-		var aaaux = //"The forecast for this week is: <b>" + powerLevel + "</b><br/>" +
-		"You currently have <b>" + g_data.errorCount + "</b> errors<br>" +
+
+		var aaaux = "You currently have <b>" + g_data.errorCount + "</b> errors<br>" +
 		"Inbox costs around <b>" + lists["Inbox"].sumTicks + "</b> hours <br/> ";
 		if(listthatneed !== undefined) {
 			aaaux = aaaux + listthatneed + " needs at least <b>" + timethatlistneed + "</b> hours <br/> " ;
 		}
+		/* add it to the begining */
 		globalWarning = aaaux + globalWarning;
 //---------------------------
 getOut();
@@ -258,6 +177,9 @@ globalWarning = "";
 }
 var populateLists = function(){
 	var curry = function(listName){
+		if( requiredLists.indexOf(listName) == -1){
+			return done;
+		}
 		return function(answer) {
 			var cards = {};
 			for(var i in answer){
@@ -508,19 +430,17 @@ function every5(){
 	scoreMultiplier["Inbox"]     = mult = mult /1.5;
 	scoreMultiplier["One Day"]   = mult = mult /1.5;
 
-	/* make today start at the start of time. This should allow inbox to be scheduled, if time constraints allow it */
-	lists["Today"]     = new List( todayStart,     tomorrowStart,    todayLen,  ONCE_A_DAY,       null,         null,  sortTime,     15, 1);
-	lists["Tomorrow"]  = new List(tomorrowStart,   tomorrowEnd, tomorrowLen,  ONCE_A_DAY,    "Today",       "Week", sortScore,     15, 1);
-	lists["Week"]      = new List(  tomorrowEnd,       weekEnd,     weekLen,  ONCE_A_DAY, "Tomorrow",      "Month", sortScore,    15 * (daysInThisWeek-1), 5);
-
-	lists["Next Week"] = new List(      weekEnd,   nextWeekEnd,    nWeekLen, ONCE_A_DAY ,     "Week", postNextWeek, sortScore,     70, 5);
-	lists["Month"]     = new List(  nextWeekEnd,      monthEnd,      monLen, ONCE_A_WEEK,  prevMonth,    "3 Month", sortScore,    200, 5);
-	lists["3 Month"]   = new List( _3monthStart,    _3monthEnd,    _3monLen, ONCE_A_WEEK, prev3Month,    "6 Month", sortScore,    250, 5);
-	lists["6 Month"]   = new List(   _3monthEnd,    _6monthEnd,    _6monLen, ONCE_A_WEEK,  "3 Month",       "Year", sortScore,    300, 5);
-	lists["Year"]      = new List(   _6monthEnd,       yearEnd,     yearLen, ONCE_A_WEEK,  "6 Month",     "3 Year", sortScore,    350, 5);
-	lists["3 Year"]    = new List(      yearEnd,     _3yearEnd,   _3yearLen, ONCE_A_WEEK,     "Year",    "One Day", sortScore,    400, 5);
-	lists["One Day"]   = new List(    _3yearEnd,        maxInt,      maxInt, NEVER      ,   "3 Year",         null, sortScore, maxInt, undefined);
-	lists["Inbox"]     = new List(            0,        maxInt,      maxInt, NEVER      ,       null,         null, sortScore, maxInt, undefined);
+	lists["Today"]     = new List("Today", todayStart,     tomorrowStart,    todayLen,  ONCE_A_DAY,       null,         null,  sortTime,     15, 1);
+	lists["Tomorrow"]  = new List("Tomorrow",tomorrowStart,   tomorrowEnd, tomorrowLen,  ONCE_A_DAY,    "Today",       "Week", sortScore,     15, 1);
+	lists["Week"]      = new List("Week",  tomorrowEnd,       weekEnd,     weekLen,  ONCE_A_DAY, "Tomorrow",      "Month", sortScore,    15 * (daysInThisWeek-1), 5);
+	lists["Next Week"] = new List("Next Week",      weekEnd,   nextWeekEnd,    nWeekLen, ONCE_A_DAY ,     "Week", postNextWeek, sortScore,     70, 5);
+	lists["Month"]     = new List("Month",  nextWeekEnd,      monthEnd,      monLen, ONCE_A_WEEK,  prevMonth,    "3 Month", sortScore,    200, 5);
+	lists["3 Month"]   = new List("3 Month", _3monthStart,    _3monthEnd,    _3monLen, ONCE_A_WEEK, prev3Month,    "6 Month", sortScore,    250, 5);
+	lists["6 Month"]   = new List("6 Month",   _3monthEnd,    _6monthEnd,    _6monLen, ONCE_A_WEEK,  "3 Month",       "Year", sortScore,    300, 5);
+	lists["Year"]      = new List("Year",   _6monthEnd,       yearEnd,     yearLen, ONCE_A_WEEK,  "6 Month",     "3 Year", sortScore,    350, 5);
+	lists["3 Year"]    = new List("3 Year",      yearEnd,     _3yearEnd,   _3yearLen, ONCE_A_WEEK,     "Year",    "One Day", sortScore,    400, 5);
+	lists["One Day"]   = new List("One Day",   _3yearEnd,        maxInt,      maxInt, NEVER      ,   "3 Year",         null, sortScore, maxInt, undefined);
+	lists["Inbox"]     = new List("Inbox",            0,        maxInt,      maxInt, NEVER      ,       null,         null, sortScore, maxInt, undefined);
 	boardSelect(gItemID);
 
 	endbutton.onclick = function(){

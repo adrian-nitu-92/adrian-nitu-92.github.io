@@ -110,7 +110,7 @@ var Card = function(cardObject, listname) {
 				if(["Challenge", "MIT", "ImportantTask", "Pass"].indexOf(ln) == -1) {
 					if(ln !== "Weekly" && ln !== "Daily" && labelToAdd === undefined) {
 						labelToAdd = ln;
-						graph.types.add(ln);
+						graph.add(this.listname, ln, 0);
 					}
 				}
 			}

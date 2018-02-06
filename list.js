@@ -6,7 +6,8 @@ var NEVER = "NEVER";
 
 var reqCounter = 0;
 
-var List = function(start, end, duration, updateFrequency, previous, next, sortFunction, maxCount, maxMitCount) {
+var List = function(name, start, end, duration, updateFrequency, previous, next, sortFunction, maxCount, maxMitCount) {
+	this.name = name;
 	this.start = start;
 	this.end = end;
 	this.ticks = duration;
@@ -20,6 +21,8 @@ var List = function(start, end, duration, updateFrequency, previous, next, sortF
 	this.mitCount = 0;
 	this.maxMitCount = maxMitCount;
 	this.gap = 0.1; // 10% default free
+
+	graph.initCount(this.name, this.ticks);
 
 	this.shouldUpdate = function() {
 		return  this.sumTicks > this.ticks ||
@@ -140,6 +143,11 @@ var List = function(start, end, duration, updateFrequency, previous, next, sortF
 				}
 				if(nnlist !== undefined && due > this.end && 
 					this.cardCount - 1 > (this.maxCount * (1-this.gap))){
+					nnlist.takeCardFrom(card, this);
+				}
+				if(nnlist !== undefined && due > this.end && 
+					card.mit &&
+					this.mitCount - 1 > (this.maxMitCount * (1-this.gap))){
 					nnlist.takeCardFrom(card, this);
 				}
 				if(flag && card.tick > prevList.ticks/4){

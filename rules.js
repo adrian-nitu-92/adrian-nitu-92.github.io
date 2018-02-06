@@ -155,18 +155,22 @@ asserts["overlap warning"] = function() {
     return true;
 }
 asserts["check sane @time"] = function() {
+
     for (var l in requiredLists) {
         var name = requiredLists[l];
         var list = lists[name];
         var nextList = lists[list.next];
-        if (subsumate(list) == false) {
-            return false;
+
+        var cards = list.cards;
+        for(var c in cards){
+            var card = cards[c];
+            if( list.sumTicks > list.ticks){
+                break;
+            }
+            list.sumTicks = list.sumTicks + card.tick;
         }
-        if(nextList !== undefined && nextList.start >= list.end){
-            graph.mergeList(name, list.next);
-        }
+        graph.mergeList(name, list.next);
     }
-    inbox_schedule();
     for (var l in requiredLists) {
         var name = requiredLists[l];
         var res = lists[name].reasign_card_to_proper_list();
@@ -174,7 +178,7 @@ asserts["check sane @time"] = function() {
             return res;
         }
     }
-    return true;
+    return inbox_schedule();
 }
 
 var inbox_schedule = function() {
@@ -232,14 +236,7 @@ asserts["validate MIT count "] = function() {
             }
         }
         if (list.mitCount > list.maxMitCount) {
-            var nextList = lists[list.next];
-            var cards = list.cards;
-            for (var c in cards) {
-                var card = cards[c];
-                if(card.mit){
-                    nextList.takeCardFrom(card, list);
-                }
-            }
+            addError("Too many MITs for " + name + "!<br/>");
         }
         if (list.mitCount != list.maxMitCount) {
             if(count < 1) {
