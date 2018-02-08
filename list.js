@@ -20,7 +20,8 @@ var List = function(name, start, end, duration, updateFrequency, previous, next,
 	this.counts = {};
 	this.mitCount = 0;
 	this.maxMitCount = maxMitCount;
-	this.gap = 0.1; // 10% default free
+	this.percGap = 0.1; // 10% default free
+	this.flagGap = 2;   // 2 hours free, by default
 
 	graph.initCount(this.name, this.ticks);
 
@@ -31,33 +32,43 @@ var List = function(name, start, end, duration, updateFrequency, previous, next,
 			   (this.updateFrequency === ONCE_A_WEEK && onceAWeekFlag);
 	}
 
-	this._cardCheck = function (card){
-		var gap = this.gap;
-		if(card.date > lists[card.listname].end) {
-			return false;
-		}
-		if(card.date < this.end) {
-			gap = 0.0; // unless we actually need to.
-		} else {
-			if(this.sumTicks + 2 >= this.ticks){
+	this.canTakeCard = function(card) {
+		var percGap = this.percGap;
+		var flatGap = this.flatGap;
+		var mitGap  = (this.maxMitCount * this.percGap);
+		var cardTick = 0.125;
+
+		// card can be undefined for a generic test
+		if(card !== undefined){
+			// don't move more than 1 list away
+			if(card.date > lists[card.listname].end) {
 				return false;
 			}
-		}
-		if (this.sumTicks + card.tick <= (this.ticks * (1-gap))) {
-			return this.cardCount <= (this.maxCount * (1-gap));
-		}
-		return false;
-	}
 
-	this._countCheck = function(card){
-		return !(card.mit && this.mitCount >= this.maxMitCount);
-	}
+			if(card.date < this.end) {
+				// if the task must be done now, the gap should be 0
+				percGap = 0.0;
+				flatGap = 0;
+				mitGap  = 0;
+			}
+			cardTick = card.tick;
+		}
+		if (this.sumTicks + flatGap + cardTick >= this.ticks){
+			return false;
+		}
 
-	this.canTakeCard = function(card) {
-		return (this.cardCount < this.maxCount)
-		&& ((card === undefined) ||
-		 (this._countCheck(card)
-		&& this._cardCheck(card)));
+		if (this.sumTicks + cardTick > (this.ticks * (1-percGap))) {
+			return false;
+		}
+		if (this.cardCount + 1 > (this.maxCount * (1-percGap))){
+			return false
+		}
+		if (this.mit &&
+			this.mitCount + 1 > (this.mitCount - mitGap)) {
+			return false;
+		}
+
+		return true;
 	}
 	this.takeCardFrom = function(card, list) {
 		reqCounter = reqCounter +1;
@@ -137,15 +148,15 @@ var List = function(name, start, end, duration, updateFrequency, previous, next,
 				if(nnlist !== undefined && due > nnlist.end){
 					nnlist.takeCardFrom(card, this);
 				}
-				if(nnlist !== undefined && due > this.end && 
+				if(nnlist !== undefined && due > this.end &&
 					this.sumTicks - card.tick > (this.ticks * (1-this.gap))){
 					nnlist.takeCardFrom(card, this);
 				}
-				if(nnlist !== undefined && due > this.end && 
+				if(nnlist !== undefined && due > this.end &&
 					this.cardCount - 1 > (this.maxCount * (1-this.gap))){
 					nnlist.takeCardFrom(card, this);
 				}
-				if(nnlist !== undefined && due > this.end && 
+				if(nnlist !== undefined && due > this.end &&
 					card.mit &&
 					this.mitCount - 1 > (this.maxMitCount * (1-this.gap))){
 					nnlist.takeCardFrom(card, this);
