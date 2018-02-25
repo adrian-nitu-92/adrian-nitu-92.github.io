@@ -96,7 +96,7 @@ var getOut = function(){
 	var myReqlist = requiredLists.slice(0,-2);
 	var data = [];
 	var colorme = function (a, type) {
-		var colors = {"Work":'rgb(0,121,191)', "Unlabeled":'rgb(0,0,0)', "Free":'rgb(97,189,79)', "Facultate":'rgb(195,119,224)', "Facultate-TA":'rgb(195,119,224)', "DownTime":'rgb(0,194,224)', "Grow":'rgb(0,194,224)', "Social":'rgb(255,128,206)', "Health":'rgb(81,232,152)', "Weekly":'rgb(211,211,211)',};
+		var colors = {"Work":'rgb(0,121,191)', "Unlabeled":'rgb(0,0,0)', "Free":'rgb(97,189,79)', "Facultate":'rgb(195,119,224)', "Facultate-TA":'rgb(195,119,224)', "DownTime":'rgb(0,194,224)', "Grow":'rgb(0,194,224)', "Social":'rgb(255,128,206)', "Health":'rgb(81,232,152)', "Weekly":'rgb(211,211,211)',"Project":'rgb(242,214,0)'};
 		return colors[type];
 	}
 	for(var type in graph._sumsCount["3 Year"]){
@@ -433,7 +433,7 @@ function every5(){
 	lists["Today"]     = new List("Today", todayStart,     tomorrowStart,    todayLen,  ONCE_A_DAY,       null,         null,  sortTime,     15, 1);
 	lists["Tomorrow"]  = new List("Tomorrow",tomorrowStart,   tomorrowEnd, tomorrowLen,  ONCE_A_DAY,    "Today",       "Week", sortScore,     15, 1);
 	lists["Week"]      = new List("Week",  tomorrowEnd,       weekEnd,     weekLen,  ONCE_A_DAY, "Tomorrow",      "Month", sortScore,    15 * (daysInThisWeek-1), 5);
-	lists["Next Week"] = new List("Next Week",      weekEnd,   nextWeekEnd,    nWeekLen, ONCE_A_DAY ,     "Week", postNextWeek, sortScore,     70, 5);
+	lists["Next Week"] = new List("Next Week",      weekEnd,   nextWeekEnd,    nWeekLen, ONCE_A_DAY ,     "Week", postNextWeek, sortScore,     105, 5);
 	lists["Month"]     = new List("Month",  nextWeekEnd,      monthEnd,      monLen, ONCE_A_WEEK,  prevMonth,    "3 Month", sortScore,    200, 5);
 	lists["3 Month"]   = new List("3 Month", _3monthStart,    _3monthEnd,    _3monLen, ONCE_A_WEEK, prev3Month,    "6 Month", sortScore,    250, 5);
 	lists["6 Month"]   = new List("6 Month",   _3monthEnd,    _6monthEnd,    _6monLen, ONCE_A_WEEK,  "3 Month",       "Year", sortScore,    300, 5);
