@@ -24,6 +24,7 @@
 	</link>
 </head>
 <body>
+	<div id="mit"></div>
 	<div id="percs" style="width: 640px; height: 480px;"></div>
 	<button id="reset-button" style="display: block;">Reset</button>
 	<div id="p1">Hello World!</div>
@@ -43,6 +44,16 @@ resetButton.onclick = function(){
 }
 var endbutton = document.getElementById('end-button');
 var g_data = {errorCount:0};
+
+var g_stuff = 0;
+var mitMe = function(message){
+	g_stuff = g_stuff + 1;
+	if(g_stuff > 3){
+		return;
+	}
+	var h = document.getElementById('mit').innerHTML;
+	document.getElementById('mit').innerHTML = h + message + "<br/>";
+}
 
 var counter = 0; // TODO: no global state please
 var moved = false;

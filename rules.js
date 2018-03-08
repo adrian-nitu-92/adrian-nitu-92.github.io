@@ -232,6 +232,7 @@ asserts["validate MIT count "] = function() {
                 var card = cards[c];
                 if(card.mit){
                     addMessage(card.name + "<br/>");
+                    mitMe(card.name);
                 }
             }
         }
