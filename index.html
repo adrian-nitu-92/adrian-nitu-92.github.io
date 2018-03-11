@@ -157,7 +157,7 @@ var done = function(){
 
 	if(onceADayFlag && ! justReset){
 		// move all cards to inbox
-		move_all_cards_in_range(0, lists["Today"].start, lists["Today"], lists["Inbox"]);
+		// move_all_cards_in_range(0, lists["Today"].start, lists["Today"], lists["Inbox"]);
 		move_all_cards_in_range(lists["Today"].start, lists["Tomorrow"].start, lists["Tomorrow"], lists["Today"]);
 		move_all_cards_in_range(lists["Tomorrow"].start, lists["Tomorrow"].end, lists["Week"], lists["Tomorrow"]);
 	}
