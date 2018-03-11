@@ -188,7 +188,7 @@ globalWarning = "";
 }
 var populateLists = function(){
 	var curry = function(listName){
-		if( requiredLists.indexOf(listName) == -1){
+		if( lists.listName != undefined ){
 			return done;
 		}
 		return function(answer) {
@@ -203,11 +203,12 @@ var populateLists = function(){
 			done();
 		};
 	};
-	console.log(lists);
 	for(var listName in lists){
 		var listID = lists[listName].id;
 		Trello.get('/lists/'+ listID +'/cards', curry(listName), console.log);
 	}
+
+	console.log(lists);
 }
 
 var llllll;
@@ -452,6 +453,7 @@ function every5(){
 	lists["3 Year"]    = new List("3 Year",      yearEnd,     _3yearEnd,   _3yearLen, ONCE_A_WEEK,     "Year",    "One Day", sortScore,    400, 5);
 	lists["One Day"]   = new List("One Day",   _3yearEnd,        maxInt,      maxInt, NEVER      ,   "3 Year",         null, sortScore, maxInt, undefined);
 	lists["Inbox"]     = new List("Inbox",            0,        maxInt,      maxInt, NEVER      ,       null,         null, sortScore, maxInt, undefined);
+	lists["Done"]     = new List("Done",              0,        maxInt,      maxInt, NEVER      ,       null,         null, sortScore, maxInt, undefined);
 	boardSelect(gItemID);
 
 	endbutton.onclick = function(){

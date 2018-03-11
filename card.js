@@ -63,7 +63,7 @@ var Card = function(cardObject, listname) {
 
 	this.delete = function() {
 		_deleteGoogleEvent(this.eventId);
-		if(! this.eraseMeNot)	{
+		if(! this.auxObj.eraseMeNot)	{
 			Trello.delete('/cards/' + this.id, function(v){console.log(v);}, function(v){console.log(v);});
 		} else {
 			console.log("unbreakable heart");
@@ -168,6 +168,7 @@ var Card = function(cardObject, listname) {
 	if(this.auxObj.eventId === undefined && this.desc.indexOf("gdoc") != -1) {
 		this.eventId = this.desc.split(" -- ")[1];
 		this.auxObj.eventId = this.eventId;
+		this.auxObj.eraseMeNot = false;
 		this.updateDesc();
 	}
 
