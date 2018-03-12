@@ -188,7 +188,9 @@ globalWarning = "";
 }
 var populateLists = function(){
 	var curry = function(listName){
-		if( lists.listName != undefined ){
+		var tarray = requiredLists.slice(0);
+		tarray.push("Done");
+		if( ! tarray.includes(listName) ){
 			return done;
 		}
 		return function(answer) {
