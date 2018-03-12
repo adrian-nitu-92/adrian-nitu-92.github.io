@@ -108,12 +108,17 @@ var dada = function(response) {
     }
 }
 asserts["remove duplicate events"] = function() {
+    var maxResults = 25;
+    if(Math.random() < 0.25){
+        maxResults = 125;
+    }
+
     gapi.client.calendar.events.list({
         'calendarId': 'qmo9nhu10p91olod32spqmjts8@group.calendar.google.com',
         'timeMin': (new Date(0)).toISOString(),
         'showDeleted': false,
         'singleEvents': true,
-        'maxResults': 25,
+        'maxResults': maxResults,
         'orderBy': 'startTime'
     }).then(dada);
     return true;
