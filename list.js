@@ -7,23 +7,16 @@ var NEVER = "NEVER";
 var reqCounter = 0;
 
 var List = function(name, start, end, duration, updateFrequency, previous, next, sortFunction, maxCount, maxMitCount) {
-	this.name = name;
-	this.start = start;
-	this.end = end;
-	this.ticks = duration;
-	this.updateFrequency = updateFrequency;
-	this.previous = previous;
-	this.next = next;
-	this.sortFunction = sortFunction;
-	this.cardCount = 0;
-	this.maxCount = maxCount;
-	this.counts = {};
-	this.mitCount = 0;
-	this.maxMitCount = maxMitCount;
-	this.percGap = 0.1; // 10% default free
-	this.flatGap = 2;   // 2 hours free, by default
+	this.addListsData = function() {
+		listsData[name] = {
+			"name" :          this.name,
+			"start": new Date(this.start),
+			"end"  : new Date(this.end),
+			"ticks": this.ticks,
+			"sizes" : {}
+		};
 
-	graph.initCount(this.name, this.ticks);
+	}
 
 	this.shouldUpdate = function() {
 		return  this.sumTicks > this.ticks ||
@@ -116,7 +109,7 @@ var List = function(name, start, end, duration, updateFrequency, previous, next,
 		}
 
 		if (this.cardCount + 1 > (this.maxCount * (1-percGap))){
-			return false
+			return this.sumTicks + cardTick + flatGap + 1< this.ticks;
 		}
 
 		if(card !== undefined) {
@@ -198,4 +191,25 @@ var List = function(name, start, end, duration, updateFrequency, previous, next,
 		}
 		return true;
 	}
+
+	this.name = name;
+	this.start = start;
+	this.end = end;
+	this.ticks = duration;
+	this.updateFrequency = updateFrequency;
+	this.previous = previous;
+	this.next = next;
+	this.sortFunction = sortFunction;
+	this.cardCount = 0;
+	this.maxCount = Math.min(maxCount, 1.5 * duration);
+	this.counts = {};
+	this.mitCount = 0;
+	this.maxMitCount = maxMitCount;
+	this.percGap = 0.1; // 10% default free
+	this.flatGap = 2;   // 2 hours free, by default
+
+	this.addListsData();
+
+	graph.initCount(this.name, this.ticks);
+
 };

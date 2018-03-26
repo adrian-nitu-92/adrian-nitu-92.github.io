@@ -5,6 +5,7 @@ var Graph = function(dummy) {
 	this.initCount = function (name, size) {
 		this._sumsCount[name] = {};
 		this._sumsCount[name]["Free"] = size;
+		listsData[name]["sizes"]= this._sumsCount[name];
 	}
 	this.add = function(name, label, size) {
 		if( this._sumsCount[name] === undefined) {

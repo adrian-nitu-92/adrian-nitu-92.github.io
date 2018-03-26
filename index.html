@@ -1,8 +1,13 @@
 <head>
 	<link href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css" rel="stylesheet">
-		<script src="https://code.jquery.com/jquery-1.7.1.min.js">
 		</script>
-		<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js">
+		    <!-- lib -->
+    <script type="text/javascript" src="libs/jquery-1.11.1.min.js" ></script>
+    <script type="text/javascript" src="libs/underscore-min.js" ></script>
+    <script type="text/javascript" src="libs/backbone-min.js" ></script>
+<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js">
+		</script>
+		<script src="http://warfares.github.io/pretty-json/pretty-json-min.js">
 		</script>
 		<script src="https://api.trello.com/1/client.js?key=83fbbffdca68e9e5655f409d9b204618">
 		</script>
@@ -27,6 +32,7 @@
 	<div id="mit"></div>
 	<div id="percs" style="width: 640px; height: 480px;"></div>
 	<button id="reset-button" style="display: block;">Reset</button>
+	<div id="jayson"></div>
 	<div id="p1">Hello World!</div>
 
 	<button id="end-button" style="display: block;">End Day</button>
@@ -62,6 +68,7 @@ var globalError = "";
 var gItemID = undefined;
 var cur=true;
 var lists = {};
+var listsData = {};
 var incrementator;
 var listthatneed;
 var timethatlistneed;
@@ -136,6 +143,10 @@ var getOut = function(){
 	data.reverse();
 	console.log(graph._sumsCount);
 	Plotly.newPlot('percs', data, layout);
+	var node = new PrettyJSON.view.Node({
+	  el:$('#jayson'),
+	  data:listsData
+	});
 }
 
 var done = function(){
@@ -444,10 +455,12 @@ function every5(){
 	scoreMultiplier["Inbox"]     = mult = mult /1.5;
 	scoreMultiplier["One Day"]   = mult = mult /1.5;
 
-	lists["Today"]     = new List("Today", todayStart,     tomorrowStart,    todayLen,  ONCE_A_DAY,       null,         null,  sortTime,     15, 1);
-	lists["Tomorrow"]  = new List("Tomorrow",tomorrowStart,   tomorrowEnd, tomorrowLen,  ONCE_A_DAY,    "Today",       "Week", sortScore,     15, 1);
-	lists["Week"]      = new List("Week",  tomorrowEnd,       weekEnd,     weekLen,  ONCE_A_DAY, "Tomorrow",      "Month", sortScore,    15 * (daysInThisWeek-1), 5);
-	lists["Next Week"] = new List("Next Week",      weekEnd,   nextWeekEnd,    nWeekLen, ONCE_A_DAY ,     "Week", postNextWeek, sortScore,     105, 5);
+	var maxTaskDay = 25;
+
+	lists["Today"]     = new List("Today", todayStart,     tomorrowStart,    todayLen,  ONCE_A_DAY,       null,         null,  sortTime,     maxTaskDay, 1);
+	lists["Tomorrow"]  = new List("Tomorrow",tomorrowStart,   tomorrowEnd, tomorrowLen,  ONCE_A_DAY,    "Today",       "Week", sortScore,     maxTaskDay, 1);
+	lists["Week"]      = new List("Week",  tomorrowEnd,       weekEnd,     weekLen,  ONCE_A_DAY, "Tomorrow",      "Month", sortScore,    maxTaskDay * (daysInThisWeek-1), 5);
+	lists["Next Week"] = new List("Next Week",      weekEnd,   nextWeekEnd,    nWeekLen, ONCE_A_DAY ,     "Week", postNextWeek, sortScore,     7*maxTaskDay, 5);
 	lists["Month"]     = new List("Month",  nextWeekEnd,      monthEnd,      monLen, ONCE_A_WEEK,  prevMonth,    "3 Month", sortScore,    200, 5);
 	lists["3 Month"]   = new List("3 Month", _3monthStart,    _3monthEnd,    _3monLen, ONCE_A_WEEK, prev3Month,    "6 Month", sortScore,    250, 5);
 	lists["6 Month"]   = new List("6 Month",   _3monthEnd,    _6monthEnd,    _6monLen, ONCE_A_WEEK,  "3 Month",       "Year", sortScore,    300, 5);
