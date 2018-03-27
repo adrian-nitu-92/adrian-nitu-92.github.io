@@ -126,7 +126,7 @@ var List = function(name, start, end, duration, updateFrequency, previous, next,
 		if(prevListName === null) {
 			return true;
 		}
-		var flag = this.name !== "Today" && this.name !== "Tomorrow";
+		var flag = ["Today", "Tomorrow", "Week", "Next Week"].indexOf(this.name) === -1;
 		var prevList = lists[prevListName];
 		var nnlist = lists[this.next];
 		var targetListId = prevList.id;
@@ -170,7 +170,9 @@ var List = function(name, start, end, duration, updateFrequency, previous, next,
 						continue;
 					}
 				}
-				if(flag && card.tick > prevList.ticks/4){
+				if(flag &&
+				 (card.tick > prevList.ticks/4) &&
+				 toTicks(due - prevList.end) < Math.min(prevList.ticks, 7*24)){
 					addWarning("I need you to split <b>" + card.name + "</b><br/>");
 				}
 			}
@@ -213,3 +215,7 @@ var List = function(name, start, end, duration, updateFrequency, previous, next,
 	graph.initCount(this.name, this.ticks);
 
 };
+
+var toTicks = function(x) {
+	return x / (1000 * 60 * 60);
+}
