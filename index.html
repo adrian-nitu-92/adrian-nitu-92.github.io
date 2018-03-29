@@ -15,6 +15,8 @@
 		</script>
 		<script src="rules.js">
 		</script>
+		<script src="sheets.js">
+		</script>
 		<script src="calendar.js">
 		</script>
 		<script src="list.js">
@@ -30,6 +32,10 @@
 </head>
 <body>
 	<div id="mit"></div>
+
+	<button id="start-button" >Start</button>
+	<button id="start222-button" >Start2</button>
+
 	<div id="percs" style="width: 640px; height: 480px;"></div>
 	<button id="reset-button" style="display: block;">Reset</button>
 	<div id="jayson"></div>
@@ -48,6 +54,12 @@ resetButton.onclick = function(){
 		localStorage.setItem("TodayStart", undefined);
 		localStorage.setItem("reset", undefined);
 }
+
+var startButton = document.getElementById('start-button');
+startButton.onclick = function(){
+		sheets.add("Its'a me, Mario");
+}
+
 var endbutton = document.getElementById('end-button');
 var g_data = {errorCount:0};
 
