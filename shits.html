@@ -30,7 +30,7 @@
       };
 
       var valueRangeBody = {
-        "values": [[new Date().toLocaleString("en-US"), "Other",    ]]
+        "values": [[new Date().toLocaleString("en-US"), document.getElementById('airea').value]]
         // TODO: Add desired properties to the request body.
       };
 
@@ -86,6 +86,7 @@
       onreadystatechange="if (this.readyState === 'complete') this.onload()">
     </script>
     <br/>
+    <textarea id="airea" rows="1" cols="25">Other</textarea>
      <button id="mata-button" onclick=" makeApiCall()" style="display: block;" width="60px" height="100px">mata-button</button>
   <br/>  <br/>  <br/>  <br/>  
 
