@@ -109,7 +109,7 @@ var List = function(name, start, end, duration, updateFrequency, previous, next,
 		}
 
 		if (this.cardCount + 1 > (this.maxCount * (1-percGap))){
-			return this.sumTicks + cardTick + flatGap + 1< this.ticks;
+			return false;
 		}
 
 		if(card !== undefined) {
