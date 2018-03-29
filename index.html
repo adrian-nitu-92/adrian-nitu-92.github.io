@@ -34,6 +34,7 @@
 </head>
 <body>
 	<div id="mit"></div>
+	<div id="quick" style="display: none;"><a href="./quick.html"> quick </a></div>
 
     <textarea id="airea" rows="1" cols="25">Other</textarea>
 	<button id="start-button" >Start</button>
@@ -126,6 +127,9 @@ var doOver = function(){
 }
 
 var getOut = function(){
+	if(lists.Today.ticks > lists.Today.sumTicks){
+		document.getElementById('quick').style.display = "";
+	}
 	var myReqlist = requiredLists.slice(0,-2);
 	var data = [];
 	var colorme = function (a, type) {

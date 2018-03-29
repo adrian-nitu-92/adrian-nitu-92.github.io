@@ -1,0 +1,52 @@
+<html>
+<head>
+<title>Quick task schedule!</title>
+</head>
+<body><div id="airea"></div>
+<script type="text/javascript">
+
+var time = 5;
+//TODO: location? home
+var stuffs = [null,
+"Try to clean something!",
+"Call your parents!",
+"Take an eye break!",
+"Drink some water!",
+"Drink some tea!",
+"Log money today!",
+"Rest your",
+null];
+
+var stuff = stuffs[0];
+while(stuff === null){
+	var x = Math.random() * stuffs.length;
+	stuff = stuffs[parseInt(x + "")];
+}
+//else
+/*
+todo: prioritise these 5 tasks (choose only 3)
+	-- pick a list that is overbooked
+	-- choose 3 least interesting tasks in the list, and 2 most interesting tasks in inbox
+	-- the three tasks chosen move to the list, last 2 tasks drop to inbox
+	-- also allow me not to vote at this time
+Create and or update the checklist for an MIT
+Approve creating dummy tasks for me to reach the load values for a list (not today) that
+	match what I noticed over the last (other list)
+ask me to approve splitting a week task to 5*8h tasks
+ask me to approve converting a checklist to a list of tasks
+	-- condition: number of checklist tasks >= 2*task duration, in hours
+ask me to approve moving a card from an overlap to a free location.
+	-- Don't move cards that I've tagged as unmovable.
+	-- Tag cards that I refuse to move as unmovable.
+	-- On weekly and daily marked as done, drop unmovable tag.
+ask me to tag a untagged card (choose the ones that are big first)
+
+*/
+
+// backticks!!!
+document.getElementById('airea').innerHTML =  `You have ${time} minutes? ${stuff}`;
+
+</script>
+
+</body>
+</html>
