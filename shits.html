@@ -1,5 +1,9 @@
 <html>
-  <head></head>
+  <head>
+    <script src="google-common.js">
+    </script>
+
+  </head>
   <body>
     <!--
     BEFORE RUNNING:
@@ -44,20 +48,17 @@
     }
 
     function initClient() {
-      var CLIENT_ID = '560434486699-5kfv7u66e8sndr5ob1ud63ha43ianb3d.apps.googleusercontent.com';
-      var API_KEY = 'AIzaSyB_lgpNA96HltN6DwDb0peyHTcx5yobasQ';
 
       // TODO: Authorize using one of the following scopes:
       //   'https://www.googleapis.com/auth/drive'
       //   'https://www.googleapis.com/auth/drive.file'
       //   'https://www.googleapis.com/auth/spreadsheets'
-      var SCOPE = "https://www.googleapis.com/auth/spreadsheets";
 
       gapi.client.init({
         'apiKey': API_KEY,
         'clientId': CLIENT_ID,
         'scope': SCOPE,
-        'discoveryDocs': ['https://sheets.googleapis.com/$discovery/rest?version=v4'],
+        'discoveryDocs': DISCOVERY_DOCS,
       }).then(function() {
         gapi.auth2.getAuthInstance().isSignedIn.listen(updateSignInStatus);
         updateSignInStatus(gapi.auth2.getAuthInstance().isSignedIn.get());
@@ -88,11 +89,11 @@
     <br/>
     <textarea id="airea" rows="1" cols="25">Other</textarea>
      <button id="mata-button" onclick=" makeApiCall()" style="display: block;" width="60px" height="100px">mata-button</button>
-  <br/>  <br/>  <br/>  <br/>  
+  <br/>  <br/>  <br/>  <br/>
 
 
     <button id="signin-button" onclick="handleSignInClick()">Sign in</button>
     <button id="signout-button" onclick="handleSignOutClick()">Sign out</button>
-           
+
   </body>
 </html>

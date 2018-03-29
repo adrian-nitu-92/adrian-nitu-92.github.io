@@ -1,12 +1,3 @@
-// Client ID and API key from the Developer Console
-var CLIENT_ID = '560434486699-5kfv7u66e8sndr5ob1ud63ha43ianb3d.apps.googleusercontent.com';
-
-// Array of API discovery doc URLs for APIs used by the quickstart
-var DISCOVERY_DOCS = ["https://www.googleapis.com/discovery/v1/apis/calendar/v3/rest"];
-
-// Authorization scopes required by the API; multiple scopes can be
-// included, separated by spaces.
-var SCOPES = "https://www.googleapis.com/auth/calendar";
 
 /**
 *  On load, called to load the auth2 library and API client library.
@@ -23,7 +14,7 @@ function initClient() {
 	gapi.client.init({
 	  discoveryDocs: DISCOVERY_DOCS,
 	  clientId: CLIENT_ID,
-	  scope: SCOPES
+	  scope: SCOPE
 	}).then(function () {
 
 	  cur = false;
