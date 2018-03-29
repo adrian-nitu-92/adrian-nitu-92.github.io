@@ -34,6 +34,7 @@
 </head>
 <body>
 	<div id="mit"></div>
+	<div id="quick" style="display: none;"><a href="./quick.html"> quick </a></div>
 
     <textarea id="airea" rows="1" cols="25">Other</textarea>
 	<button id="start-button" >Start</button>
@@ -126,6 +127,9 @@ var doOver = function(){
 }
 
 var getOut = function(){
+	if(lists.Today.ticks > lists.Today.sumTicks){
+		document.getElementById('quick').style.display = "";
+	}
 	var myReqlist = requiredLists.slice(0,-2);
 	var data = [];
 	var colorme = function (a, type) {
@@ -415,7 +419,7 @@ function every5(){
 				return a;
 			return b;
 		}
-		monthEnd = computeDate(baseMonthInt, baseYearInt, 1,  nowDate).getTime();
+		monthEnd = computeDate(baseMonthInt, baseYearInt, 1,  weekEnd).getTime();
 
 		if(monthEnd	- weekEnd < 7 * dayLenghtInMs) {
 					monLen = weekLen;
@@ -426,10 +430,10 @@ function every5(){
 		}
 		monthEnd = aux;
 
-		_3monthEnd = computeDate(baseMonthInt, baseYearInt, 3,  nowDate).getTime();
-		_6monthEnd = computeDate(baseMonthInt, baseYearInt, 6,  nowDate).getTime();
-		yearEnd    = computeDate(baseMonthInt, baseYearInt, 12, nowDate).getTime();
-		_3yearEnd  = computeDate(baseMonthInt, baseYearInt, 36, nowDate).getTime();
+		_3monthEnd = computeDate(baseMonthInt, baseYearInt, 3,  weekEnd).getTime();
+		_6monthEnd = computeDate(baseMonthInt, baseYearInt, 6,  weekEnd).getTime();
+		yearEnd    = computeDate(baseMonthInt, baseYearInt, 12, weekEnd).getTime();
+		_3yearEnd  = computeDate(baseMonthInt, baseYearInt, 36, weekEnd).getTime();
 
 		_3monthEnd = max(_3monthEnd,   monthEnd);
 		_6monthEnd = max(_3monthEnd, _6monthEnd);
