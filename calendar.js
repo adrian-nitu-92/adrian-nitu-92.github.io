@@ -24,28 +24,10 @@ function initClient() {
 	  // Handle the initial sign-in state.
 	  updateSigninStatus(gapi.auth2.getAuthInstance().isSignedIn.get());
 	  console.log(gapi.auth2.getAuthInstance().isSignedIn.get());
-	  authorizeButton.onclick = handleAuthClick;
+	  authorizeButton.onclick = handleSignInClick;
 	});
 }
 
-/**
-*  Called when the signed in status changes, to update the UI
-*  appropriately. After a sign-in, the API is called.
-*/
-function updateSigninStatus(isSignedIn) {
-if (isSignedIn) {
-  done();
-} else {
-      authorizeButton.style.display = 'block';
-    }
-}
-
-/**
-*  Sign in the user upon button click.
-*/
-function handleAuthClick(event) {
-	gapi.auth2.getAuthInstance().signIn();
-}
 var _deleteGoogleEvent = function(eventId){
 	var request = gapi.client.calendar.events.delete({
         'calendarId': 'qmo9nhu10p91olod32spqmjts8@group.calendar.google.com',

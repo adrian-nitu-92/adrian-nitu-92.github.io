@@ -9,3 +9,19 @@ var DISCOVERY_DOCS = ["https://www.googleapis.com/discovery/v1/apis/calendar/v3/
 // Authorization scopes required by the API; multiple scopes can be
 // included, separated by spaces.
 var SCOPE = "https://www.googleapis.com/auth/calendar https://www.googleapis.com/auth/spreadsheets";
+
+function handleSignInClick(event) {
+  gapi.auth2.getAuthInstance().signIn();
+}
+
+/**
+*  Called when the signed in status changes, to update the UI
+*  appropriately. After a sign-in, the API is called.
+*/
+var updateSigninStatus = function(isSignedIn) {
+if (isSignedIn) {
+  done();
+} else {
+      authorizeButton.style.display = 'block';
+    }
+}
