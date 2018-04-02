@@ -476,18 +476,18 @@ function every5(){
 
 	var maxTaskDay = 25;
 
-	lists["Today"]     = new List("Today", todayStart,     tomorrowStart,    todayLen,  ONCE_A_DAY,       null,         null,  sortTime,     maxTaskDay, 1);
-	lists["Tomorrow"]  = new List("Tomorrow",tomorrowStart,   tomorrowEnd, tomorrowLen,  ONCE_A_DAY,    "Today",       "Week", sortScore,     maxTaskDay, 1);
-	lists["Week"]      = new List("Week",  tomorrowEnd,       weekEnd,     weekLen,  ONCE_A_DAY, "Tomorrow",      "Month", sortScore,    maxTaskDay * (daysInThisWeek-1), 5);
-	lists["Next Week"] = new List("Next Week",      weekEnd,   nextWeekEnd,    nWeekLen, ONCE_A_DAY ,     "Week", postNextWeek, sortScore,     7*maxTaskDay, 5);
-	lists["Month"]     = new List("Month",  nextWeekEnd,      monthEnd,      monLen, ONCE_A_WEEK,  prevMonth,    "3 Month", sortScore,    200, 5);
-	lists["3 Month"]   = new List("3 Month", _3monthStart,    _3monthEnd,    _3monLen, ONCE_A_WEEK, prev3Month,    "6 Month", sortScore,    250, 5);
-	lists["6 Month"]   = new List("6 Month",   _3monthEnd,    _6monthEnd,    _6monLen, ONCE_A_WEEK,  "3 Month",       "Year", sortScore,    300, 5);
-	lists["Year"]      = new List("Year",   _6monthEnd,       yearEnd,     yearLen, ONCE_A_WEEK,  "6 Month",     "3 Year", sortScore,    350, 5);
-	lists["3 Year"]    = new List("3 Year",      yearEnd,     _3yearEnd,   _3yearLen, ONCE_A_WEEK,     "Year",    "One Day", sortScore,    400, 5);
-	lists["One Day"]   = new List("One Day",   _3yearEnd,        maxInt,      maxInt, NEVER      ,   "3 Year",         null, sortScore, maxInt, undefined);
-	lists["Inbox"]     = new List("Inbox",            0,        maxInt,      maxInt, NEVER      ,       null,         null, sortScore, maxInt, undefined);
-	lists["Done"]     = new List("Done",              0,        maxInt,      maxInt, NEVER      ,       null,         null, sortScore, maxInt, undefined);
+	lists["Today"]     = new List("Today",       todayStart, tomorrowStart,    todayLen,  ONCE_A_DAY,       null,         null,  sortTime,     maxTaskDay, 3);
+	lists["Tomorrow"]  = new List("Tomorrow", tomorrowStart,   tomorrowEnd, tomorrowLen,  ONCE_A_DAY,    "Today",       "Week", sortScore,     maxTaskDay, 2);
+	lists["Week"]      = new List("Week",       tomorrowEnd,       weekEnd,     weekLen,  ONCE_A_DAY, "Tomorrow",      "Month", sortScore,    maxTaskDay * (daysInThisWeek-1), 14);
+	lists["Next Week"] = new List("Next Week",      weekEnd,   nextWeekEnd,    nWeekLen,  ONCE_A_DAY,     "Week", postNextWeek, sortScore,     7*maxTaskDay, 10);
+	lists["Month"]     = new List("Month",      nextWeekEnd,      monthEnd,      monLen, ONCE_A_WEEK,  prevMonth,    "3 Month", sortScore,    200, 10);
+	lists["3 Month"]   = new List("3 Month",   _3monthStart,    _3monthEnd,    _3monLen, ONCE_A_WEEK, prev3Month,    "6 Month", sortScore,    250, 10);
+	lists["6 Month"]   = new List("6 Month",     _3monthEnd,    _6monthEnd,    _6monLen, ONCE_A_WEEK,  "3 Month",       "Year", sortScore,    300, 10);
+	lists["Year"]      = new List("Year",        _6monthEnd,       yearEnd,     yearLen, ONCE_A_WEEK,  "6 Month",     "3 Year", sortScore,    350, 10);
+	lists["3 Year"]    = new List("3 Year",         yearEnd,     _3yearEnd,   _3yearLen, ONCE_A_WEEK,     "Year",    "One Day", sortScore,    400, 10);
+	lists["One Day"]   = new List("One Day",      _3yearEnd,        maxInt,      maxInt,       NEVER,   "3 Year",         null, sortScore, maxInt, undefined);
+	lists["Inbox"]     = new List("Inbox",                0,        maxInt,      maxInt,       NEVER,       null,         null, sortScore, maxInt, undefined);
+	lists["Done"]      = new List("Done",                 0,        maxInt,      maxInt,       NEVER,       null,         null, sortScore, maxInt, undefined);
 	boardSelect(gItemID);
 
 	endbutton.onclick = function(){

@@ -18,14 +18,16 @@ var Card = function(cardObject, listname) {
 		if(! this.dueComplete ){
 			return;
 		}
+		if(this.mit && this.date > lists["Today"].start) {
+			return;
+		}
 		this.dueComplete = false;
 		if(this.repeating) {
-			var due = new Date(this.due).getTime();
-			due = due + this.repeatAfter;
-			this.due = due;
+			this.date = this.date + this.repeatAfter;
+			this.due = this.date;
 			addToGcal(this);
 			Trello.put('/cards/' + this.id + "/dueComplete",{"value":false}, console.log, console.log);
-			Trello.put('/cards/' + this.id + "/due",{"value":due}, console.log, console.log	);
+			Trello.put('/cards/' + this.id + "/due",{"value":this.due}, console.log, console.log	);
 
 			lists["Inbox"].takeCardFrom(this, lists[this.listname]);
 		} else {
@@ -172,15 +174,11 @@ var Card = function(cardObject, listname) {
 		this.updateDesc();
 	}
 
-	var nDate = lists["Week"].end;
-	this.date = new Date(this.due).getTime();
-	if(this.date === 0) {
-		this.date = nDate;
-		if(this.listname == "Week") {
-			console.log(this);
-			this.due = this.date;
-			Trello.put('/cards/' + this.id + "/due",{"value":this.due}, console.log, console.log);
-		}
-	}
+	this.doneMit = this.dueComplete && this.mit;
 
+	var nDate = lists["Week"].end - 1000;
+	this.date = new Date(this.due).getTime();
+	if(this.date === 0 || this.doneMit) {
+		this.date = nDate;
+	}
 };

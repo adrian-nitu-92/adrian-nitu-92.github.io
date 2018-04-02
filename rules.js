@@ -175,6 +175,9 @@ asserts["check sane @time"] = function() {
             if( list.sumTicks > list.ticks){
                 break;
             }
+            if(card.dueComplete){
+                continue;
+            }
             list.sumTicks = list.sumTicks + card.tick;
         }
         graph.mergeList(name, list.next);
@@ -238,7 +241,11 @@ asserts["validate MIT count "] = function() {
             var cards = list.cards;
             for (var c in cards) {
                 var card = cards[c];
-                if(card.mit){
+                if(card.mit && card.due === null){
+                    addError(card.name + " has no due date<br/>");
+                    return false;
+                }
+                if(card.mit && ! card.dueComplete){
                     addMessage(card.name + "<br/>");
                     mitMe(card.name);
                 }

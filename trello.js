@@ -8,6 +8,9 @@ var TrelloApi = function() {
 		//this includes updating and adding calendar events
 		for(var c in cards){
 			var card = cards[c];
+			if(card.mit){
+				list.mitCount = list.mitCount + 1;
+			}
 			if(card.dueComplete) {
 				card.dueCompleteProcess();
 				continue;
@@ -19,8 +22,6 @@ var TrelloApi = function() {
 			if(x === undefined){
 				x = 0;
 			}
-			if(card.mit)
-				list.mitCount = list.mitCount + 1;
 			list.counts[card.label] = x + 1;
 			graph.add(list.name, card.label, card.tick);
 			if(list.shouldUpdate()) {
