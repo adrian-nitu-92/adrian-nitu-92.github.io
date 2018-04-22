@@ -42,6 +42,18 @@ asserts["Delete Done"] = function(lists) {
     }
     return true;
 }
+
+asserts["overdue stuff"] = function(lists) {
+    var cards = lists["Today"].cards;
+    Object.assign(cards, lists["Inbox"].cards);
+    for(var c in cards){
+        var card = cards[c];
+        if( card.date < lists["Today"].start){
+           reallyOverdue.push(card);
+        }
+    }
+    return true;
+}
 var arraySortedByPos;
 var arraySortedBySize;
 asserts["sort"] = function() {

@@ -38,15 +38,21 @@
 
     <textarea id="airea" rows="1" cols="25">Other</textarea>
 	<button id="start-button" >Start</button>
-	<button id="start222-button" >Start2</button>
 
 	<div id="percs" style="width: 640px; height: 480px;"></div>
 	<button id="reset-button" style="display: block;">Reset</button>
 	<div id="jayson"></div>
-	<div id="p1">Hello World!</div>
+<table style="width:100%">
+  <tr>
+    <td>
+	<div id="p1">Hello World!</div></td>
+    <td><div id="p2"></div></td> 
+  </tr>
+</table>
 
 	<button id="end-button" style="display: block;">End Day</button>
 	<button id="authorize-button" style="display: block;">Authorize</button>
+
 	<script>
 
 "use strict";
@@ -61,7 +67,7 @@ resetButton.onclick = function(){
 
 var startButton = document.getElementById('start-button');
 startButton.onclick = function(){
-		sheets.add("Its'a me, Mario");
+		sheets.add();
 }
 
 var endbutton = document.getElementById('end-button');
@@ -77,6 +83,7 @@ var mitMe = function(message){
 	document.getElementById('mit').innerHTML = h + message + "<br/>";
 }
 
+var reallyOverdue = [];
 var counter = 0; // TODO: no global state please
 var moved = false;
 var globalWarning = "";
@@ -125,10 +132,25 @@ var doOver = function(){
 		window.location.reload();
 	}
 }
-
+	var process_card = function(a, b){
+		console.log(reallyOverdue[a].name + b);
+	}
 var getOut = function(){
 	if(lists.Today.ticks > lists.Today.sumTicks){
 		document.getElementById('quick').style.display = "";
+	}
+
+	for(var ro in reallyOverdue){
+		var card  =  reallyOverdue[ro];
+		document.getElementById("p2").innerHTML = document.getElementById("p2").innerHTML + card.name + "<br/>";
+
+		document.getElementById("p2").innerHTML = document.getElementById("p2").innerHTML + 
+			'<button id="Done'+card.id+'" style="display: block;">Done</button>';
+		document.getElementById("p2").innerHTML = document.getElementById("p2").innerHTML + 
+			'<button id="Skipped'+card.id+'" style="display: block;">Skipped</button>';
+		document.getElementById("Done"+card.id).setAttribute("onclick", "process_card("+ro+", 'done');");
+		document.getElementById("Skipped"+card.id).setAttribute("onclick", "process_card("+ro+", 'skipped');");
+
 	}
 	var myReqlist = requiredLists.slice(0,-2);
 	var data = [];
