@@ -1,17 +1,18 @@
-function makeApiCall(valueRangeBody) {
+function makeApiCall(sheet, valueRangeBody) {
       var params = {
         // The ID of the spreadsheet to update.
         spreadsheetId: '1etj9bAvW_Nb9NtRHyYPkX9zmNc16IEOy19BNuC6Z_yU',  // TODO: Update placeholder value.
 
         // The A1 notation of a range to search for a logical table of data.
         // Values will be appended after the last row of the table.
-        range: 'A1',  // TODO: Update placeholder value.
+        range: sheet+'!A1',  // TODO: Update placeholder value.
 
         // How the input data should be interpreted.
         valueInputOption: 'RAW',  // TODO: Update placeholder value.
 
         // How the input data should be inserted.
         insertDataOption: 'INSERT_ROWS',  // TODO: Update placeholder value.
+        sheetId : 1248048821,
       };
 
       var request = gapi.client.sheets.spreadsheets.values.append(params, valueRangeBody);
@@ -30,7 +31,7 @@ var Sheet = function(){
       "values": [[new Date().toLocaleString("en-US"), document.getElementById('airea').value]]
       // TODO: Add desired properties to the request body.
     };
-    makeApiCall(valueRangeBody);
+    makeApiCall("Sheet1", valueRangeBody);
     }
 };
 
