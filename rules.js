@@ -44,7 +44,8 @@ asserts["Delete Done"] = function(lists) {
 }
 
 asserts["overdue stuff"] = function(lists) {
-    var cards = lists["Today"].cards;
+    var cards = {};
+    Object.assign(cards, lists["Today"].cards);
     Object.assign(cards, lists["Inbox"].cards);
     for(var c in cards){
         var card = cards[c];
