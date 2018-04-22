@@ -96,7 +96,7 @@ var incrementator;
 var listthatneed;
 var timethatlistneed;
 var graph = new Graph();
-var requiredLists = ["Today", "Tomorrow", "Week", "Next Week", "Month", "3 Month", "6 Month", "Year", "3 Year", "Inbox", "One Day"];
+var requiredLists = ["Today", "Tomorrow", "Week", "Month", "3 Month", "6 Month", "Year", "3 Year", "Inbox", "One Day"];
 
 var addMessage = function(message){
 	globalWarning = globalWarning + message;
@@ -389,7 +389,6 @@ function every5(){
 	if(weekEnd === tomorrowStart) {
 		weekEnd = weekEnd + 7 * dayLenghtInMs;
 	}
-	var nextWeekEnd   = weekEnd    +           7 * dayLenghtInMs;
 	var monthEnd      = todayStart +          31 * dayLenghtInMs;
 	var _3monthEnd    = todayStart +      3 * 31 * dayLenghtInMs;
 	var _6monthEnd    = todayStart +      6 * 31 * dayLenghtInMs;
@@ -471,23 +470,12 @@ function every5(){
 
 	var maxInt = Number.MAX_SAFE_INTEGER;
 
-	var prevMonth = "Next Week";
-	var postNextWeek = "Month";
-	var prev3Month = "Month";
-	var _3monthStart = monthEnd;
-	if(nextWeekEnd > monthEnd) {
-		postNextWeek = "3 Month";
-		prevMonth = "Week";
-		prev3Month = "Next Week";
-		_3monthStart = nextWeekEnd;
-	}
 
 	scoreMultiplier = {};
 	mult = 1.5;
 	scoreMultiplier["Today"]     = mult = mult /1.5;
 	scoreMultiplier["Tomorrow"]  = mult = mult /1.5;
 	scoreMultiplier["Week"]      = mult = mult /1.5;
-	scoreMultiplier["Next Week"] = mult = mult /1.5;
 	scoreMultiplier["Month"]     = mult = mult /1.5;
 	scoreMultiplier["3 Month"]   = mult = mult /1.5;
 	scoreMultiplier["6 Month"]   = mult = mult /1.5;
@@ -501,9 +489,8 @@ function every5(){
 	lists["Today"]     = new List("Today",       todayStart, tomorrowStart,    todayLen,  ONCE_A_DAY,       null,         null,  sortTime,     maxTaskDay, 3);
 	lists["Tomorrow"]  = new List("Tomorrow", tomorrowStart,   tomorrowEnd, tomorrowLen,  ONCE_A_DAY,    "Today",       "Week", sortScore,     maxTaskDay, 2);
 	lists["Week"]      = new List("Week",       tomorrowEnd,       weekEnd,     weekLen,  ONCE_A_DAY, "Tomorrow",      "Month", sortScore,    maxTaskDay * (daysInThisWeek-1), 14);
-	lists["Next Week"] = new List("Next Week",      weekEnd,   nextWeekEnd,    nWeekLen,  ONCE_A_DAY,     "Week", postNextWeek, sortScore,     7*maxTaskDay, 10);
-	lists["Month"]     = new List("Month",      nextWeekEnd,      monthEnd,      monLen, ONCE_A_WEEK,  prevMonth,    "3 Month", sortScore,    200, 10);
-	lists["3 Month"]   = new List("3 Month",   _3monthStart,    _3monthEnd,    _3monLen, ONCE_A_WEEK, prev3Month,    "6 Month", sortScore,    250, 10);
+	lists["Month"]     = new List("Month",          weekEnd,      monthEnd,      monLen, ONCE_A_WEEK,     "Week",    "3 Month", sortScore,    200, 10);
+	lists["3 Month"]   = new List("3 Month",       monthEnd,    _3monthEnd,    _3monLen, ONCE_A_WEEK,    "Month",    "6 Month", sortScore,    250, 10);
 	lists["6 Month"]   = new List("6 Month",     _3monthEnd,    _6monthEnd,    _6monLen, ONCE_A_WEEK,  "3 Month",       "Year", sortScore,    300, 10);
 	lists["Year"]      = new List("Year",        _6monthEnd,       yearEnd,     yearLen, ONCE_A_WEEK,  "6 Month",     "3 Year", sortScore,    350, 10);
 	lists["3 Year"]    = new List("3 Year",         yearEnd,     _3yearEnd,   _3yearLen, ONCE_A_WEEK,     "Year",    "One Day", sortScore,    400, 10);

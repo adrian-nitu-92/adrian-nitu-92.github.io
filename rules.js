@@ -136,7 +136,7 @@ asserts["remove duplicate events"] = function() {
     return true;
 }
 asserts["overlap warning"] = function() {
-    var cur = ["Today", "Tomorrow", "Week", "Next Week"]
+    var cur = ["Today", "Tomorrow", "Week"];
     var now = new Date().getTime();
     var count = 0;
     for (var l in cur) {
