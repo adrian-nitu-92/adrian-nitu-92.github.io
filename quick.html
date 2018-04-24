@@ -1,31 +1,67 @@
 <html>
 <head>
 <title>Quick task schedule!</title>
+<script src="scheduler.js">
+</script>
 </head>
-<body><div id="airea"></div>
+<body>
+<div id="airea"></div>
 <a href="/">Home</a>
 <script type="text/javascript">
 
-var time = 5;
+var base = function(time, string){
+	return function(){
+		document.getElementById('airea').innerHTML =  `You have ${time} minutes? ${string}`;
+	}
+}
+
+var tag = function(){
+	//TODO ask me to tag a untagged card (choose the ones that are big first)
+	var time = 5;
+	var untaggedList = scheduler.getUntagged();
+	var untagged;
+	if(techDebt) {
+		untagged = untaggedList[0];
+	} else {
+		untagged = untaggedList.first();
+	}
+	document.getElementById('airea').innerHTML =  `You have ${time} minutes? tag stuffs + ${untagged}`;
+}
+
+var scheduler = new Scheduler();
+console.log(scheduler);
+
 //TODO: location? home
 var stuffs = [null,
-"Try to clean something!",
-"Call your parents!",
-"Take an eye break!",
-"Drink some water!",
-"Drink some tea!",
-"Log money today!",
-"Ensure things are charged",
-"Clean your glasses",
-"Check your appearance",
-"Meditate",
+base(5, "Try to clean something!"),
+base(5, "Call your parents!"),
+base(5, "Take an eye break!"),
+base(5, "Drink some water!"),
+base(5, "Drink some tea!"),
+base(5, "Log money today!"),
+base(5, "Rest your mind"),
+base(5, "Ensure things are charged"),
+base(5, "Clean your glasses"),
+base(5, "Check your appearance"),
+base(5, "Meditate"),
+tag,
+>>>>>>> scheduler.js
 null];
 
-var stuff = stuffs[0];
-while(stuff === null){
-	var x = Math.random() * stuffs.length;
-	stuff = stuffs[parseInt(x + "")];
+//TODO
+var techDebt = true;
+var stuff;
+if(techDebt) {
+	stuff = stuffs[0];
+	while(stuff === null){
+		var x = Math.random() * stuffs.length;
+		stuff = stuffs[parseInt(x + "")];
+	}
+} else {
+	stuff = stuffs.choice();
 }
+
+stuff();
 //else
 /*
 todo: prioritise these 5 tasks (choose only 3)
@@ -43,12 +79,9 @@ ask me to approve moving a card from an overlap to a free location.
 	-- Don't move cards that I've tagged as unmovable.
 	-- Tag cards that I refuse to move as unmovable.
 	-- On weekly and daily marked as done, drop unmovable tag.
-ask me to tag a untagged card (choose the ones that are big first)
 on overbooked lists: pick 3/5 tasks that would get pushed out.
 */
 
-// backticks!!!
-document.getElementById('airea').innerHTML =  `You have ${time} minutes? ${stuff}`;
 </script>
 
 </body>
