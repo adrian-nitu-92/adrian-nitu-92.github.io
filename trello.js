@@ -2,8 +2,7 @@
 var TrelloApi = function() {
 
 	this.parseTasks = function (list) {
-		var cards = list.cards;
-		list.sumTicks = 0;
+		var cards = list.cards;	
 		//once a day, parse everything, then, if no error from subsumate occured, store all above month
 		//this includes updating and adding calendar events
 		for(var c in cards){
@@ -15,15 +14,7 @@ var TrelloApi = function() {
 				card.dueCompleteProcess();
 				continue;
 			}
-			if(card.label === false){
-				return false;
-			}
-			var x = list.counts[card.label];
-			if(x === undefined){
-				x = 0;
-			}
-			list.counts[card.label] = x + 1;
-			graph.add(list.name, card.label, card.tick);
+
 			if(list.shouldUpdate()) {
 				addToGcal(card);
 			}

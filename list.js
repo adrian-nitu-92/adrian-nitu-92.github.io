@@ -38,6 +38,7 @@ var List = function(name, start, end, duration, updateFrequency, previous, next,
 		}
 
 		this.cards[card.id] = card;
+		delete list.cards[card.id];
 		var ccc = this.counts[card.label];
 		if (ccc === undefined){
 			ccc = 0;
@@ -180,6 +181,9 @@ var List = function(name, start, end, duration, updateFrequency, previous, next,
 		if(prevList.canTakeCard()){
 			for(var c in cards) {
 				var card = cards[c];
+				if(card === undefined){
+					continue;
+				}
 				if(prevList.canTakeCard(card)) {
 					prevList.takeCardFrom(card, this);
 				} else {
@@ -197,6 +201,7 @@ var List = function(name, start, end, duration, updateFrequency, previous, next,
 	this.name = name;
 	this.start = start;
 	this.end = end;
+	this.sumTicks = 0;
 	this.ticks = duration;
 	this.updateFrequency = updateFrequency;
 	this.previous = previous;

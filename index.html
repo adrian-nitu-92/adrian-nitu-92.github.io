@@ -48,7 +48,7 @@
   <tr>
     <td>
 	<div id="p1">Hello World!</div></td>
-    <td><div id="p2"></div></td> 
+    <td><div id="p2"></div></td>
   </tr>
 </table>
 
@@ -146,9 +146,9 @@ var getOut = function(){
 		var card  =  reallyOverdue[ro];
 		document.getElementById("p2").innerHTML = document.getElementById("p2").innerHTML + card.name + "<br/>";
 
-		document.getElementById("p2").innerHTML = document.getElementById("p2").innerHTML + 
+		document.getElementById("p2").innerHTML = document.getElementById("p2").innerHTML +
 			'<button id="Done'+card.id+'" style="display: block;">Done</button>';
-		document.getElementById("p2").innerHTML = document.getElementById("p2").innerHTML + 
+		document.getElementById("p2").innerHTML = document.getElementById("p2").innerHTML +
 			'<button id="Skipped'+card.id+'" style="display: block;">Skipped</button>';
 		document.getElementById("Done"+card.id).setAttribute("onclick", "process_card("+ro+", 'done');");
 		document.getElementById("Skipped"+card.id).setAttribute("onclick", "process_card("+ro+", 'skipped');");
@@ -252,7 +252,6 @@ var populateLists = function(){
 			for(var i in answer){
 				var card = answer[i];
 				cards[card.id] = new Card(card, listName);
-				card.listLink = lists[listName];
 			}
 			lists[listName].cards = cards;
 			lists[listName].cardCount = Object.keys(cards).length;

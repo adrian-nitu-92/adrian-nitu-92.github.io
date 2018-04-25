@@ -66,7 +66,7 @@ var Card = function(cardObject, listname) {
 	this.delete = function() {
 		_deleteGoogleEvent(this.eventId);
 		if(! this.auxObj.eraseMeNot)	{
-			Trello.delete('/cards/' + this.id, function(v){console.log(v);}, function(v){console.log(v);});
+		    Trello.delete('/cards/' + this.id, function(v){console.log(v);}, function(v){console.log(v);});
 		} else {
 			console.log("unbreakable heart");
 			console.log(this);
@@ -82,7 +82,7 @@ var Card = function(cardObject, listname) {
 		this.tick = 0.125;
 		this.calendarTick = 0.25;
 		this.size = 0;
-		var labelToAdd = undefined;
+		var labelToAdd = [];
 		for(var i in labels){
 			var tick = undefined;
 			var label = labels[i];
@@ -110,15 +110,14 @@ var Card = function(cardObject, listname) {
 			}
 			if(tick === undefined){
 				if(["Challenge", "MIT", "ImportantTask", "Pass"].indexOf(ln) == -1) {
-					if(ln !== "Weekly" && ln !== "Daily" && labelToAdd === undefined) {
-						labelToAdd = ln;
-						graph.add(this.listname, ln, 0);
+					if(ln !== "Weekly" && ln !== "Daily") {
+						labelToAdd.push(ln);
 					}
 				}
 			}
 		}
-		if(labelToAdd === undefined) {
-			labelToAdd = "Unlabeled";
+		if(labelToAdd.length == 0) {
+			labelToAdd.push("Unlabeled");
 		}
 		if(this.mit){
 			this.size = 1000;
@@ -127,9 +126,26 @@ var Card = function(cardObject, listname) {
 		this.size = this.size * sm * 10;
 		if(found > 1){
 			addError("Card " + JSON.stringify(this) + " is not labeled correctly <br/>");
-			return false;
 		}
-		this.label = labelToAdd;
+		for(var i in labelToAdd){
+			ln = labelToAdd[i];
+			var extra = undefined;
+			if (this.repeating){
+				extra = "Daily";
+				if(this.repeatAfter > 24 * 60 * 60 * 1000){
+					extra = "Weekly";
+				}
+			}
+			graph.add(this.listname, ln, this.tick/labelToAdd.length, extra);
+			var x = this.list.counts[ln];
+			if(x === undefined){
+				x = 0;
+			}
+			this.list.counts[ln] = x + 1;
+		}
+		if(this.dueComplete === false){
+			this.list.sumTicks += this.tick;
+		}
 	}
 	this.getScoreMultiplier = function() {
 		if(this.mit) {
@@ -155,6 +171,7 @@ var Card = function(cardObject, listname) {
 	}
 
 	this.listname = listname;
+	this.list = lists[listname];
 
 	Object.assign(this, cardObject);
 

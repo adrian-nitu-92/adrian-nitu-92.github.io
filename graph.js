@@ -10,11 +10,14 @@ var Graph = function(dummy) {
 		listsData[name]["sizes"]= this._sumsCount[name];
 	}
 	this.add = function(name, label, size, extra) {
-		size = parseInt("" + size);
-		if(size === 0 || size !== size){
+		var osize = size;
+		size = parseFloat("" + size);
+		if(size !== size){
+			console.log(label);
+			console.log(osize);
+			console.trace()
 			return;
 		}
-				console.log(size);
 		if( this._sumsCount[name] === undefined) {
 			console.log(name + label);
 			djakldjakldajlda
@@ -35,19 +38,32 @@ var Graph = function(dummy) {
 		if(next === null){
 			return;
 		}
-		var extraAdd = lists[next].weekCount;
+		var extraAdd = lists[next].weekCount - lists[name].weekCount;
 		var order = requiredLists;
 		for(var t in this._sumsCount[name]){
+			if (t == "Daily"){
+				continue;
+			}
+			if (t == "Weekly"){
+				continue;
+			}
 			this.add(next, t, this._sumsCount[name][t]);
 
 			for (var l in this._sumsCount){
 				if(order.indexOf(l) <= order.indexOf(next)){
 					continue;
 				}
+				if(this._sumsCount[l]["Daily"][t] === undefined) {
+					this._sumsCount[l]["Daily"][t] = 0;
+				}
+				if(this._sumsCount[l]["Weekly"][t] === undefined) {
+					this._sumsCount[l]["Weekly"][t] = 0;
+				}
 				this.add(next, t, 7 * extraAdd * this._sumsCount[l]["Daily"][t]);
 				this.add(next, t, extraAdd * this._sumsCount[l]["Weekly"][t]);
 			}
 		}
+
 		if(lists[name].end === lists[next].end){
 			lists[next].sumTicks += lists[name].sumTicks;
 		} else {
@@ -56,15 +72,17 @@ var Graph = function(dummy) {
 				if(order.indexOf(l) <= order.indexOf(next)){
 					continue;
 				}
-				if(this._sumsCount[l]["Daily"][t] === undefined){
-					continue;
-				}
-				lists[next].sumTicks += 7 * extraAdd * this._sumsCount[l]["Daily"][t];
+				for(var t in this._sumsCount[name]){
+					if(this._sumsCount[l]["Daily"][t] === undefined){
+						continue;
+					}
+					lists[next].sumTicks += 7 * extraAdd * this._sumsCount[l]["Daily"][t];
 
-				if(this._sumsCount[l]["Weekly"][t] === undefined){
-					continue;
+					if(this._sumsCount[l]["Weekly"][t] === undefined){
+						continue;
+					}
+					lists[next].sumTicks += extraAdd * this._sumsCount[l]["Weekly"][t];
 				}
-				lists[next].sumTicks += extraAdd * this._sumsCount[l]["Weekly"][t];
 			}
 		}
 		lists[next].cardCount += lists[name].cardCount;

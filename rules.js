@@ -181,18 +181,6 @@ asserts["check sane @time"] = function() {
         var name = requiredLists[l];
         var list = lists[name];
         var nextList = lists[list.next];
-
-        var cards = list.cards;
-        for(var c in cards){
-            var card = cards[c];
-            if( list.sumTicks > list.ticks){
-                break;
-            }
-            if(card.dueComplete){
-                continue;
-            }
-            list.sumTicks = list.sumTicks + card.tick;
-        }
         graph.mergeList(name, list.next);
     }
     for (var l in requiredLists) {
