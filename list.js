@@ -94,6 +94,10 @@ var List = function(name, start, end, duration, updateFrequency, previous, next,
 				flatGap = 0;
 				mitGap  = 0;
 			}
+			var nnlist = lists[this.next];
+			if(nnlist !== undefined && card.date > nnlist.end) {
+				return false;
+			}
 			cardTick = card.tick;
 
 			if (card.mit &&
@@ -149,24 +153,29 @@ var List = function(name, start, end, duration, updateFrequency, previous, next,
 			}
 			else {
 				if(nnlist !== undefined && due > nnlist.end){
+					console.log("too early");
 					nnlist.takeCardFrom(card, this);
 					continue;
 				}
 				if(nnlist !== undefined && due > this.end){
 					if(this.sumTicks - card.tick > this.ticks - this.flatGap){
+						console.log("no time");
 						nnlist.takeCardFrom(card, this);
 						continue;
 					}
 					if(this.sumTicks - card.tick > (this.ticks * (1-this.percGap))){
+						console.log("no time");
 						nnlist.takeCardFrom(card, this);
 						continue;
 					}
 					if(this.cardCount - 1 > (this.maxCount * (1-this.percGap))){
+						console.log("no count");
 						nnlist.takeCardFrom(card, this);
 						continue;
 					}
 					if(card.mit &&
 						this.mitCount - 1 > (this.maxMitCount * (1-this.percGap))){
+						console.log("no mit count");
 						nnlist.takeCardFrom(card, this);
 						continue;
 					}
@@ -181,9 +190,6 @@ var List = function(name, start, end, duration, updateFrequency, previous, next,
 		if(prevList.canTakeCard()){
 			for(var c in cards) {
 				var card = cards[c];
-				if(card === undefined){
-					continue;
-				}
 				if(prevList.canTakeCard(card)) {
 					prevList.takeCardFrom(card, this);
 				} else {
