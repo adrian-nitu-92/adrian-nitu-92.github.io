@@ -50,7 +50,10 @@ var Graph = function(dummy) {
 			this.add(next, t, this._sumsCount[name][t]);
 
 			for (var l in this._sumsCount){
-				if(order.indexOf(l) <= order.indexOf(next)){
+				if(order.indexOf(l) < 0){
+					continue;
+				}
+				if(order.indexOf(l) >= order.indexOf(next)){
 					continue;
 				}
 				if(this._sumsCount[l]["Daily"][t] === undefined) {
