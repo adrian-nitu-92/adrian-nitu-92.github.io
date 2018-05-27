@@ -58,6 +58,12 @@
 	<script>
 
 "use strict";
+var debug = function( ar, mesage){
+	if(ar){
+		console.log(mesage);
+	}
+}
+
 var authorizeButton = document.getElementById('authorize-button');
 
 var resetButton = document.getElementById('reset-button');
@@ -115,6 +121,8 @@ var addError = function(message){
 	g_data.errorCount = g_data.errorCount + 1;
 }
 
+var sortingDebug = false;
+
 var doOver = function(){
 	if(moved){
 		// dont sort if at least one card has been moved
@@ -126,8 +134,8 @@ var doOver = function(){
 		var cVal = arraySortedByPos.indexOf(card);
 		var value = "bottom";
 
-		console.log("Sorting");
-		console.log(card.name + " " + card.size)
+		debug(sortingDebug, "Sorting");
+		debug(sortingDebug, card.name + " " + card.size);
 		Trello.put('/cards/' + card.id + "/pos",{"value":value},
 			doOver, console.log);
 	} else {

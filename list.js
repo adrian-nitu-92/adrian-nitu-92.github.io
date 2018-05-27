@@ -6,6 +6,9 @@ var NEVER = "NEVER";
 
 var reqCounter = 0;
 
+var debugCanTakeCard = false;
+var debugReasign = false;
+
 var List = function(name, start, end, duration, updateFrequency, previous, next, sortFunction, maxCount, maxMitCount) {
 	this.addListsData = function() {
 		listsData[name] = {
@@ -78,13 +81,15 @@ var List = function(name, start, end, duration, updateFrequency, previous, next,
 		var flatGap = this.flatGap;
 		var mitGap  = (this.maxMitCount * this.percGap);
 		var cardTick = 0.125;
+		debug(debugCanTakeCard, "debugging can take card for card:")
+		debug(debugCanTakeCard, card.name);
 
 		// card can be undefined for a generic test
 		if(card !== undefined){
-			// don't move more than 1 list away
 			var clist = lists[card.listname];
 			var nnclist = lists[clist.next];
 			if(nnclist !== undefined && card.date > nnclist.end) {
+				debug(debugCanTakeCard, "don't move more than 1 list away");
 				return false;
 			}
 
@@ -96,32 +101,39 @@ var List = function(name, start, end, duration, updateFrequency, previous, next,
 			}
 			var nnlist = lists[this.next];
 			if(nnlist !== undefined && card.date > nnlist.end) {
+				debug(debugCanTakeCard, "don't move more than 1 list away");
 				return false;
 			}
 			cardTick = card.tick;
 
 			if (card.mit &&
-				this.mitCount + 1 > (this.mitCount - mitGap)) {
+				this.mitCount + 1 > (this.maxMitCount - mitGap)) {
+				debug(debugCanTakeCard, "mit check failed");
+				debug(debugCanTakeCard, this.mitCount);
+				debug(debugCanTakeCard, (this.maxMitCount - mitGap));
 				return false;
 			}
 		}
 		if (this.sumTicks + flatGap + cardTick > this.ticks){
+			debug(debugCanTakeCard, "flat tick check failed");
 			return false;
 		}
 
 		if (this.sumTicks + cardTick > (this.ticks * (1-percGap))) {
+			debug(debugCanTakeCard, "Perc tick check failed");
 			return false;
 		}
 
 		if (this.cardCount + 1 > (this.maxCount * (1-percGap))){
+			debug(debugCanTakeCard, "count check failed");
 			return false;
 		}
 
 		if(card !== undefined) {
-				console.log(card.name + " can fit into " + this.name);
-				console.log(this.sumTicks + "+" + flatGap + "+" + cardTick + "<" + this.ticks);
-				console.log(this.sumTicks + "+" + cardTick + "<" + (this.ticks * (1-percGap)));
-				console.log("=======================");
+				debug(debugCanTakeCard, card.name + " can fit into " + this.name);
+				debug(debugCanTakeCard, this.sumTicks + "+" + flatGap + "+" + cardTick + "<" + this.ticks);
+				debug(debugCanTakeCard, this.sumTicks + "+" + cardTick + "<" + (this.ticks * (1-percGap)));
+				debug(debugCanTakeCard, "=======================");
 			}
 		return true;
 	}
@@ -131,16 +143,21 @@ var List = function(name, start, end, duration, updateFrequency, previous, next,
 		if(prevListName === null) {
 			return true;
 		}
+		console.log(this.name);
 		var flag = ["Today", "Tomorrow", "Week", "Next Week"].indexOf(this.name) === -1;
 		var prevList = lists[prevListName];
 		var nnlist = lists[this.next];
 		var targetListId = prevList.id;
 		var inbox = lists["Inbox"];
 		var cards = this.cards;
+		debug(debugReasign, "debug reasign");
 		for(var c in cards){
 			var card = cards[c];
+			debug(debugReasign, card.name);
 			var due = new Date(card.date).getTime();
+			debug(debugReasign, new Date(due));
 			if(due < this.start){
+				debug(debugReasign, "before start");
 				if(prevList.canTakeCard(card)) {
 					prevList.takeCardFrom(card, this);
 				} else {
@@ -152,52 +169,48 @@ var List = function(name, start, end, duration, updateFrequency, previous, next,
 				}
 			}
 			else {
-				if(nnlist !== undefined && due > nnlist.end){
-					console.log("too early");
-					nnlist.takeCardFrom(card, this);
-					continue;
+				if(nnlist !== undefined){
+					debug(debugReasign, "nnlist " + nnlist.name);
+					if(due > nnlist.end){
+						console.log("too early");
+						nnlist.takeCardFrom(card, this);
+						continue;
+					}
+					debug(debugReasign, "this.end " + new Date(this.end));
+					if(due > this.end){
+						debug(debugReasign, "after end");
+						if(this.sumTicks - card.tick > this.ticks - this.flatGap){
+							console.log("no time");
+							nnlist.takeCardFrom(card, this);
+							continue;
+						}
+						if(this.sumTicks - card.tick > (this.ticks * (1-this.percGap))){
+							console.log("no time");
+							nnlist.takeCardFrom(card, this);
+							continue;
+						}
+						if(this.cardCount - 1 > (this.maxCount * (1-this.percGap))){
+							console.log("no count");
+							nnlist.takeCardFrom(card, this);
+							continue;
+						}
+						console.log(this.mitCount - 1);
+						console.log((this.maxMitCount * (1-this.percGap)));
+						if(card.mit &&
+							this.mitCount - 1 > (this.maxMitCount * (1-this.percGap))){
+							console.log("no mit count");
+							nnlist.takeCardFrom(card, this);
+							continue;
+						}
+					}
+					if(flag &&
+					 (card.tick > prevList.ticks/4) &&
+					 toTicks(due - prevList.end) < Math.min(prevList.ticks, 7*24)){
+						addWarning("I need you to split <b>" + card.name + "</b><br/>");
+					}
 				}
-				if(nnlist !== undefined && due > this.end){
-					if(this.sumTicks - card.tick > this.ticks - this.flatGap){
-						console.log("no time");
-						nnlist.takeCardFrom(card, this);
-						continue;
-					}
-					if(this.sumTicks - card.tick > (this.ticks * (1-this.percGap))){
-						console.log("no time");
-						nnlist.takeCardFrom(card, this);
-						continue;
-					}
-					if(this.cardCount - 1 > (this.maxCount * (1-this.percGap))){
-						console.log("no count");
-						nnlist.takeCardFrom(card, this);
-						continue;
-					}
-					if(card.mit &&
-						this.mitCount - 1 > (this.maxMitCount * (1-this.percGap))){
-						console.log("no mit count");
-						nnlist.takeCardFrom(card, this);
-						continue;
-					}
-				}
-				if(flag &&
-				 (card.tick > prevList.ticks/4) &&
-				 toTicks(due - prevList.end) < Math.min(prevList.ticks, 7*24)){
-					addWarning("I need you to split <b>" + card.name + "</b><br/>");
-				}
-			}
-		}
-		if(prevList.canTakeCard()){
-			for(var c in cards) {
-				var card = cards[c];
-				if(prevList.canTakeCard(card)) {
-					prevList.takeCardFrom(card, this);
-				} else {
-					if(card.mit){
-						continue;
-					}
-					console.log("Stopped at:" + card.name + " from "+this.name);
-					break;
+				else {
+					debug(debugReasign, "no nnlist");
 				}
 			}
 		}

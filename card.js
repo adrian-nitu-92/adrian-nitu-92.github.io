@@ -191,11 +191,9 @@ var Card = function(cardObject, listname) {
 		this.updateDesc();
 	}
 
-	this.doneMit = this.dueComplete && this.mit;
-
 	var nDate = lists["Week"].end - 1000;
 	this.date = new Date(this.due).getTime();
-	if(this.date === 0 || this.doneMit) {
+	if(this.date === 0) {
 		this.date = nDate;
 	}
 };
