@@ -18,9 +18,6 @@ var Card = function(cardObject, listname) {
 		if(! this.dueComplete ){
 			return;
 		}
-		if(this.mit && this.date > lists["Today"].start) {
-			return;
-		}
 		this.dueComplete = false;
 		if(this.repeating) {
 			this.date = this.date + this.repeatAfter;
