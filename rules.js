@@ -57,6 +57,7 @@ asserts["overdue stuff"] = function(lists) {
 }
 var arraySortedByPos;
 var arraySortedBySize;
+
 asserts["sort"] = function() {
     for (var l in requiredLists) {
         var name = requiredLists[l];
@@ -196,7 +197,7 @@ asserts["check sane @time"] = function() {
 var inbox_schedule = function() {
     var cards = lists["Inbox"].cards;
     if(mode == CORE){
-        return;
+        return true;
     }
     for (var c in cards) {
         var card = cards[c];

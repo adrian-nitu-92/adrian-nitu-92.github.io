@@ -124,7 +124,7 @@ var addError = function(message){
 	g_data.errorCount = g_data.errorCount + 1;
 }
 
-var sortingDebug = false;
+var sortingDebug = true;
 
 var doOver = function(){
 	if(moved){
@@ -220,35 +220,35 @@ var done = function(){
 			}
 		}
 
-	if(onceADayFlag && ! justReset){
-		// move all cards to inbox
-		// move_all_cards_in_range(0, lists["Today"].start, lists["Today"], lists["Inbox"]);
-		move_all_cards_in_range(lists["Today"].start, lists["Tomorrow"].start, lists["Tomorrow"], lists["Today"]);
-		move_all_cards_in_range(lists["Tomorrow"].start, lists["Tomorrow"].end, lists["Week"], lists["Tomorrow"]);
-	}
-
-	for(var a in asserts){
-		var assert = asserts[a];
-		console.log(a);
-		if(! assert(lists)){
-			document.getElementById("p1").innerHTML = globalError;
-			return getOut();
+		if(onceADayFlag && ! justReset){
+			// move all cards to inbox
+			// move_all_cards_in_range(0, lists["Today"].start, lists["Today"], lists["Inbox"]);
+			move_all_cards_in_range(lists["Today"].start, lists["Tomorrow"].start, lists["Tomorrow"], lists["Today"]);
+			move_all_cards_in_range(lists["Tomorrow"].start, lists["Tomorrow"].end, lists["Week"], lists["Tomorrow"]);
 		}
-	}
 
-	var aaaux = "You currently have <b>" + g_data.errorCount + "</b> errors<br>" +
-	"Inbox costs around <b>" + lists["Inbox"].sumTicks + "</b> hours <br/> ";
-	if(listthatneed !== undefined) {
-		aaaux = aaaux + listthatneed + " needs at least <b>" + timethatlistneed + "</b> hours <br/> " ;
-	}
-	/* add it to the begining */
-	globalWarning = aaaux + globalWarning;
-//---------------------------
-	getOut();
-//-----------------------------
-}
-document.getElementById("p1").innerHTML = document.getElementById("p1").innerHTML + globalWarning;
-globalWarning = "";
+		for(var a in asserts){
+			var assert = asserts[a];
+			console.log(a);
+			if(! assert(lists)){
+				document.getElementById("p1").innerHTML = globalError;
+				return getOut();
+			}
+		}
+
+		var aaaux = "You currently have <b>" + g_data.errorCount + "</b> errors<br>" +
+		"Inbox costs around <b>" + lists["Inbox"].sumTicks + "</b> hours <br/> ";
+		if(listthatneed !== undefined) {
+			aaaux = aaaux + listthatneed + " needs at least <b>" + timethatlistneed + "</b> hours <br/> " ;
+		}
+		/* add it to the begining */
+		globalWarning = aaaux + globalWarning;
+	//---------------------------
+		getOut();
+	//-----------------------------
+		}
+	document.getElementById("p1").innerHTML = document.getElementById("p1").innerHTML + globalWarning;
+	globalWarning = "";
 
 }
 var populateLists = function(){
