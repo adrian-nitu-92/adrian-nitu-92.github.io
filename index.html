@@ -28,6 +28,8 @@
 	</script>
 	<script src="graph.js">
 	</script>
+	<script src="time.js">
+	</script>
 	<script src="scheduler.js">
 	</script>
 	<!--  python -m http.server -->
@@ -323,24 +325,20 @@ var move_all_cards_in_range = function(start, end, l1, l2){
 }
 
 function every5(){
+	var time = new Time();
 	moved = false;
 	lists = {};
 
-	var dayLenghtInMs = (1000 * 60 * 60 * 24);
-	var weekLengthInMs = (dayLenghtInMs * 7);
-
-	var timezoneOffset = 3*60*60*1000; // We need 3 extra hours for the timezone setting
-
 	var nowDate = new Date();
-	var now = nowDate.getTime() + timezoneOffset;
+	var now = nowDate.getTime() + time.timezoneOffset;
 
 	/* let todayStart be global */
-	todayStart = now - now % dayLenghtInMs;
-	var currentHour = ((nowDate.getTime()) - todayStart + timezoneOffset) / (1000 * 60 * 60);
+	todayStart = now - now % time.dayLenghtInMs;
+	var currentHour = ((nowDate.getTime()) - todayStart + time.timezoneOffset) / (1000 * 60 * 60);
 	currentHour = Math.round(Number(currentHour*4))/4;
 	if(currentHour >= 24){
 		currentHour -= 24;
-		todayStart = todayStart + dayLenghtInMs;
+		todayStart = todayStart + time.dayLenghtInMs;
 	}
 	if (currentHour < 7) {
 		currentHour = 7;
@@ -352,9 +350,9 @@ function every5(){
 		currentHour = 7;
 	}
 
-	var aux = (todayStart + 3.5 * dayLenghtInMs);
+	var aux = (todayStart + 3.5 * time.dayLenghtInMs);
 	/* let weekStart be global */
-	weekStart = aux - aux % (7 * dayLenghtInMs) - 3 * dayLenghtInMs; /* because 1 Jan 1970 was a Thursday */
+	weekStart = aux - aux % (7 * time.dayLenghtInMs) - 3 * time.dayLenghtInMs; /* because 1 Jan 1970 was a Thursday */
 
 	var localStorageWeekStart = localStorage.getItem("WeekStart");
 	if(localStorageWeekStart != weekStart){
@@ -378,20 +376,20 @@ function every5(){
 	var normalDay = 17;
 	var weekHabbitOffset = (normalDay - baseDay)*7;
 
-	var yesterStart   = todayStart - dayLenghtInMs;
-	var tomorrowStart = todayStart + dayLenghtInMs;
-	var tomorrowEnd   = todayStart +           2 * dayLenghtInMs;
-	var weekEnd       = weekStart  +           7 * dayLenghtInMs;
+	var yesterStart   = todayStart - time.dayLenghtInMs;
+	var tomorrowStart = todayStart + time.dayLenghtInMs;
+	var tomorrowEnd   = todayStart +           2 * time.dayLenghtInMs;
+	var weekEnd       = weekStart  +           7 * time.dayLenghtInMs;
 	if(weekEnd === tomorrowStart) {
-		weekEnd = weekEnd + 7 * dayLenghtInMs;
+		weekEnd = weekEnd + 7 * time.dayLenghtInMs;
 	}
-	var monthEnd      = todayStart +          31 * dayLenghtInMs;
-	var _3monthEnd    = todayStart +      3 * 31 * dayLenghtInMs;
-	var _6monthEnd    = todayStart +      6 * 31 * dayLenghtInMs;
-	var yearEnd       = todayStart +     12 * 31 * dayLenghtInMs;
-	var _3yearEnd     = todayStart + 3 * 12 * 31 * dayLenghtInMs;
+	var monthEnd      = todayStart +          31 * time.dayLenghtInMs;
+	var _3monthEnd    = todayStart +      3 * 31 * time.dayLenghtInMs;
+	var _6monthEnd    = todayStart +      6 * 31 * time.dayLenghtInMs;
+	var yearEnd       = todayStart +     12 * 31 * time.dayLenghtInMs;
+	var _3yearEnd     = todayStart + 3 * 12 * 31 * time.dayLenghtInMs;
 
-	var daysInThisWeek = (weekEnd - todayStart) / dayLenghtInMs;
+	var daysInThisWeek = (weekEnd - todayStart) / time.dayLenghtInMs;
 
 	var todayLen    = 24 - currentHour;
 	var tomorrowLen = normalDay;
@@ -429,7 +427,7 @@ function every5(){
 			return ret;
 		}
 		var getDays = function(stop, start){
-			return (stop - start)/dayLenghtInMs -1;
+			return (stop - start)/time.dayLenghtInMs -1;
 		}
 		var max = function(a,b){
 			if (a>b)
@@ -438,12 +436,12 @@ function every5(){
 		}
 		monthEnd = computeDate(baseMonthInt, baseYearInt, 1,  weekEnd).getTime();
 
-		if(monthEnd	- weekEnd < 7 * dayLenghtInMs) {
+		if(monthEnd	- weekEnd < 7 * time.dayLenghtInMs) {
 					monLen = weekLen;
 		}
 		var aux = weekEnd;
 		while(aux < monthEnd) {
-			aux = aux + 7 * dayLenghtInMs;
+			aux = aux + 7 * time.dayLenghtInMs;
 		}
 		monthEnd = aux;
 
