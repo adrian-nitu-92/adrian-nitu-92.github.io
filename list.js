@@ -9,7 +9,8 @@ var reqCounter = 0;
 var debugCanTakeCard = false;
 var debugReasign = false;
 
-var List = function(name, start, end, duration, updateFrequency, previous, next, sortFunction, maxCount, maxMitCount) {
+var List = function(name, start, end, duration, updateFrequency, previous, next,
+	sortFunction, maxCount, maxMitCount) {
 	this.addListsData = function() {
 		listsData[name] = {
 			"name" :          this.name,
