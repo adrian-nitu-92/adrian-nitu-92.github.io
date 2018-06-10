@@ -329,141 +329,7 @@ function every5(){
 	moved = false;
 	lists = {};
 
-	var nowDate = new Date();
-	var now = nowDate.getTime() + time.timezoneOffset;
-
-	/* let todayStart be global */
-	todayStart = now - now % time.dayLenghtInMs;
-	var currentHour = ((nowDate.getTime()) - todayStart + time.timezoneOffset) / (1000 * 60 * 60);
-	currentHour = Math.round(Number(currentHour*4))/4;
-	if(currentHour >= 24){
-		currentHour -= 24;
-		todayStart = todayStart + time.dayLenghtInMs;
-	}
-	if (currentHour < 7) {
-		currentHour = 7;
-	}
-
-	var auxStart = localStorage.getItem("AuxStart");
-	if(auxStart > todayStart){
-		todayStart = parseInt(auxStart);
-		currentHour = 7;
-	}
-
-	var aux = (todayStart + 3.5 * time.dayLenghtInMs);
-	/* let weekStart be global */
-	weekStart = aux - aux % (7 * time.dayLenghtInMs) - 3 * time.dayLenghtInMs; /* because 1 Jan 1970 was a Thursday */
-
-	var localStorageWeekStart = localStorage.getItem("WeekStart");
-	if(localStorageWeekStart != weekStart){
-		localStorage.setItem("WeekStart", weekStart);
-		onceAWeekFlag = true;
-		console.log("Working for once this week");
-	} else {
-		console.log("Already worked this week");
-	}
-
-	var localStorageTodayStart = localStorage.getItem("TodayStart");
-	if(localStorageTodayStart != todayStart){
-		localStorage.setItem("TodayStart", todayStart);
-		onceADayFlag = true;
-		console.log("Working for once today");
-	} else {
-		console.log("Already worked today");
-	}
-
-	var baseDay = 12;
-	var normalDay = 17;
-	var weekHabbitOffset = (normalDay - baseDay)*7;
-
-	var yesterStart   = todayStart - time.dayLenghtInMs;
-	var tomorrowStart = todayStart + time.dayLenghtInMs;
-	var tomorrowEnd   = todayStart +           2 * time.dayLenghtInMs;
-	var weekEnd       = weekStart  +           7 * time.dayLenghtInMs;
-	if(weekEnd === tomorrowStart) {
-		weekEnd = weekEnd + 7 * time.dayLenghtInMs;
-	}
-	var monthEnd      = todayStart +          31 * time.dayLenghtInMs;
-	var _3monthEnd    = todayStart +      3 * 31 * time.dayLenghtInMs;
-	var _6monthEnd    = todayStart +      6 * 31 * time.dayLenghtInMs;
-	var yearEnd       = todayStart +     12 * 31 * time.dayLenghtInMs;
-	var _3yearEnd     = todayStart + 3 * 12 * 31 * time.dayLenghtInMs;
-
-	var daysInThisWeek = (weekEnd - todayStart) / time.dayLenghtInMs;
-
-	var todayLen    = 24 - currentHour;
-	var tomorrowLen = normalDay;
-	var weekLen     = normalDay * (daysInThisWeek -1);
-	var nWeekLen    = baseDay*7+weekHabbitOffset;
-	// add 30 hours as an overlap buffer -- this should protect from the need to push out a ww prematurely
-	var monLen      = baseDay * 31 + weekHabbitOffset + 30;
-	var _3monLen    = monLen *3 + weekHabbitOffset;
-	var _6monLen    = monLen *6 + weekHabbitOffset;
-	var yearLen     = baseDay * 365 + weekHabbitOffset;
-	var _3yearLen   = yearLen *3 + weekHabbitOffset;
-
-	if(true) {
-		var baseMonthInt = 7;
-		var baseYearInt = 17;
-
-		var monEndInt;
-		var _3monEndInt;
-		var _6monthInt;
-		var yearInt;
-		var _3yearEnd;
-
-		var computeDate = function (monthInt, yearInt, monthPush, min)
-		{;
-			var ret;
-			ret = new Date(0);
-			while(ret < min) {
-				monthInt = monthInt + monthPush;
-				while(monthInt > 12){
-					yearInt = yearInt + 1;
-					monthInt = monthInt - 12;
-				}
-				ret = new Date(monthInt+"/1/"+yearInt+" GMT");
-			}
-			return ret;
-		}
-		var getDays = function(stop, start){
-			return (stop - start)/time.dayLenghtInMs -1;
-		}
-		var max = function(a,b){
-			if (a>b)
-				return a;
-			return b;
-		}
-		monthEnd = computeDate(baseMonthInt, baseYearInt, 1,  weekEnd).getTime();
-
-		if(monthEnd	- weekEnd < 7 * time.dayLenghtInMs) {
-					monLen = weekLen;
-		}
-		var aux = weekEnd;
-		while(aux < monthEnd) {
-			aux = aux + 7 * time.dayLenghtInMs;
-		}
-		monthEnd = aux;
-
-		_3monthEnd = computeDate(baseMonthInt, baseYearInt, 3,  weekEnd).getTime();
-		_6monthEnd = computeDate(baseMonthInt, baseYearInt, 6,  weekEnd).getTime();
-		yearEnd    = computeDate(baseMonthInt, baseYearInt, 12, weekEnd).getTime();
-		_3yearEnd  = computeDate(baseMonthInt, baseYearInt, 36, weekEnd).getTime();
-
-		_3monthEnd = max(_3monthEnd,   monthEnd);
-		_6monthEnd = max(_3monthEnd, _6monthEnd);
-		yearEnd    = max(   yearEnd, _6monthEnd);
-		_3yearEnd  = max( _3yearEnd,    yearEnd);
-
-		monLen    = baseDay * getDays(  monthEnd, todayStart) + weekHabbitOffset;
-		_3monLen  = baseDay * getDays(_3monthEnd, todayStart) + weekHabbitOffset;
-		_6monLen  = baseDay * getDays(_6monthEnd, todayStart) + weekHabbitOffset;
-		yearLen   = baseDay * getDays(   yearEnd, todayStart) + weekHabbitOffset;
-		_3yearLen = baseDay * getDays( _3yearEnd, todayStart) + weekHabbitOffset;
-	}
-
 	var maxInt = Number.MAX_SAFE_INTEGER;
-
 
 	scoreMultiplier = {};
 	mult = 1.5;
@@ -480,17 +346,17 @@ function every5(){
 
 	var maxTaskDay = 25;
 
-	lists["Today"]     = new List("Today",       todayStart, tomorrowStart,    todayLen,  ONCE_A_DAY,       null,         null,  sortTime,     maxTaskDay, 5);
-	lists["Tomorrow"]  = new List("Tomorrow", tomorrowStart,   tomorrowEnd, tomorrowLen,  ONCE_A_DAY,    "Today",       "Week", sortScore,     maxTaskDay, 5);
-	lists["Week"]      = new List("Week",       tomorrowEnd,       weekEnd,     weekLen,  ONCE_A_DAY, "Tomorrow",      "Month", sortScore,    maxTaskDay * (daysInThisWeek-1), 15);
-	lists["Month"]     = new List("Month",          weekEnd,      monthEnd,      monLen, ONCE_A_WEEK,     "Week",    "3 Month", sortScore,    200, 25);
-	lists["3 Month"]   = new List("3 Month",       monthEnd,    _3monthEnd,    _3monLen, ONCE_A_WEEK,    "Month",    "6 Month", sortScore,    250, 25);
-	lists["6 Month"]   = new List("6 Month",     _3monthEnd,    _6monthEnd,    _6monLen, ONCE_A_WEEK,  "3 Month",       "Year", sortScore,    300, 25);
-	lists["Year"]      = new List("Year",        _6monthEnd,       yearEnd,     yearLen, ONCE_A_WEEK,  "6 Month",     "3 Year", sortScore,    350, 25);
-	lists["3 Year"]    = new List("3 Year",         yearEnd,     _3yearEnd,   _3yearLen, ONCE_A_WEEK,     "Year",    "One Day", sortScore,    400, 25);
-	lists["One Day"]   = new List("One Day",      _3yearEnd,        maxInt,      maxInt,       NEVER,   "3 Year",         null, sortScore, maxInt, undefined);
-	lists["Inbox"]     = new List("Inbox",                0,        maxInt,      maxInt,       NEVER,       null,         null, sortScore, maxInt, undefined);
-	lists["Done"]      = new List("Done",                 0,        maxInt,      maxInt,       NEVER,       null,         null, sortScore, maxInt, undefined);
+	lists["Today"]     = new List("Today",       time.today.start, time.tomorrow.start,    time.today.len,  ONCE_A_DAY,       null,      null,  sortTime,                           maxTaskDay,         5, time);
+	lists["Tomorrow"]  = new List("Tomorrow", time.tomorrow.start,   time.tomorrow.end, time.tomorrow.len,  ONCE_A_DAY,    "Today",    "Week", sortScore,                           maxTaskDay,         5, time);
+	lists["Week"]      = new List("Week",       time.tomorrow.end,       time.week.end,     time.week.len,  ONCE_A_DAY, "Tomorrow",   "Month", sortScore, maxTaskDay * (time.daysInThisWeek-1),        15, time);
+	lists["Month"]     = new List("Month",          time.week.end,      time.month.end,    time.month.len, ONCE_A_WEEK,     "Week", "3 Month", sortScore,                                  200,        25, time);
+	lists["3 Month"]   = new List("3 Month",       time.month.end,    time._3month.end,  time._3month.len, ONCE_A_WEEK,    "Month", "6 Month", sortScore,                                  250,        25, time);
+	lists["6 Month"]   = new List("6 Month",     time._3month.end,    time._6month.end,  time._6month.len, ONCE_A_WEEK,  "3 Month",    "Year", sortScore,                                  300,        25, time);
+	lists["Year"]      = new List("Year",        time._6month.end,       time.year.end,     time.year.len, ONCE_A_WEEK,  "6 Month",  "3 Year", sortScore,                                  350,        25, time);
+	lists["3 Year"]    = new List("3 Year",         time.year.end,     time._3year.end,   time._3year.len, ONCE_A_WEEK,     "Year", "One Day", sortScore,                                  400,        25, time);
+	lists["One Day"]   = new List("One Day",      time._3year.end,              maxInt,            maxInt,       NEVER,   "3 Year",      null, sortScore,                               maxInt, undefined, time);
+	lists["Inbox"]     = new List("Inbox",                      0,              maxInt,            maxInt,       NEVER,       null,      null, sortScore,                               maxInt, undefined, time);
+	lists["Done"]      = new List("Done",                       0,              maxInt,            maxInt,       NEVER,       null,      null, sortScore,                               maxInt, undefined, time);
 	boardSelect(gItemID);
 
 	endbutton.onclick = function(){

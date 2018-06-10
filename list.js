@@ -10,7 +10,7 @@ var debugCanTakeCard = false;
 var debugReasign = false;
 
 var List = function(name, start, end, duration, updateFrequency, previous, next,
-	sortFunction, maxCount, maxMitCount) {
+	sortFunction, maxCount, maxMitCount, time) {
 	this.addListsData = function() {
 		listsData[name] = {
 			"name" :          this.name,
@@ -238,8 +238,6 @@ var List = function(name, start, end, duration, updateFrequency, previous, next,
 	this.addListsData();
 
 	this.weekCount = 1;
-
-	var time = new Time();
 
 	if(["Month", "3 Month", "6 Month", "Year", "3 Year"].indexOf(this.name) >= 0){
 		var aux = lists["Week"].end;
