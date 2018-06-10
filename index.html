@@ -1,37 +1,36 @@
 <head>
 	<link href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css" rel="stylesheet">
-		</script>
 		    <!-- lib -->
     <script type="text/javascript" src="libs/jquery-1.11.1.min.js" ></script>
     <script type="text/javascript" src="libs/underscore-min.js" ></script>
     <script type="text/javascript" src="libs/backbone-min.js" ></script>
-<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js">
-		</script>
-		<script src="libs/pretty-json-min.js">
-		</script>
-		<script src="https://api.trello.com/1/client.js?key=83fbbffdca68e9e5655f409d9b204618">
-		</script>
-		<script src="https://apis.google.com/js/api.js">
-		</script>
-		<script src="rules.js">
-		</script>
-		<script src="google-common.js">
-		</script>
-		<script src="sheets.js">
-		</script>
-		<script src="calendar.js">
-		</script>
-		<script src="list.js">
-		</script>
-		<script src="trello.js">
-		</script>
-		<script src="card.js">
-		</script>
-		<script src="graph.js">
-		</script>
-		<script src="scheduler.js">
-		</script>
-		<!--  python -m http.server -->
+	<script src="libs/jquery-ui.js">
+	</script>
+	<script src="libs/pretty-json-min.js">
+	</script>
+	<script src="https://api.trello.com/1/client.js?key=83fbbffdca68e9e5655f409d9b204618">
+	</script>
+	<script src="libs/googleapi.js">
+	</script>
+	<script src="rules.js">
+	</script>
+	<script src="google-common.js">
+	</script>
+	<script src="sheets.js">
+	</script>
+	<script src="calendar.js">
+	</script>
+	<script src="list.js">
+	</script>
+	<script src="trello.js">
+	</script>
+	<script src="card.js">
+	</script>
+	<script src="graph.js">
+	</script>
+	<script src="scheduler.js">
+	</script>
+	<!--  python -m http.server -->
 	</link>
 </head>
 <body>
@@ -107,6 +106,7 @@ var incrementator;
 var listthatneed;
 var timethatlistneed;
 var graph = new Graph();
+
 var requiredLists = ["Today", "Tomorrow", "Week", "Month", "3 Month", "6 Month", "Year", "3 Year", "Inbox", "One Day"];
 
 var addMessage = function(message){
@@ -302,25 +302,6 @@ var boardSelect = function(boardID){
 }
 
 var justReset;
-
-function base(){
-
-	justReset = (localStorage.getItem("reset") === "undefined");
-
-	localStorage.setItem("reset", "value");
-
-	Trello.authorize({
-		type: 'popup',
-		name: 'Getting Started Application',
-		scope: {
-			read: 'true',
-			write: 'true' },
-			expiration: 'never',
-			success: every5,
-			error: console.log
-		});
-
-}
 
 var onceADayFlag = false;
 var onceAWeekFlag = false;
@@ -520,7 +501,9 @@ function every5(){
 
 	setInterval(function() {window.location.reload();}, 1000*60*10);
 }
-base();
+
+var scheduler = new Scheduler();
+
 	</script>
 	<script src="https://cdn.plot.ly/plotly-latest.min.js">
 	</script>
