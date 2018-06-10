@@ -58,7 +58,7 @@ asserts["overdue stuff"] = function(lists) {
 var arraySortedByPos;
 var arraySortedBySize;
 
-asserts["sort"] = function() {
+asserts["sort"] = function(lists) {
     for (var l in requiredLists) {
         var name = requiredLists[l];
         var list = lists[name];
@@ -86,7 +86,7 @@ asserts["sort"] = function() {
     }
     return true;
 }
-var dada = function(response) {
+var dada = function(response, lists) {
     var events = response.result.items;
     if (events.length > 0) {
         for (var i = 0; i < events.length; i++) {
@@ -121,7 +121,7 @@ var dada = function(response) {
         }
     }
 }
-asserts["remove duplicate events"] = function() {
+asserts["remove duplicate events"] = function(lists) {
     var maxResults = 25;
     if(Math.random() < 0.25){
         maxResults = 125;
@@ -134,10 +134,10 @@ asserts["remove duplicate events"] = function() {
         'singleEvents': true,
         'maxResults': maxResults,
         'orderBy': 'startTime'
-    }).then(dada);
+    }).then(function(response){dada(response, lists);});
     return true;
 }
-asserts["overlap warning"] = function() {
+asserts["overlap warning"] = function(lists) {
     var cur = ["Today", "Tomorrow", "Week"];
     var now = new Date().getTime();
     var count = 0;
@@ -176,7 +176,7 @@ asserts["overlap warning"] = function() {
 
     return true;
 }
-asserts["check sane @time"] = function() {
+asserts["check sane @time"] = function(lists) {
 
     for (var l in requiredLists) {
         var name = requiredLists[l];
@@ -186,15 +186,15 @@ asserts["check sane @time"] = function() {
     }
     for (var l in requiredLists) {
         var name = requiredLists[l];
-        var res = lists[name].reasign_card_to_proper_list();
+        var res = lists[name].reasign_card_to_proper_list(lists);
         if(!res){
             return res;
         }
     }
-    return inbox_schedule();
+    return inbox_schedule(lists);
 }
 
-var inbox_schedule = function() {
+var inbox_schedule = function(lists) {
     var cards = lists["Inbox"].cards;
     for (var c in cards) {
         var card = cards[c];
@@ -232,7 +232,7 @@ var inbox_schedule = function() {
     }
     return true;
 }
-asserts["validate MIT count "] = function() {
+asserts["validate MIT count "] = function(lists) {
     var count = 0;
     for (var n in requiredLists) {
         var name = requiredLists[n];
@@ -269,7 +269,7 @@ asserts["validate MIT count "] = function() {
     }
     return true;
 }
-asserts["scrub"] = function() {
+asserts["scrub"] = function(lists) {
     var cards = lists["Scrub"].cards;
     for (var c in cards) {
         var card = cards[c];

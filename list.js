@@ -139,7 +139,7 @@ var List = function(name, start, end, duration, updateFrequency, previous, next,
 		return true;
 	}
 
-	this.reasign_card_to_proper_list = function() {
+	this.reasign_card_to_proper_list = function(lists) {
 		var prevListName = this.previous;
 		if(prevListName === null) {
 			return true;
@@ -240,7 +240,7 @@ var List = function(name, start, end, duration, updateFrequency, previous, next,
 	this.weekCount = 1;
 
 	if(["Month", "3 Month", "6 Month", "Year", "3 Year"].indexOf(this.name) >= 0){
-		var aux = lists["Week"].end;
+		var aux = time.week.end;
 
 		while(aux + time.weekLengthInMs < this.end) {
 			aux = aux + time.weekLengthInMs;

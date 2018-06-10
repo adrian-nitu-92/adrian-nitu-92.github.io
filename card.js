@@ -1,5 +1,5 @@
 "use strict";
-var Card = function(cardObject, listname) {
+var Card = function(cardObject, list) {
 
 	this.updateDesc = function(){
 		this.auxObj.eventId = this.eventId;
@@ -155,6 +155,8 @@ var Card = function(cardObject, listname) {
 			return 0.1;
 		}
 		var due = new Date(this.due).getTime();
+		var weekStart = scheduler.time.week.start;
+		var lists = scheduler.lists;
 		if(due < weekStart) {
 			return 10;
 		}
@@ -167,8 +169,8 @@ var Card = function(cardObject, listname) {
 		return 1;
 	}
 
-	this.listname = listname;
-	this.list = lists[listname];
+	this.listname = list.name;
+	this.list = list;
 
 	Object.assign(this, cardObject);
 
@@ -188,9 +190,4 @@ var Card = function(cardObject, listname) {
 		this.updateDesc();
 	}
 
-	var nDate = lists["Week"].end - 1000;
-	this.date = new Date(this.due).getTime();
-	if(this.date === 0) {
-		this.date = nDate;
-	}
 };

@@ -35,6 +35,7 @@ var Graph = function(dummy) {
 		}
 	}
 	this.mergeList = function (name, next) {
+		var lists = scheduler.lists;
 		if(next === null){
 			return;
 		}

@@ -65,6 +65,7 @@ var addToGcal = function(card){
 	if(card.due){
 		var start = new Date(new Date(card.due).getTime());
 		var end = new Date(new Date(card.due).getTime()+card.calendarTick*60*60*1000);
+		var lists = scheduler.lists;
 		var lc = lists[card.listname];
 		// we call add to Gcal in a reschedule :D
 		if(card.listname === "Inbox"){
