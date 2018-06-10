@@ -227,15 +227,18 @@ var done = function(){
 			move_all_cards_in_range(lists["Tomorrow"].start, lists["Tomorrow"].end, lists["Week"], lists["Tomorrow"]);
 		}
 
+		var ok = true;
+
 		for(var a in asserts){
 			var assert = asserts[a];
 			console.log(a);
-			if(! assert(lists)){
-				document.getElementById("p1").innerHTML = globalError;
-				return getOut();
-			}
-		}
+			ok = ok && assert(lists)
 
+		}
+		if(! ok){
+			document.getElementById("p1").innerHTML = globalError;
+			return getOut();
+		}
 		var aaaux = "You currently have <b>" + g_data.errorCount + "</b> errors<br>" +
 		"Inbox costs around <b>" + lists["Inbox"].sumTicks + "</b> hours <br/> ";
 		if(listthatneed !== undefined) {
