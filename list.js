@@ -237,7 +237,7 @@ var List = function(name, start, end, duration, updateFrequency, previous, next,
 
 	this.addListsData();
 
-	this.weekCount = 0;
+	this.weekCount = 1;
 
 	if(["Month", "3 Month", "6 Month", "Year", "3 Year"].indexOf(this.name) >= 0){
 		var aux = lists["Week"].end;
@@ -248,9 +248,6 @@ var List = function(name, start, end, duration, updateFrequency, previous, next,
 			aux = aux + weekLengthInMs;
 			this.weekCount = this.weekCount + 1;
 		}
-	}
-	if(this.name == "Week") {
-		this.weekCount = 1;
 	}
 	graph.initCount(this.name, this.ticks);
 
