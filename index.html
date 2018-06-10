@@ -346,17 +346,17 @@ function every5(){
 
 	var maxTaskDay = 25;
 
-	lists["Today"]     = new List("Today",       time.today.start, time.tomorrow.start,    time.today.len,  ONCE_A_DAY,       null,      null,  sortTime,                           maxTaskDay,         5, time);
-	lists["Tomorrow"]  = new List("Tomorrow", time.tomorrow.start,   time.tomorrow.end, time.tomorrow.len,  ONCE_A_DAY,    "Today",    "Week", sortScore,                           maxTaskDay,         5, time);
-	lists["Week"]      = new List("Week",       time.tomorrow.end,       time.week.end,     time.week.len,  ONCE_A_DAY, "Tomorrow",   "Month", sortScore, maxTaskDay * (time.daysInThisWeek-1),        15, time);
-	lists["Month"]     = new List("Month",          time.week.end,      time.month.end,    time.month.len, ONCE_A_WEEK,     "Week", "3 Month", sortScore,                                  200,        25, time);
-	lists["3 Month"]   = new List("3 Month",       time.month.end,    time._3month.end,  time._3month.len, ONCE_A_WEEK,    "Month", "6 Month", sortScore,                                  250,        25, time);
-	lists["6 Month"]   = new List("6 Month",     time._3month.end,    time._6month.end,  time._6month.len, ONCE_A_WEEK,  "3 Month",    "Year", sortScore,                                  300,        25, time);
-	lists["Year"]      = new List("Year",        time._6month.end,       time.year.end,     time.year.len, ONCE_A_WEEK,  "6 Month",  "3 Year", sortScore,                                  350,        25, time);
-	lists["3 Year"]    = new List("3 Year",         time.year.end,     time._3year.end,   time._3year.len, ONCE_A_WEEK,     "Year", "One Day", sortScore,                                  400,        25, time);
-	lists["One Day"]   = new List("One Day",      time._3year.end,              maxInt,            maxInt,       NEVER,   "3 Year",      null, sortScore,                               maxInt, undefined, time);
-	lists["Inbox"]     = new List("Inbox",                      0,              maxInt,            maxInt,       NEVER,       null,      null, sortScore,                               maxInt, undefined, time);
-	lists["Done"]      = new List("Done",                       0,              maxInt,            maxInt,       NEVER,       null,      null, sortScore,                               maxInt, undefined, time);
+	lists["Today"]    = new List("Today",       time.today.start, time.tomorrow.start,    time.today.len,  ONCE_A_DAY,       null,      null,  sortTime,                           maxTaskDay,         5, time);
+	lists["Tomorrow"] = new List("Tomorrow", time.tomorrow.start,   time.tomorrow.end, time.tomorrow.len,  ONCE_A_DAY,    "Today",    "Week", sortScore,                           maxTaskDay,         5, time);
+	lists["Week"]     = new List("Week",       time.tomorrow.end,       time.week.end,     time.week.len,  ONCE_A_DAY, "Tomorrow",   "Month", sortScore, maxTaskDay * (time.daysInThisWeek-1),        15, time);
+	lists["Month"]    = new List("Month",          time.week.end,      time.month.end,    time.month.len, ONCE_A_WEEK,     "Week", "3 Month", sortScore,                                  200,        25, time);
+	lists["3 Month"]  = new List("3 Month",       time.month.end,    time._3month.end,  time._3month.len, ONCE_A_WEEK,    "Month", "6 Month", sortScore,                                  250,        25, time);
+	lists["6 Month"]  = new List("6 Month",     time._3month.end,    time._6month.end,  time._6month.len, ONCE_A_WEEK,  "3 Month",    "Year", sortScore,                                  300,        25, time);
+	lists["Year"]     = new List("Year",        time._6month.end,       time.year.end,     time.year.len, ONCE_A_WEEK,  "6 Month",  "3 Year", sortScore,                                  350,        25, time);
+	lists["3 Year"]   = new List("3 Year",         time.year.end,     time._3year.end,   time._3year.len, ONCE_A_WEEK,     "Year", "One Day", sortScore,                                  400,        25, time);
+	lists["One Day"]  = new List("One Day",      time._3year.end,              maxInt,            maxInt,       NEVER,   "3 Year",      null, sortScore,                               maxInt, undefined, time);
+	lists["Inbox"]    = new List("Inbox",                      0,              maxInt,            maxInt,       NEVER,       null,      null, sortScore,                               maxInt, undefined, time);
+	lists["Done"]     = new List("Done",                       0,              maxInt,            maxInt,       NEVER,       null,      null, sortScore,                               maxInt, undefined, time);
 	boardSelect(gItemID);
 
 	endbutton.onclick = function(){
