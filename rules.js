@@ -196,9 +196,6 @@ asserts["check sane @time"] = function() {
 
 var inbox_schedule = function() {
     var cards = lists["Inbox"].cards;
-    if(mode == CORE){
-        return true;
-    }
     for (var c in cards) {
         var card = cards[c];
         var targetList = lists["One Day"];
@@ -209,18 +206,20 @@ var inbox_schedule = function() {
         if(card.date < lists["Today"].start){
             card.reschedule();
         }
-        for(var l in lists){
-            if(l === "Inbox" || l === "One Day" || l === "Done"){
-                continue;
-            }
-            var list = lists[l];
-            if(card.date >= list.start && card.date <= list.end){
-                if(list.canTakeCard(card)){
-                    targetList = list;
-                    skip = false;
+        if(mode == AMBITIOUS){
+            for(var l in lists){
+                if(l === "Inbox" || l === "One Day" || l === "Done"){
+                    continue;
                 }
-                else {
-                    card.deleteGoogleEvent();
+                var list = lists[l];
+                if(card.date >= list.start && card.date <= list.end){
+                    if(list.canTakeCard(card)){
+                        targetList = list;
+                        skip = false;
+                    }
+                    else {
+                        card.deleteGoogleEvent();
+                    }
                 }
             }
         }
