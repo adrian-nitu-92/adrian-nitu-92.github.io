@@ -2,9 +2,14 @@
 
 var Scheduler = function () {
 
-	this.done = false;
+	this.getUntagged = function(){
+		return [];
+	}
 
 	/* init */
+
+	this.done = false;
+
 	justReset = (localStorage.getItem("reset") === "undefined");
 
 	localStorage.setItem("reset", "value");
@@ -20,4 +25,3 @@ var Scheduler = function () {
 			error: console.log
 		});
 }
-
