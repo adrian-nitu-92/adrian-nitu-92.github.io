@@ -1,5 +1,5 @@
 "use strict";
-var Card = function(cardObject, list) {
+var Card = function(cardObject, list, inbox, done) {
 
 	this.updateDesc = function(){
 		this.auxObj.eventId = this.eventId;
@@ -26,9 +26,9 @@ var Card = function(cardObject, list) {
 			Trello.put('/cards/' + this.id + "/dueComplete",{"value":false}, console.log, console.log);
 			Trello.put('/cards/' + this.id + "/due",{"value":this.due}, console.log, console.log	);
 
-			lists["Inbox"].takeCardFrom(this, lists[this.listname]);
+			this.inbox.takeCardFrom(this, list);
 		} else {
-			Trello.put('/cards/' + this.id + "/idList",{"value":lists["Done"].id}, console.log, console.log);
+			Trello.put('/cards/' + this.id + "/idList",{"value":this.done.id}, console.log, console.log);
 		}
 	}
 
@@ -171,6 +171,8 @@ var Card = function(cardObject, list) {
 
 	this.listname = list.name;
 	this.list = list;
+	this.inbox = inbox;
+	this.done = done;
 
 	Object.assign(this, cardObject);
 
