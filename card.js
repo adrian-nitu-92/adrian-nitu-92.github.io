@@ -176,6 +176,8 @@ var Card = function(cardObject, list, inbox, done) {
 
 	Object.assign(this, cardObject);
 
+	this.date = this.due;
+
 	this._parseLabels();
 
 	try {
