@@ -78,6 +78,7 @@ var List = function(name, start, end, duration, updateFrequency, previous, next,
 		}
 
 	this.canTakeCard = function(card) {
+		var lists = scheduler.lists;
 		var percGap = this.percGap;
 		var flatGap = this.flatGap;
 		var mitGap  = (this.maxMitCount * this.percGap);
@@ -145,6 +146,7 @@ var List = function(name, start, end, duration, updateFrequency, previous, next,
 			return true;
 		}
 		console.log(this.name);
+		var lists = scheduler.lists;
 		var flag = ["Today", "Tomorrow", "Week", "Next Week"].indexOf(this.name) === -1;
 		var prevList = lists[prevListName];
 		var nnlist = lists[this.next];

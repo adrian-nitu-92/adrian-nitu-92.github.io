@@ -64,7 +64,7 @@ var Card = function(cardObject, list, inbox, done) {
 	this.delete = function() {
 		_deleteGoogleEvent(this.eventId);
 		if(! this.auxObj.eraseMeNot)	{
-		    Trello.delete('/cards/' + this.id, function(v){console.log(v);}, function(v){console.log(v);});
+			Trello.delete('/cards/' + this.id, function(v){console.log(v);}, function(v){console.log(v);});
 		} else {
 			console.log("unbreakable heart");
 			console.log(this);
@@ -177,8 +177,6 @@ var Card = function(cardObject, list, inbox, done) {
 
 	Object.assign(this, cardObject);
 
-	this.date = this.due;
-
 	this._parseLabels();
 
 	try {
@@ -193,6 +191,12 @@ var Card = function(cardObject, list, inbox, done) {
 		this.auxObj.eventId = this.eventId;
 		this.auxObj.eraseMeNot = false;
 		this.updateDesc();
+	}
+
+	var nDate = scheduler.lists["Week"].end - 1000;
+	this.date = new Date(this.due).getTime();
+	if(this.date === 0) {
+		this.date = nDate;
 	}
 
 };
