@@ -30,6 +30,10 @@ var List = function(name, timeObject, updateFrequency, previous, next,
 	}
 
 	this.takeCardFrom = function(card, list) {
+		if(card === undefined || list === undefined){
+			console.log(new Error().stack);
+			throw "Learn the api, please";
+		}
 		reqCounter = reqCounter +1;
 		this.sumTicks += card.tick;
 		this.cardCount = this.cardCount +1;
@@ -53,7 +57,7 @@ var List = function(name, timeObject, updateFrequency, previous, next,
 
 		var iof = arrayCards.indexOf(card);
 		if(iof < 0){
-			throw "die";
+			return;
 		}
 		var value = 0;
 		if(iof === 0) {

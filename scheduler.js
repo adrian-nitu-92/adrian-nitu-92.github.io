@@ -75,9 +75,9 @@ var Scheduler = function (initEndedCallback) {
 	    return ret;
 	}
 
-	this.deleteAllCardsIn(listname){
-		console.log(lists[listname]);
-	    var cards = lists[listname].cards;
+	this.deleteAllCardsIn = function(listname){
+		console.log(this.lists[listname]);
+	    var cards = this.lists[listname].cards;
 	    console.log(cards);
 	    for (var c in cards) {
 	        var card = cards[c];
