@@ -20,47 +20,28 @@ asserts["Check lists with no time req"] = function(lists) {
     }
     return true;
 }
-asserts["less work tickets, more focus"] = function() {
+asserts["less work tickets, more focus"] = function(lists, scheduler) {
     return true;
     if (lists["Today"].counts !== undefined && lists["Today"].counts["Work"] === undefined) return true;
     if (lists["Today"].counts["Work"] <= 3) return true;
     globalError = "Today MUST have at most 3 work tickets in progress";
     return false;
 }
-asserts["Delete Done"] = function(lists) {
+asserts["Delete Done"] = function(_unused, scheduler) {
     if ((! onceAWeekFlag) || justReset) {
         console.log("skip delete done");
-        return true;
-    }
-    console.log(lists["Done"]);
-    var cards = lists["Done"].cards;
-    console.log(cards);
-    for (var c in cards) {
-        var card = cards[c];
-        console.log(card.name);
-        card.delete();
+    } else {
+        scheduler.deleteAllCardsIn("Done");
     }
     return true;
 }
 
-asserts["overdue stuff"] = function(lists) {
-    var cards = {};
-    Object.assign(cards, lists["Today"].cards);
-    Object.assign(cards, lists["Inbox"].cards);
-    for(var c in cards){
-        var card = cards[c];
-        if( card.date < lists["Today"].start){
-           reallyOverdue.push(card);
-        }
-    }
-    return true;
-}
 var arraySortedByPos;
 var arraySortedBySize;
 
 asserts["sort"] = function(lists) {
-    for (var l in requiredLists) {
-        var name = requiredLists[l];
+    for (var l in scheduler.requiredLists) {
+        var name = scheduler.requiredLists[l];
         var list = lists[name];
         var cards = list.cards;
         var arrayCards = Object.keys(cards).map(function(key) {
@@ -97,11 +78,11 @@ var dada = function(response, lists) {
                 continue;
             }
             var card;
-            for (var l in requiredLists) {
-                if (requiredLists[l] === "Inbox") {
+            for (var l in scheduler.requiredLists) {
+                if (scheduler.requiredLists[l] === "Inbox") {
                     break;
                 }
-                card = lists[requiredLists[l]].cards[cardID];
+                card = lists[scheduler.requiredLists[l]].cards[cardID];
                 if (card !== undefined) {
                     break;
                 }
@@ -178,14 +159,14 @@ asserts["overlap warning"] = function(lists) {
 }
 asserts["check sane @time"] = function(lists) {
 
-    for (var l in requiredLists) {
-        var name = requiredLists[l];
+    for (var l in scheduler.requiredLists) {
+        var name = scheduler.requiredLists[l];
         var list = lists[name];
         var nextList = lists[list.next];
         graph.mergeList(name, list.next);
     }
-    for (var l in requiredLists) {
-        var name = requiredLists[l];
+    for (var l in scheduler.requiredLists) {
+        var name = scheduler.requiredLists[l];
         var res = lists[name].reasign_card_to_proper_list(lists);
         if(!res){
             return res;
@@ -204,9 +185,9 @@ var inbox_schedule = function(lists) {
             continue;
         }
         if(card.date < lists["Today"].start){
-            card.reschedule();
+            card._network_reschedule();
         }
-        if(mode == AMBITIOUS){
+        if(scheduler.mode == AMBITIOUS){
             for(var l in lists){
                 if(l === "Inbox" || l === "One Day" || l === "Done"){
                     continue;
@@ -234,8 +215,8 @@ var inbox_schedule = function(lists) {
 }
 asserts["validate MIT count "] = function(lists) {
     var count = 0;
-    for (var n in requiredLists) {
-        var name = requiredLists[n];
+    for (var n in scheduler.requiredLists) {
+        var name = scheduler.requiredLists[n];
         var list = lists[name];
         if(list.maxMitCount === undefined){
             continue;
@@ -273,7 +254,7 @@ asserts["scrub"] = function(lists) {
     var cards = lists["Scrub"].cards;
     for (var c in cards) {
         var card = cards[c];
-        card.scrub();
+        card._network_scrub();
     }
     return true;
 }

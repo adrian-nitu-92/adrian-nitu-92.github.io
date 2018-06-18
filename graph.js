@@ -40,7 +40,7 @@ var Graph = function(dummy) {
 			return;
 		}
 		var extraAdd = lists[next].weekCount - lists[name].weekCount;
-		var order = requiredLists;
+		var order = scheduler.requiredLists;
 		for(var t in this._sumsCount[name]){
 			if (t == "Daily"){
 				continue;

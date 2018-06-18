@@ -66,7 +66,9 @@ var Time = function(dummy) {
 
 	this.yesterday.start = this.today.start - this.dayLenghtInMs;
 	this.tomorrow.start  = this.today.start + this.dayLenghtInMs;
+	this.today.end       = this.tomorrow.start;
 	this.tomorrow.end    = this.today.start + 2 * this.dayLenghtInMs;
+	this.week.start      = this.tomorrow.end;
 	this.week.end        = this.week.start  + 7 * this.dayLenghtInMs;
 	if(this.week.end === this.tomorrow.start) {
 		this.week.end = this.week.end + 7 * this.dayLenghtInMs;
@@ -124,7 +126,7 @@ var Time = function(dummy) {
 		this.month.end = computeDate(baseMonthInt, baseYearInt, 1, this.week.end).getTime();
 
 		if(this.month.end - this.week.end < 7 * this.dayLenghtInMs) {
-			this.mon.len = this.week.len;
+			this.month.len = this.week.len;
 		}
 		var aux = this.week.end;
 		while(aux < this.month.end) {

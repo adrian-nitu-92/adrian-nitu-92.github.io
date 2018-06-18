@@ -9,7 +9,7 @@ var reqCounter = 0;
 var debugCanTakeCard = false;
 var debugReasign = false;
 
-var List = function(name, start, end, duration, updateFrequency, previous, next,
+var List = function(name, timeObject, updateFrequency, previous, next,
 	sortFunction, maxCount, maxMitCount, time) {
 	this.addListsData = function() {
 		listsData[name] = {
@@ -221,16 +221,16 @@ var List = function(name, start, end, duration, updateFrequency, previous, next,
 	}
 
 	this.name = name;
-	this.start = start;
-	this.end = end;
+	this.start = timeObject.start;
+	this.end = timeObject.end;
+	this.ticks = timeObject.len;
 	this.sumTicks = 0;
-	this.ticks = duration;
 	this.updateFrequency = updateFrequency;
 	this.previous = previous;
 	this.next = next;
 	this.sortFunction = sortFunction;
 	this.cardCount = 0;
-	this.maxCount = Math.min(maxCount, 1.5 * duration);
+	this.maxCount = Math.min(maxCount, 1.5 * this.ticks);
 	this.counts = {};
 	this.mitCount = 0;
 	this.maxMitCount = maxMitCount;

@@ -76,7 +76,7 @@ resetButton.onclick = function(){
 
 var startButton = document.getElementById('start-button');
 startButton.onclick = function(){
-		sheets.add();
+	sheets.add();
 }
 
 var endbutton = document.getElementById('end-button');
@@ -94,7 +94,6 @@ var mitMe = function(message){
 
 var AMBITIOUS = "ambitious";
 var CORE = "core";
-var mode = CORE;
 var reallyOverdue = [];
 var counter = 0; // TODO: no global state please
 var moved = false;
@@ -107,8 +106,6 @@ var incrementator;
 var listthatneed;
 var timethatlistneed;
 var graph = new Graph();
-
-var requiredLists = ["Today", "Tomorrow", "Week", "Month", "3 Month", "6 Month", "Year", "3 Year", "Inbox", "One Day"];
 
 var addMessage = function(message){
 	globalWarning = globalWarning + message;
@@ -149,15 +146,17 @@ var doOver = function(){
 	var process_card = function(a, b){
 		console.log(reallyOverdue[a].name + b);
 	}
-var getOut = function(lists){
+
+var renderStage = function(lists){
 	if(lists.Today.ticks > lists.Today.sumTicks){
 		document.getElementById('quick').style.display = "";
 	}
 
+	reallyOverdue = scheduler.getOverdue();
 	for(var ro in reallyOverdue){
-		var card  =  reallyOverdue[ro];
-		document.getElementById("p2").innerHTML = document.getElementById("p2").innerHTML + card.name + "<br/>";
+		var card = reallyOverdue[ro];
 
+		document.getElementById("p2").innerHTML = document.getElementById("p2").innerHTML + card.name + "<br/>";
 		document.getElementById("p2").innerHTML = document.getElementById("p2").innerHTML +
 			'<button id="Done'+card.id+'" style="display: block;">Done</button>';
 		document.getElementById("p2").innerHTML = document.getElementById("p2").innerHTML +
@@ -166,7 +165,7 @@ var getOut = function(lists){
 		document.getElementById("Skipped"+card.id).setAttribute("onclick", "process_card("+ro+", 'skipped');");
 
 	}
-	var myReqlist = requiredLists.slice(0,-2);
+	var myReqlist = scheduler.graphList;
 	var data = [];
 	var colorme = function (a, type) {
 		var colors = {"Work":'rgb(0,121,191)', "Unlabeled":'rgb(0,0,0)', "Free":'rgb(97,189,79)', "Facultate":'rgb(195,119,224)', "Facultate-TA":'rgb(195,119,224)', "DownTime":'rgb(0,194,224)', "Grow":'rgb(0,194,224)', "Social":'rgb(255,128,206)', "Health":'rgb(81,232,152)', "Weekly":'rgb(211,211,211)',"Project":'rgb(242,214,0)'};
@@ -212,21 +211,31 @@ var done = function(){
 		GclientInit();
 		cur = false;
 	}
+
 	if(counter >= Object.keys(lists).length +1){
 		var prevFree = 0;
-		for(var l in requiredLists){
-			var name = requiredLists[l];
+		for(var l in scheduler.requiredLists){
+			var name = scheduler.requiredLists[l];
 			if(! trelloApi.parseTasks(lists[name])){
 				document.getElementById("p1").innerHTML = globalError;
-				return getOut(lists);
+				return renderStage(lists);
 			}
 		}
 
 		if(onceADayFlag && ! justReset){
+
+			var move_all_cards_in_range = function(from, to){
+				for (var c in from.cards) {
+					var card = from.cards[c];
+					if(card.date > to.start && card.date < to.end) {
+						to.takeCardFrom(card, from);
+					}
+				}
+			}
 			// move all cards to inbox
 			// move_all_cards_in_range(0, lists["Today"].start, lists["Today"], lists["Inbox"]);
-			move_all_cards_in_range(lists["Today"].start, lists["Tomorrow"].start, lists["Tomorrow"], lists["Today"]);
-			move_all_cards_in_range(lists["Tomorrow"].start, lists["Tomorrow"].end, lists["Week"], lists["Tomorrow"]);
+			move_all_cards_in_range(lists["Tomorrow"], lists["Today"]);
+			move_all_cards_in_range(lists["Week"], lists["Tomorrow"]);
 		}
 
 		var ok = true;
@@ -234,31 +243,32 @@ var done = function(){
 		for(var a in asserts){
 			var assert = asserts[a];
 			console.log(a);
-			ok = ok && assert(lists)
+			ok = ok && assert(lists, scheduler)
 
 		}
 		if(! ok){
 			document.getElementById("p1").innerHTML = globalError;
-			return getOut(lists);
+			return renderStage(lists);
 		}
 		var aaaux = "You currently have <b>" + g_data.errorCount + "</b> errors<br>" +
 		"Inbox costs around <b>" + lists["Inbox"].sumTicks + "</b> hours <br/> ";
 		if(listthatneed !== undefined) {
 			aaaux = aaaux + listthatneed + " needs at least <b>" + timethatlistneed + "</b> hours <br/> " ;
 		}
+
 		/* add it to the begining */
 		globalWarning = aaaux + globalWarning;
-	//---------------------------
-		getOut(lists);
-	//-----------------------------
-		}
+		renderStage(lists);
+	}
+
 	document.getElementById("p1").innerHTML = document.getElementById("p1").innerHTML + globalWarning;
 	globalWarning = "";
 
 }
-var populateLists = function(lists){
+
+var _network_boardSelect = function(boardID, lists){
 	var curry = function(listName){
-		var tarray = requiredLists.slice(0);
+		var tarray = scheduler.requiredLists.slice(0);
 		tarray.push("Done");
 		if( ! tarray.includes(listName) ){
 			return done;
@@ -274,53 +284,34 @@ var populateLists = function(lists){
 			done();
 		};
 	};
-	for(var listName in lists){
-		var listID = lists[listName].id;
-		Trello.get('/lists/'+ listID +'/cards', curry(listName), console.log);
-	}
 
-	console.log(lists);
-}
-
-var llllll;
-var boardSelect = function(boardID, lists){
-	var success = function(answer) {
-		llllll = answer;
+	var _network_success = function(answer) {
 		document.getElementById("p1").innerHTML = "";
 		for(var i in answer){
 			var list = answer[i];
 
-			list.backlink = list;
 			if(lists[list.name] === undefined){
+				addWarning("undefined list detected");
+				console.log(list);
 				lists[list.name] = list;
 			} else {
 				Object.assign(lists[list.name], list);
 			}
+
+			var listID = lists[list.name].id;
+			Trello.get('/lists/'+ listID +'/cards', curry(list.name), console.log);
 		}
-		populateLists(lists);
 	};
 
-	Trello.get('/boards/51d3f043a536c77a09000a40/lists', success, console.log);
+	Trello.get('/boards/51d3f043a536c77a09000a40/lists', _network_success, console.log);
+
+	console.log(lists);
 }
 
 var justReset;
 
 var onceADayFlag = false;
 var onceAWeekFlag = false;
-
-var scoreMultiplier;
-var mult;
-
-var move_all_cards_in_range = function(start, end, l1, l2){
-	for (var c in l1.cards) {
-		var card = l1.cards[c];
-		if(card.date > start && card.date < end) {
-			if(l2.canTakeCard(card)){
-				l2.takeCardFrom(card, l1);
-			}
-		}
-	}
-}
 
 var schedulerInitEnded = function(scheduler){
 	endbutton.onclick = function(){

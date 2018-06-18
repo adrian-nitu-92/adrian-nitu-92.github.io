@@ -1,7 +1,7 @@
 "use strict";
 var Card = function(cardObject, list, inbox, done) {
 
-	this.updateDesc = function(){
+	this._network_updateDesc = function(){
 		this.auxObj.eventId = this.eventId;
 		this.auxObj.eraseMeNot = this.eraseMeNot;
 		var val = JSON.stringify(this.auxObj);
@@ -14,7 +14,7 @@ var Card = function(cardObject, list, inbox, done) {
 		Trello.put('/cards/' + this.id + "/desc",{"value":val}, console.log, console.log);
 	}
 
-	this.dueCompleteProcess = function() {
+	this._network_dueCompleteProcess = function() {
 		if(! this.dueComplete ){
 			return;
 		}
@@ -32,10 +32,10 @@ var Card = function(cardObject, list, inbox, done) {
 		}
 	}
 
-	this.reschedule = function() {
+	this._network_reschedule = function() {
 		if(this.repeating) {
 			this.dueComplete = true;
-			this.dueCompleteProcess();
+			this._network_dueCompleteProcess();
 		} else {
 			var lists = scheduler.lists;
 			this.due = lists["Today"].start/2 + lists["Today"].end/2;
@@ -44,9 +44,9 @@ var Card = function(cardObject, list, inbox, done) {
 		}
 	}
 
-	this.scrub = function() {
+	this._network_scrub = function() {
 		if(this.due) {
-			Trello.put('/cards/' + this.id + "/due",{"value":"null"}, function(v){console.log(v);}, function(v){console.log(v);});
+			Trello.put('/cards/' + this.id + "/due",{"value":"null"}, console.log, console.log);
 		}
 		this.deleteGoogleEvent();
 	}
@@ -55,16 +55,21 @@ var Card = function(cardObject, list, inbox, done) {
 		if(this.eventId !== undefined) {
 			var t = this.eventId;
 			this.eventId = undefined;
-			this.updateDesc();
+			this._network_updateDesc();
 
 			_deleteGoogleEvent(t);
 		}
 	}
 
-	this.delete = function() {
+	this.delete = function(trello_api) {
+		if(trello_api === undefined){
+			console.log(new Error().stack);
+			throw "Learn the api, please"
+		}
 		_deleteGoogleEvent(this.eventId);
-		if(! this.auxObj.eraseMeNot)	{
-			Trello.delete('/cards/' + this.id, function(v){console.log(v);}, function(v){console.log(v);});
+		if(! this.auxObj.eraseMeNot){
+		    delete this.list[this.id];
+		    trello_api(delete(this));
 		} else {
 			console.log("unbreakable heart");
 			console.log(this);
@@ -120,7 +125,7 @@ var Card = function(cardObject, list, inbox, done) {
 		if(this.mit){
 			this.size = 1000;
 		}
-		var sm = this.getScoreMultiplier();
+		var sm = scheduler.getScoreMultiplier();
 		this.size = this.size * sm * 10;
 		if(found > 1){
 			addError("Card " + JSON.stringify(this) + " is not labeled correctly <br/>");
@@ -144,30 +149,6 @@ var Card = function(cardObject, list, inbox, done) {
 		if(this.dueComplete === false){
 			this.list.sumTicks += this.tick;
 		}
-	}
-	this.getScoreMultiplier = function() {
-		if(this.mit) {
-			return 1;
-		}
-		if(this.due === undefined) {
-			return 0.1;
-		}
-		if (this.due == null){
-			return 0.1;
-		}
-		var due = new Date(this.due).getTime();
-		var weekStart = scheduler.time.week.start;
-		var lists = scheduler.lists;
-		if(due < weekStart) {
-			return 10;
-		}
-		for(var l in requiredLists) {
-			var lname = requiredLists[l];
-			if(due < lists[lname].end) {
-				return scoreMultiplier[lname];
-			}
-		}
-		return 1;
 	}
 
 	this.listname = list.name;

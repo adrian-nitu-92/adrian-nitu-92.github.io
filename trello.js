@@ -2,7 +2,7 @@
 var TrelloApi = function() {
 
 	this.parseTasks = function (list) {
-		var cards = list.cards;	
+		var cards = list.cards;
 		//once a day, parse everything, then, if no error from subsumate occured, store all above month
 		//this includes updating and adding calendar events
 		for(var c in cards){
@@ -11,7 +11,7 @@ var TrelloApi = function() {
 				list.mitCount = list.mitCount + 1;
 			}
 			if(card.dueComplete) {
-				card.dueCompleteProcess();
+				card._network_dueCompleteProcess();
 				continue;
 			}
 
@@ -21,7 +21,21 @@ var TrelloApi = function() {
 		}
 		return true;
 	};
+
+	this.deleteCard = function(card){
+		if(card === undefined || card.id === undefined){
+			console.log(new Error().stack);
+			throw "Learn the api, please";
+		}
+		Trello.delete('/cards/' + card.id, this.success, this.error);
+	}
+	this.success = function(){};
+	this.error = console.log;
+	if(this.debugTrelloApi === true){
+		this.success = console.log;
+	}
 };
+
 
 var sortPos = function(a,b){
 	return a.pos - b.pos;

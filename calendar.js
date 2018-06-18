@@ -34,9 +34,7 @@ var _deleteGoogleEvent = function(eventId){
         'eventId': eventId
     });
 
-    request.execute(function (ee) {
-       console.log(ee);
-    });
+    request.execute(console.log);
 }
 
 var ceva = function(eventId, e, start, end, card){
