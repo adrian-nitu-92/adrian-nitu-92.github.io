@@ -39,14 +39,25 @@
 </head>
 <body>
 <div id="airea"></div>
+
 <a href="/">Home</a>
+
+<div id="error"></div>
 <script type="text/javascript">
 
-var schedulerInitEnded = function(scheduler){
-
+var addMessage = function(message){
+	document.getElementById('airea').innerHTML = document.getElementById('airea').innerHTML + message + "<br\>";
 }
 
-var scheduler = new Scheduler(schedulerInitEnded);
+var addWarning = console.log;
+
+var addError = function(message){
+	document.getElementById('error').innerHTML = document.getElementById('error').innerHTML + message + "<br\>";
+}
+
+var techDebt = true;
+
+var done = function(){}
 
 var base = function(time, string){
 	return function(){
@@ -59,45 +70,63 @@ var tag = function(){
 	var time = 5;
 	var untaggedList = scheduler.getUntagged();
 	var untagged;
-	if(techDebt) {
-		untagged = untaggedList[0];
-	} else {
-		untagged = untaggedList.first();
+	untagged = untaggedList[0];
+	if(untagged === undefined){
+		return null;
 	}
-	document.getElementById('airea').innerHTML =  `You have ${time} minutes? tag stuffs + ${untagged}`;
+	return function(){
+		document.getElementById('airea').innerHTML =  `You have ${time} minutes? tag stuffs + ${untagged}`;
+	}
+}
+
+var prioritise = function(){
+	var time = 5;
+	var firstListNotPriod = scheduler.getFirstNotPrioList();
+	if(firstListNotPriod === undefined)
+		return null;
+
+	return function(){
+		for (var i in firstListNotPriod)
+			addMessage(firstListNotPriod[i].name)
+	}
 }
 
 //TODO: location? home
-var stuffs = [null,
-base(5, "Try to clean something!"),
-base(5, "Call your parents!"),
-base(5, "Take an eye break!"),
-base(5, "Drink some water!"),
-base(5, "Drink some tea!"),
-base(5, "Log money today!"),
-base(5, "Rest your mind"),
-base(5, "Ensure things are charged"),
-base(5, "Clean your glasses"),
-base(5, "Check your appearance"),
-base(5, "Meditate"),
-base(5, "Check your posture"),
-tag,
-null];
+var schedulerInitEnded = function(scheduler){
 
-//TODO
-var techDebt = true;
-var stuff;
-if(techDebt) {
-	stuff = stuffs[0];
-	while(stuff === null){
-		var x = Math.random() * stuffs.length;
-		stuff = stuffs[parseInt(x + "")];
+	var stuffs = [null,
+	base(5, "Try to clean something!"),
+	base(5, "Call your parents!"),
+	base(5, "Take an eye break!"),
+	base(5, "Drink some water!"),
+	base(5, "Drink some tea!"),
+	base(5, "Log money today!"),
+	base(5, "Rest your mind"),
+	base(5, "Ensure things are charged"),
+	base(5, "Clean your glasses"),
+	base(5, "Check your appearance"),
+	base(5, "Meditate"),
+	base(5, "Check your posture"),
+	tag(),
+	prioritise(),
+	null];
+
+	//TODO
+	var stuff;
+	if(techDebt) {
+		stuff = stuffs[0];
+		while(stuff === null){
+			var x = Math.random() * stuffs.length;
+			stuff = stuffs[parseInt(x + "")];
+		}
+	} else {
+		stuff = stuffs.choice();
 	}
-} else {
-	stuff = stuffs.choice();
+
+	stuff();
 }
 
-stuff();
+var scheduler = new Scheduler(schedulerInitEnded);
 //else
 /*
 todo: prioritise these 5 tasks (choose only 3)

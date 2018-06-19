@@ -2,7 +2,15 @@
 
 var Scheduler = function (initEndedCallback) {
 
+	var scheduler = this;
+
+	this.getFirstNotPrioList = function(){
+		addError("unimplemented getFirstNotPrioList");
+		return Object.values(this.lists.Today.cards);
+	}
+
 	this.getUntagged = function(){
+		addError("unimplemented getUntagged");
 		return [];
 	}
 
@@ -12,6 +20,11 @@ var Scheduler = function (initEndedCallback) {
 			var tarray = scheduler.requiredLists.slice(0);
 			tarray.push("Done");
 			if( ! tarray.includes(listName) ){
+				scheduler.listsWaiting = scheduler.listsWaiting - 1;
+				if(scheduler.initEndedCallback !== undefined && scheduler.listsWaiting === 0)
+				{
+					setTimeout(scheduler.initEndedCallback(scheduler), 100);
+				}
 				return done;
 			}
 			return function(answer, list) {
@@ -22,7 +35,13 @@ var Scheduler = function (initEndedCallback) {
 				}
 				lists[listName].cards = cards;
 				lists[listName].cardCount = Object.keys(cards).length;
+				scheduler.listsWaiting = scheduler.listsWaiting - 1;
+				if(scheduler.initEndedCallback !== undefined && scheduler.listsWaiting === 0)
+				{
+					setTimeout(scheduler.initEndedCallback(scheduler), 100);
+				}
 				done();
+
 			};
 		};
 
@@ -40,12 +59,14 @@ var Scheduler = function (initEndedCallback) {
 
 				var listID = lists[list.name].id;
 				Trello.get('/lists/'+ listID +'/cards', curry(list.name), console.log);
+				scheduler.listsWaiting = scheduler.listsWaiting + 1;
 			}
 		};
 
 		Trello.get('/boards/51d3f043a536c77a09000a40/lists', _network_document_success, console.log);
 
 		console.log(lists);
+
 	}
 
 	this.secondStageInit = function(){
@@ -72,10 +93,6 @@ var Scheduler = function (initEndedCallback) {
 		this.lists["Done"]     = new List("Done",          time.max,       NEVER,       null,      null, sortScore,                               maxInt, undefined, time);
 		this._network_boardSelect();
 
-		if(this.initEndedCallback !== undefined)
-		{
-			setTimeout(this.initEndedCallback(this), 100);
-		}
 	}
 
 	this.getOverdue = function(){
@@ -104,7 +121,6 @@ var Scheduler = function (initEndedCallback) {
 	}
 
 	this.doOver = function(name){
-		var scheduler = this;
 		if(this.moved){
 			// dont sort if at least one card has been moved
 			return;
@@ -151,12 +167,13 @@ var Scheduler = function (initEndedCallback) {
 	this.mode = CORE;
 	this.moved = false;
 
+	this.listsWaiting = 0;
+
 	this.requiredLists = ["Today", "Tomorrow", "Week", "Month", "3 Month", "6 Month", "Year", "3 Year", "Inbox", "One Day"];
 
 	this.graphList = this.requiredLists.slice(0,-2);
 
 	this.lists = {};
-	var scheduler = this;
 	this.time = new Time();
 	this.initEndedCallback = initEndedCallback;
 

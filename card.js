@@ -143,7 +143,9 @@ var Card = function(cardObject, list, inbox, done) {
 					extra = "Weekly";
 				}
 			}
-			graph.add(this.listname, ln, this.tick/labelToAdd.length, extra);
+			if(window.graph !== undefined){
+				graph.add(this.listname, ln, this.tick/labelToAdd.length, extra);
+			}
 			var x = this.list.counts[ln];
 			if(x === undefined){
 				x = 0;
