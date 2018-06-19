@@ -2,12 +2,13 @@
 var Graph = function(dummy) {
 	this.dummy = dummy;
 	this._sumsCount = new Object();
+	this.listsData = {}
 	this.initCount = function (name, size) {
 		this._sumsCount[name] = {};
 		this._sumsCount[name]["Free"] = size;
 		this._sumsCount[name]["Daily"] = {};
 		this._sumsCount[name]["Weekly"] = {};
-		listsData[name]["sizes"]= this._sumsCount[name];
+		this.listsData[name]["sizes"]= this._sumsCount[name];
 	}
 	this.add = function(name, label, size, extra) {
 		var osize = size;

@@ -1,8 +1,4 @@
 "use strict";
-var EVERYTIME = "EVERYTIME";
-var ONCE_A_DAY = "ONCE_A_DAY";
-var ONCE_A_WEEK = "ONCE_A_WEEK"
-var NEVER = "NEVER";
 
 var reqCounter = 0;
 
@@ -11,8 +7,8 @@ var debugReasign = false;
 
 var List = function(name, timeObject, updateFrequency, previous, next,
 	sortFunction, maxCount, maxMitCount, time) {
-	this.addListsData = function() {
-		listsData[name] = {
+	this.addListsData = function(graph) {
+		graph.listsData[name] = {
 			"name" :          this.name,
 			"start": new Date(this.start),
 			"end"  : new Date(this.end),
@@ -241,8 +237,6 @@ var List = function(name, timeObject, updateFrequency, previous, next,
 	this.percGap = 0.1; // 10% default free
 	this.flatGap = 2;   // 2 hours free, by default
 
-	this.addListsData();
-
 	this.weekCount = 1;
 
 	if(["Month", "3 Month", "6 Month", "Year", "3 Year"].indexOf(this.name) >= 0){
@@ -253,8 +247,10 @@ var List = function(name, timeObject, updateFrequency, previous, next,
 			this.weekCount = this.weekCount + 1;
 		}
 	}
-	graph.initCount(this.name, this.ticks);
-
+	if(window.graph !== undefined){
+		this.addListsData(graph);
+		graph.initCount(this.name, this.ticks);
+	}
 };
 
 var toTicks = function(x) {

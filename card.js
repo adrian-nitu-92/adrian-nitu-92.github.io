@@ -94,6 +94,12 @@ var Card = function(cardObject, list, inbox, done) {
 				this.mit = true;
 			} else if (ln == "Pass"){
 				this.pass = true;
+			} else if (ln == "Big"){
+				this.pass = true;
+			} else if (ln == "Medium"){
+				this.pass = true;
+			} else if (ln == "Small"){
+				this.pass = true;
 			} else if (ln == "Weekly"){
 				this.repeating = true;
 				this.repeatAfter = 7 * 24 * 60 * 60 * 1000;
@@ -125,8 +131,6 @@ var Card = function(cardObject, list, inbox, done) {
 		if(this.mit){
 			this.size = 1000;
 		}
-		var sm = scheduler.getScoreMultiplier();
-		this.size = this.size * sm * 10;
 		if(found > 1){
 			addError("Card " + JSON.stringify(this) + " is not labeled correctly <br/>");
 		}

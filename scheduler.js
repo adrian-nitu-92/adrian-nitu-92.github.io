@@ -6,9 +6,51 @@ var Scheduler = function (initEndedCallback) {
 		return [];
 	}
 
+	this._network_boardSelect = function(){
+		var lists = this.lists;
+		var curry = function(listName){
+			var tarray = scheduler.requiredLists.slice(0);
+			tarray.push("Done");
+			if( ! tarray.includes(listName) ){
+				return done;
+			}
+			return function(answer, list) {
+				var cards = {};
+				for(var i in answer){
+					var card = answer[i];
+					cards[card.id] = new Card(card, lists[listName], lists["Inbox"], lists["Done"]);
+				}
+				lists[listName].cards = cards;
+				lists[listName].cardCount = Object.keys(cards).length;
+				done();
+			};
+		};
+
+		var _network_document_success = function(answer) {
+			for(var i in answer){
+				var list = answer[i];
+
+				if(lists[list.name] === undefined){
+					addWarning("undefined list detected");
+					console.log(list);
+					lists[list.name] = list;
+				} else {
+					Object.assign(lists[list.name], list);
+				}
+
+				var listID = lists[list.name].id;
+				Trello.get('/lists/'+ listID +'/cards', curry(list.name), console.log);
+			}
+		};
+
+		Trello.get('/boards/51d3f043a536c77a09000a40/lists', _network_document_success, console.log);
+
+		console.log(lists);
+	}
+
 	this.secondStageInit = function(){
 		var time = this.time;
-		moved = false;
+		this.moved = false;
 
 		var maxInt = Number.MAX_SAFE_INTEGER;
 
@@ -28,37 +70,12 @@ var Scheduler = function (initEndedCallback) {
 		this.lists["One Day"]  = new List("One Day",    time.oneDay,       NEVER,   "3 Year",      null, sortScore,                               maxInt, undefined, time);
 		this.lists["Inbox"]    = new List("Inbox",         time.max,       NEVER,       null,      null, sortScore,                               maxInt, undefined, time);
 		this.lists["Done"]     = new List("Done",          time.max,       NEVER,       null,      null, sortScore,                               maxInt, undefined, time);
-		_network_boardSelect(gItemID, this.lists);
+		this._network_boardSelect();
 
 		if(this.initEndedCallback !== undefined)
 		{
-			this.initEndedCallback();
+			setTimeout(this.initEndedCallback(this), 100);
 		}
-	}
-
-	this.getScoreMultiplier = function() {
-		if(this.mit) {
-			return 1;
-		}
-		if(this.due === undefined) {
-			return 0.1;
-		}
-		if (this.due == null){
-			return 0.1;
-		}
-		var due = new Date(this.due).getTime();
-		var weekStart = scheduler.time.week.start;
-		var lists = scheduler.lists;
-		if(due < weekStart) {
-			return 10;
-		}
-		for(var l in this.requiredLists) {
-			var lname = this.requiredLists[l];
-			if(due < lists[lname].end) {
-				return this.scoreMultiplier[lname];
-			}
-		}
-		return 1;
 	}
 
 	this.getOverdue = function(){
@@ -86,35 +103,62 @@ var Scheduler = function (initEndedCallback) {
 	    }
 	}
 
+	this.doOver = function(name){
+		var scheduler = this;
+		if(this.moved){
+			// dont sort if at least one card has been moved
+			return;
+		}
+		if(incrementator[name] < arraySortedBySize[name].length){
+			var card = arraySortedBySize[name][incrementator[name]];
+			incrementator[name] = incrementator[name] +1;
+			var cVal = arraySortedByPos[name].indexOf(card);
+			var value = "bottom";
+
+			debug(sortingDebug, "Sorting");
+			debug(sortingDebug, card.name + " " + card.size);
+			Trello.put('/cards/' + card.id + "/pos",{"value":value},
+				function(){scheduler.doOver(name)}, console.log);
+		}
+	}
+
+	this.sort = function(list) {
+		var name = list.name;
+		var cards = list.cards;
+        var arrayCards = Object.keys(cards).map(function(key) {
+            return cards[key];
+        });
+        arraySortedByPos[name] = arrayCards.slice(0);
+        arraySortedByPos[name].sort(sortPos);
+        arraySortedBySize[name] = arrayCards.slice(0);
+        var sortFunc = list.sortFunction;
+        arraySortedBySize[name].sort(sortFunc);
+        var s1 = arraySortedByPos[name].map(function(el) {
+            return el.size;
+        }).toString();
+        var s2 = arraySortedBySize[name].map(function(el) {
+            return el.size;
+        }).toString();
+        if (s1 != s2) {
+            console.log(name + " is not sorted!");
+            incrementator[name] = 0;
+            this.doOver(name);
+            return true;
+        }
+	}
+
 	/* init */
 	this.mode = CORE;
+	this.moved = false;
 
 	this.requiredLists = ["Today", "Tomorrow", "Week", "Month", "3 Month", "6 Month", "Year", "3 Year", "Inbox", "One Day"];
 
 	this.graphList = this.requiredLists.slice(0,-2);
 
-	this.scoreMultiplier = {};
-	var scoreMultiplier = this.scoreMultiplier;
-	var mult = 1.5;
-	scoreMultiplier["Today"]    = mult = mult /1.5;
-	scoreMultiplier["Tomorrow"] = mult = mult /1.5;
-	scoreMultiplier["Week"]     = mult = mult /1.5;
-	scoreMultiplier["Month"]    = mult = mult /1.5;
-	scoreMultiplier["3 Month"]  = mult = mult /1.5;
-	scoreMultiplier["6 Month"]  = mult = mult /1.5;
-	scoreMultiplier["Year"]     = mult = mult /1.5;
-	scoreMultiplier["3 Year"]   = mult = mult /1.5;
-	scoreMultiplier["Inbox"]    = mult = mult /1.5;
-	scoreMultiplier["One Day"]  = mult = mult /1.5;
-
 	this.lists = {};
 	var scheduler = this;
 	this.time = new Time();
 	this.initEndedCallback = initEndedCallback;
-
-	justReset = (localStorage.getItem("reset") === "undefined");
-
-	localStorage.setItem("reset", "value");
 
 	setTimeout(function(){Trello.authorize({
 		type: 'popup',
@@ -127,3 +171,9 @@ var Scheduler = function (initEndedCallback) {
 			error: console.log
 		});}, 5);
 }
+
+
+var incrementator = {};
+
+var arraySortedByPos = {};
+var arraySortedBySize = {};

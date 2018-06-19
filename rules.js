@@ -36,34 +36,11 @@ asserts["Delete Done"] = function(_unused, scheduler) {
     return true;
 }
 
-var arraySortedByPos;
-var arraySortedBySize;
-
-asserts["sort"] = function(lists) {
+asserts["sort"] = function(lists, scheduler) {
     for (var l in scheduler.requiredLists) {
         var name = scheduler.requiredLists[l];
         var list = lists[name];
-        var cards = list.cards;
-        var arrayCards = Object.keys(cards).map(function(key) {
-            return cards[key];
-        });
-        arraySortedByPos = arrayCards.slice(0);
-        arraySortedByPos.sort(sortPos);
-        arraySortedBySize = arrayCards.slice(0);
-        var sortFunc = list.sortFunction;
-        arraySortedBySize.sort(sortFunc);
-        var s1 = arraySortedByPos.map(function(el) {
-            return el.size;
-        }).toString();
-        var s2 = arraySortedBySize.map(function(el) {
-            return el.size;
-        }).toString();
-        if (s1 != s2) {
-            console.log(name + " is not sorted!");
-            incrementator = 0;
-            doOver();
-            return true;
-        }
+        scheduler.sort(list);
     }
     return true;
 }

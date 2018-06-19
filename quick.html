@@ -1,13 +1,52 @@
 <html>
 <head>
 <title>Quick task schedule!</title>
-<script src="scheduler.js">
-</script>
+	<link href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css" rel="stylesheet">
+		</link>
+
+    <script type="text/javascript" src="const.js" ></script>
+    <script type="text/javascript" src="libs/jquery-1.11.1.min.js" ></script>
+    <script type="text/javascript" src="libs/underscore-min.js" ></script>
+    <script type="text/javascript" src="libs/backbone-min.js" ></script>
+	<script src="libs/jquery-ui.js">
+	</script>
+	<script src="libs/pretty-json-min.js">
+	</script>
+	<script src="https://api.trello.com/1/client.js?key=83fbbffdca68e9e5655f409d9b204618">
+	</script>
+	<script src="libs/googleapi.js">
+	</script>
+	<script src="rules.js">
+	</script>
+	<script src="google-common.js">
+	</script>
+	<script src="sheets.js">
+	</script>
+	<script src="calendar.js">
+	</script>
+	<script src="list.js">
+	</script>
+	<script src="trello.js">
+	</script>
+	<script src="card.js">
+	</script>
+	<script src="graph.js">
+	</script>
+	<script src="time.js">
+	</script>
+	<script src="scheduler.js">
+	</script>
 </head>
 <body>
 <div id="airea"></div>
 <a href="/">Home</a>
 <script type="text/javascript">
+
+var schedulerInitEnded = function(scheduler){
+
+}
+
+var scheduler = new Scheduler(schedulerInitEnded);
 
 var base = function(time, string){
 	return function(){

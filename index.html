@@ -1,6 +1,8 @@
 <head>
 	<link href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css" rel="stylesheet">
-		    <!-- lib -->
+		</link>
+	<script src="const.js">
+	</script>
     <script type="text/javascript" src="libs/jquery-1.11.1.min.js" ></script>
     <script type="text/javascript" src="libs/underscore-min.js" ></script>
     <script type="text/javascript" src="libs/backbone-min.js" ></script>
@@ -32,8 +34,9 @@
 	</script>
 	<script src="scheduler.js">
 	</script>
+
 	<!--  python -m http.server -->
-	</link>
+
 </head>
 <body>
 	<div id="mit"></div>
@@ -92,17 +95,12 @@ var mitMe = function(message){
 	document.getElementById('mit').innerHTML = h + message + "<br/>";
 }
 
-var AMBITIOUS = "ambitious";
-var CORE = "core";
 var reallyOverdue = [];
 var counter = 0; // TODO: no global state please
-var moved = false;
 var globalWarning = "";
 var globalError = "";
 var gItemID = undefined;
 var cur=true;
-var listsData = {};
-var incrementator;
 var listthatneed;
 var timethatlistneed;
 var graph = new Graph();
@@ -124,25 +122,6 @@ var addError = function(message){
 
 var sortingDebug = true;
 
-var doOver = function(){
-	if(moved){
-		// dont sort if at least one card has been moved
-		return;
-	}
-	if(incrementator < arraySortedBySize.length){
-		var card = arraySortedBySize[incrementator];
-		incrementator = incrementator +1;
-		var cVal = arraySortedByPos.indexOf(card);
-		var value = "bottom";
-
-		debug(sortingDebug, "Sorting");
-		debug(sortingDebug, card.name + " " + card.size);
-		Trello.put('/cards/' + card.id + "/pos",{"value":value},
-			doOver, console.log);
-	} else {
-		window.location.reload();
-	}
-}
 	var process_card = function(a, b){
 		console.log(reallyOverdue[a].name + b);
 	}
@@ -199,7 +178,7 @@ var renderStage = function(lists){
 	Plotly.newPlot('percs', data, layout);
 	var node = new PrettyJSON.view.Node({
 	  el:$('#jayson'),
-	  data:listsData
+	  data:graph.listsData
 	});
 }
 
@@ -266,57 +245,21 @@ var done = function(){
 
 }
 
-var _network_boardSelect = function(boardID, lists){
-	var curry = function(listName){
-		var tarray = scheduler.requiredLists.slice(0);
-		tarray.push("Done");
-		if( ! tarray.includes(listName) ){
-			return done;
-		}
-		return function(answer, list) {
-			var cards = {};
-			for(var i in answer){
-				var card = answer[i];
-				cards[card.id] = new Card(card, lists[listName], lists["Inbox"], lists["Done"]);
-			}
-			lists[listName].cards = cards;
-			lists[listName].cardCount = Object.keys(cards).length;
-			done();
-		};
-	};
-
-	var _network_success = function(answer) {
-		document.getElementById("p1").innerHTML = "";
-		for(var i in answer){
-			var list = answer[i];
-
-			if(lists[list.name] === undefined){
-				addWarning("undefined list detected");
-				console.log(list);
-				lists[list.name] = list;
-			} else {
-				Object.assign(lists[list.name], list);
-			}
-
-			var listID = lists[list.name].id;
-			Trello.get('/lists/'+ listID +'/cards', curry(list.name), console.log);
-		}
-	};
-
-	Trello.get('/boards/51d3f043a536c77a09000a40/lists', _network_success, console.log);
-
-	console.log(lists);
-}
-
 var justReset;
 
 var onceADayFlag = false;
 var onceAWeekFlag = false;
 
 var schedulerInitEnded = function(scheduler){
+	document.getElementById("p1").innerHTML = "";
+
 	endbutton.onclick = function(){
-		localStorage.setItem("AuxStart", tomorrowStart);
+		localStorage.setItem("AuxStart", scheduler.time.tomorrow.start);
 	}
+
+	justReset = (localStorage.getItem("reset") === "undefined");
+
+	localStorage.setItem("reset", "value");
 
 	setInterval(function() {window.location.reload();}, 1000*60*10);
 }
