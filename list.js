@@ -65,7 +65,7 @@ var List = function(name, timeObject, updateFrequency, previous, next,
 		}
 		this._enqueue(card.id, value);
 
-		moved = true;
+		scheduler.moved = true;
 	}
 	this._enqueue= function(id, value){
 		var cardid = id;

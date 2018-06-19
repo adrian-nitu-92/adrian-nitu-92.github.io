@@ -175,7 +175,7 @@ var Card = function(cardObject, list, inbox, done) {
 		this.eventId = this.desc.split(" -- ")[1];
 		this.auxObj.eventId = this.eventId;
 		this.auxObj.eraseMeNot = false;
-		this.updateDesc();
+		this._network_updateDesc();
 	}
 
 	var nDate = scheduler.lists["Week"].end - 1000;
