@@ -113,7 +113,7 @@ var addToGcal = function(card){
 	         //console.log(event);
 	         card.auxObj.eventId = event.id;
 	         card.eventId = event.id;
-	         card.updateDesc();
+	         card._network_updateDesc();
 	         });
 		}
 	}
