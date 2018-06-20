@@ -46,7 +46,7 @@
 <script type="text/javascript">
 
 var addMessage = function(message){
-	document.getElementById('airea').innerHTML = document.getElementById('airea').innerHTML + message + "<br\>";
+	document.getElementById('airea').innerHTML += message;
 }
 
 var addWarning = console.log;
@@ -79,22 +79,58 @@ var tag = function(){
 	}
 }
 
+var processFunction;
+
 var prioritise = function(){
 	var time = 5;
 	var firstListNotPriod = scheduler.getFirstNotPrioList();
 	if(firstListNotPriod === undefined)
 		return null;
 
+	var buttonSizes = ["Big", "Medium", "Small"]
+
+	var renderRow = function(card) {
+		var html = '';
+		html += '<tr><td> ';
+		html += card.name;
+		html += ' </td><td>';
+		for (var bs = 0; bs < buttonSizes.length; bs ++ ){
+			var buttonSize = buttonSizes[bs];
+			html += '<button id="'+buttonSize+card.id+'" style="display: inline;">'+buttonSize+'</button>';
+		}
+		html += '</td></tr>';
+		return(html);
+	}
+
 	return function(){
-		for (var i in firstListNotPriod)
-			addMessage(firstListNotPriod[i].name)
+		processFunction = function(size, list, cardID) {
+			console.log(size + " "+ list.name + " " + cardID);
+			list[cardID].setLabel(size);
+		}
+
+		var table = '';
+		table +=('<table style=\"width:100%\">');
+		for (var i in firstListNotPriod.cards){
+			var card = firstListNotPriod.cards[i];
+			table += renderRow(card);
+		}
+		table += '</table>';
+		addMessage(table);
+		for (var i in firstListNotPriod.cards){
+			var card = firstListNotPriod.cards[i];
+			for (var bs = 0; bs < buttonSizes.length; bs ++ ){
+				var buttonSize = buttonSizes[bs];
+				document.getElementById(buttonSize+card.id).setAttribute("onclick",
+					'processFunction("'+buttonSize+'", scheduler.lists["'+firstListNotPriod.name+'"], "'+card.id+'");');
+			}
+		}
 	}
 }
 
 //TODO: location? home
 var schedulerInitEnded = function(scheduler){
 
-	var stuffs = [null,
+	var stuffs = [null,/*
 	base(5, "Try to clean something!"),
 	base(5, "Call your parents!"),
 	base(5, "Take an eye break!"),
@@ -105,7 +141,7 @@ var schedulerInitEnded = function(scheduler){
 	base(5, "Ensure things are charged"),
 	base(5, "Clean your glasses"),
 	base(5, "Check your appearance"),
-	base(5, "Meditate"),
+	base(5, "Meditate"),*/
 	base(5, "Check your posture"),
 	tag(),
 	prioritise(),

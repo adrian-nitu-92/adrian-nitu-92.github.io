@@ -6,7 +6,7 @@ var Scheduler = function (initEndedCallback) {
 
 	this.getFirstNotPrioList = function(){
 		addError("unimplemented getFirstNotPrioList");
-		return Object.values(this.lists.Today.cards);
+		return this.lists.Today;
 	}
 
 	this.getUntagged = function(){
