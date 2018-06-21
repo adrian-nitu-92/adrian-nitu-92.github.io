@@ -127,6 +127,15 @@ var prioritise = function(){
 	}
 }
 
+
+var projects = function(){
+	return function(){
+		document.getElementById('airea').innerHTML =  `You have 5 minutes? Review
+<a href="https://docs.google.com/spreadsheets/d/1S20YvTFcT5kxSQgpWK9y691nIKYZktMFJnXgQq-YqN0/edit#gid=0">
+projects</a>`;
+	}
+}
+
 //TODO: location? home
 var schedulerInitEnded = function(scheduler){
 
@@ -145,6 +154,7 @@ var schedulerInitEnded = function(scheduler){
 	base(5, "Check your posture"),
 	tag(),
 	prioritise(),
+	projects(),
 	null];
 
 	//TODO
