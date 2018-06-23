@@ -8,7 +8,7 @@ var Graph = function(dummy) {
 		this._sumsCount[name]["Free"] = size;
 		this._sumsCount[name]["Daily"] = {};
 		this._sumsCount[name]["Weekly"] = {};
-		this.listsData[name]["sizes"]= this._sumsCount[name];
+		this.listsData[name]["sizes"] = this._sumsCount[name];
 	}
 	this.add = function(name, label, size, extra) {
 		var osize = size;
@@ -25,6 +25,11 @@ var Graph = function(dummy) {
 		}
 		if(this._sumsCount[name][label] === undefined){
 			this._sumsCount[name][label] = 0;
+		}
+		/* We look at the 3 year to see what labels are valid,
+		 * and some lists don't reach the 3 year label list */
+		if(this._sumsCount["3 Year"][label] === undefined){
+			this._sumsCount["3 Year"][label] = 0;
 		}
 		this._sumsCount[name][label]  += size;
 		this._sumsCount[name]["Free"] -= size;

@@ -12,7 +12,7 @@
 	</script>
 	<script src="https://api.trello.com/1/client.js?key=83fbbffdca68e9e5655f409d9b204618">
 	</script>
-	<script src="libs/googleapi.js">
+	<script src="https://apis.google.com/js/api.js">
 	</script>
 	<script src="rules.js">
 	</script>
@@ -147,7 +147,9 @@ var renderStage = function(lists){
 	var myReqlist = scheduler.graphList;
 	var data = [];
 	var colorme = function (a, type) {
-		var colors = {"Work":'rgb(0,121,191)', "Unlabeled":'rgb(0,0,0)', "Free":'rgb(97,189,79)', "Facultate":'rgb(195,119,224)', "Facultate-TA":'rgb(195,119,224)', "DownTime":'rgb(0,194,224)', "Grow":'rgb(0,194,224)', "Social":'rgb(255,128,206)', "Health":'rgb(81,232,152)', "Weekly":'rgb(211,211,211)',"Project":'rgb(242,214,0)'};
+		var colors = {"Work":'rgb(0,121,191)', "Unlabeled":'rgb(0,0,0)', "Free":'rgb(97,189,79)', "Facultate":'rgb(195,119,224)', "Facultate-TA":'rgb(195,119,224)', "DownTime":'rgb(0,194,224)', "Grow":'rgb(0,194,224)',
+		"Social":'rgb(255,128,206)', "Social - parents":'rgb(255,128,206)',
+		"Health":'rgb(81,232,152)', "Weekly":'rgb(211,211,211)',"Project":'rgb(242,214,0)'};
 		return colors[type];
 	}
 	for(var type in graph._sumsCount["3 Year"]){

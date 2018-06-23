@@ -77,6 +77,10 @@ var Card = function(cardObject, list, inbox, done) {
 	}
 
 	this._parseLabels = function() {
+		var labelIsAType = function(label){
+			return ["Challenge", "MIT", "ImportantTask", "Pass", "Weekly", "Daily",
+			"Big", "Medium", "Small"].indexOf(ln) == -1;
+		}
 		var specialLabelConv = {"Challenge":1000, "Grow":850, "Facultate": 750, "Health":600, "Work": 500, "Social":400, "Facultate-TA": 300, "Downtime":100 };
 		var convert = {"30 minute task" : 0.5, "Hour task": 1, "2 hour task": 2, "3 hour task":3, "5 hour task":5, "8 hour task":8, "13 hour task":13, "Week":30,   "Month":4*5*8 , "3 Month":3*4*5*8 , "6 Month":6*4*5*8 , "Year":12*4*5*8 };
 		var convCal = {"30 minute task" : 0.5, "Hour task": 1, "2 hour task": 2, "3 hour task":3, "5 hour task":5, "8 hour task":8, "13 hour task":13, "Week":5*24, "Month":4*7*24, "3 Month":3*4*7*24, "6 Month":6*4*7*24, "Year":12*4*7*24};
@@ -86,6 +90,9 @@ var Card = function(cardObject, list, inbox, done) {
 		this.calendarTick = 0.25;
 		this.size = 0;
 		var labelToAdd = [];
+		this.big = false;
+		this.medium = false;
+		this.small = false;
 		for(var i in labels){
 			var tick = undefined;
 			var label = labels[i];
@@ -95,11 +102,11 @@ var Card = function(cardObject, list, inbox, done) {
 			} else if (ln == "Pass"){
 				this.pass = true;
 			} else if (ln == "Big"){
-				this.pass = true;
+				this.big = true;
 			} else if (ln == "Medium"){
-				this.pass = true;
+				this.medium = true;
 			} else if (ln == "Small"){
-				this.pass = true;
+				this.small = true;
 			} else if (ln == "Weekly"){
 				this.repeating = true;
 				this.repeatAfter = 7 * 24 * 60 * 60 * 1000;
@@ -118,10 +125,8 @@ var Card = function(cardObject, list, inbox, done) {
 				}
 			}
 			if(tick === undefined){
-				if(["Challenge", "MIT", "ImportantTask", "Pass"].indexOf(ln) == -1) {
-					if(ln !== "Weekly" && ln !== "Daily") {
-						labelToAdd.push(ln);
-					}
+				if(labelIsAType(ln)) {
+					labelToAdd.push(ln);
 				}
 			}
 		}
