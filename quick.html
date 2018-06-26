@@ -105,7 +105,7 @@ var prioritise = function(){
 	return function(){
 		processFunction = function(size, list, cardID) {
 			console.log(size + " "+ list.name + " " + cardID);
-			list[cardID].setLabel(size);
+			list.cards[cardID].setLabel(size);
 		}
 
 		var table = '';
@@ -139,7 +139,7 @@ projects</a>`;
 //TODO: location? home
 var schedulerInitEnded = function(scheduler){
 
-	var stuffs = [null,
+	var stuffs = [null,/*
 	base(5, "Try to clean something!"),
 	base(5, "Call your parents!"),
 	base(5, "Take an eye break!"),
@@ -151,7 +151,7 @@ var schedulerInitEnded = function(scheduler){
 	base(5, "Clean your glasses"),
 	base(5, "Check your appearance"),
 	base(5, "Meditate"),
-	base(5, "Check your posture"),
+	base(5, "Check your posture"),*/
 	tag(),
 	prioritise(),
 	projects(),

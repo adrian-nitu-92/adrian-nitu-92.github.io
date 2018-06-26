@@ -198,27 +198,24 @@ asserts["validate MIT count "] = function(lists) {
         if(list.maxMitCount === undefined){
             continue;
         }
-        if(list.mitCount > 0){
-            addMessage("For <b>" + list.name + "</b> try to focus on:<br/>");
-            var cards = list.cards;
-            for (var c in cards) {
-                var card = cards[c];
-                if(card.mit && card.due === null){
+        addMessage("For <b>" + list.name + "</b> try to focus on:<br/>");
+        var cards = list.cards;
+        for (var c in cards) {
+            var card = cards[c];
+            if(card.mit || card.big || card.medium) {
+                if(card.due === null){
                     addError(card.name + " has no due date<br/>");
                     return false;
                 }
-                if(card.mit && ! card.dueComplete){
+                if(! card.dueComplete){
                     addMessage(card.name + "<br/>");
                     mitMe(card.name);
                 }
             }
         }
-        if (list.mitCount > list.maxMitCount) {
-            addError("Too many MITs for " + name + "!<br/>");
-        }
         if (list.mitCount != list.maxMitCount) {
             if(count < 1) {
-                addWarning("Consider adding " + (list.maxMitCount - list.mitCount) + " MITs to " + name + "<br/>");
+                addWarning("Consider running quick scheduler <br/>");
                 count = count + 1;
             } else {
                 addWarning("");

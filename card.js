@@ -14,6 +14,20 @@ var Card = function(cardObject, list, inbox, done) {
 		Trello.put('/cards/' + this.id + "/desc",{"value":val}, console.log, console.log);
 	}
 
+	this._network_setLabel = function(label){
+		this.auxObj.eventId = this.eventId;
+		this.auxObj.eraseMeNot = this.eraseMeNot;
+		var val = JSON.stringify(this.auxObj);
+		if(val === "{}"){
+			val = "";
+			if(this.desc === val) {
+				return;
+			}
+		}
+		Trello.put('/cards/' + this.id + "/desc",{"value":val}, console.log, console.log);
+	}
+
+
 	this._network_dueCompleteProcess = function() {
 		if(! this.dueComplete ){
 			return;
@@ -69,7 +83,7 @@ var Card = function(cardObject, list, inbox, done) {
 		_deleteGoogleEvent(this.eventId);
 		if(! this.auxObj.eraseMeNot){
 		    delete this.list[this.id];
-		    trello_api(delete(this));
+		    trello_api.deleteCard(this);
 		} else {
 			console.log("unbreakable heart");
 			console.log(this);
@@ -135,6 +149,15 @@ var Card = function(cardObject, list, inbox, done) {
 		}
 		if(this.mit){
 			this.size = 1000;
+		}
+		if(this.big){
+			this.size += 100;
+		}
+		if(this.medium){
+			this.size += 50;
+		}
+		if(this.small){
+			this.size += 10;
 		}
 		if(found > 1){
 			addError("Card " + JSON.stringify(this) + " is not labeled correctly <br/>");

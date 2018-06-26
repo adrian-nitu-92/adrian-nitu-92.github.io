@@ -116,6 +116,7 @@ var Scheduler = function (initEndedCallback) {
 	    for (var c in cards) {
 	        var card = cards[c];
 	        console.log(card.name);
+	        console.log(trelloApi);
 	        card.delete(trelloApi);
 	    }
 	}
