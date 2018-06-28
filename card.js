@@ -171,17 +171,12 @@ var Card = function(cardObject, list, inbox, done) {
 					extra = "Weekly";
 				}
 			}
-			if(window.graph !== undefined){
-				graph.add(this.listname, ln, this.tick/labelToAdd.length, extra);
-			}
+			this.list.addLabel(ln, this.tick/labelToAdd.length, extra);
 			var x = this.list.counts[ln];
 			if(x === undefined){
 				x = 0;
 			}
 			this.list.counts[ln] = x + 1;
-		}
-		if(this.dueComplete === false){
-			this.list.sumTicks += this.tick;
 		}
 	}
 

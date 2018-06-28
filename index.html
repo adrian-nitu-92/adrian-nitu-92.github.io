@@ -124,11 +124,14 @@ var addError = function(message){
 
 var sortingDebug = true;
 
-	var process_card = function(a, b){
-		console.log(reallyOverdue[a].name + b);
-	}
+var process_card = function(a, b){
+	console.log(reallyOverdue[a].name + b);
+}
 
 var renderStage = function(lists){
+	document.getElementById("p1").innerHTML = document.getElementById("p1").innerHTML + globalWarning;
+	globalWarning = "";
+
 	if(lists.Today.ticks > lists.Today.sumTicks){
 		document.getElementById('quick').style.display = "";
 	}
@@ -154,10 +157,10 @@ var renderStage = function(lists){
 		"Health":'rgb(81,232,152)', "Weekly":'rgb(211,211,211)',"Project":'rgb(242,214,0)'};
 		return colors[type];
 	}
-	for(var type in graph._sumsCount["3 Year"]){
+	for(var type in graph.getLabels()){
 		var Percs = {
 			x: myReqlist.map(a => a + " " + lists[a].cardCount + "/" + lists[a].maxCount),
-			y: myReqlist.map(a => graph.returnScaled(a, type, lists[a].ticks)),
+			y: myReqlist.map(a => graph.returnScaled(a, type, lists[a].maxTicks)),
 			type: 'bar',
 			name: type,
 			marker:{
@@ -178,75 +181,11 @@ var renderStage = function(lists){
 		yref: 'paper',
 		}};
 	data.reverse();
-	console.log(graph._sumsCount);
 	Plotly.newPlot('percs', data, layout);
 	var node = new PrettyJSON.view.Node({
 	  el:$('#jayson'),
-	  data:graph.listsData
+	  data:graph.buildListData(myReqlist)
 	});
-}
-
-var done = function(){
-	document.getElementById("p1").innerHTML = "";
-	var lists = scheduler.lists;
-	counter = counter + 1;
-	if(cur) {
-		GclientInit();
-		cur = false;
-	}
-
-	if(counter >= Object.keys(lists).length +1){
-		var prevFree = 0;
-		for(var l in scheduler.requiredLists){
-			var name = scheduler.requiredLists[l];
-			if(! trelloApi.parseTasks(lists[name])){
-				document.getElementById("p1").innerHTML = globalError;
-				return renderStage(lists);
-			}
-		}
-
-		if(onceADayFlag && ! justReset){
-
-			var move_all_cards_in_range = function(from, to){
-				for (var c in from.cards) {
-					var card = from.cards[c];
-					if(card.date > to.start && card.date < to.end) {
-						to.takeCardFrom(card, from);
-					}
-				}
-			}
-			// move all cards to inbox
-			// move_all_cards_in_range(0, lists["Today"].start, lists["Today"], lists["Inbox"]);
-			move_all_cards_in_range(lists["Tomorrow"], lists["Today"]);
-			move_all_cards_in_range(lists["Week"], lists["Tomorrow"]);
-		}
-
-		var ok = true;
-
-		for(var a in asserts){
-			var assert = asserts[a];
-			console.log(a);
-			ok = ok && assert(lists, scheduler)
-
-		}
-		if(! ok){
-			document.getElementById("p1").innerHTML = globalError;
-			return renderStage(lists);
-		}
-		var aaaux = "You currently have <b>" + g_data.errorCount + "</b> errors<br>" +
-		"Inbox costs around <b>" + lists["Inbox"].sumTicks + "</b> hours <br/> ";
-		if(listthatneed !== undefined) {
-			aaaux = aaaux + listthatneed + " needs at least <b>" + timethatlistneed + "</b> hours <br/> " ;
-		}
-
-		/* add it to the begining */
-		globalWarning = aaaux + globalWarning;
-		renderStage(lists);
-	}
-
-	document.getElementById("p1").innerHTML = document.getElementById("p1").innerHTML + globalWarning;
-	globalWarning = "";
-
 }
 
 var justReset;
@@ -255,6 +194,7 @@ var onceADayFlag = false;
 var onceAWeekFlag = false;
 
 var schedulerInitEnded = function(scheduler){
+
 	document.getElementById("p1").innerHTML = "";
 
 	endbutton.onclick = function(){
@@ -265,10 +205,63 @@ var schedulerInitEnded = function(scheduler){
 
 	localStorage.setItem("reset", "value");
 
+	var lists = scheduler.lists;
+
+	var prevFree = 0;
+	for(var l in scheduler.requiredLists){
+		var name = scheduler.requiredLists[l];
+		if(! trelloApi.parseTasks(lists[name])){
+			document.getElementById("p1").innerHTML = globalError;
+			return renderStage(lists);
+		}
+	}
+
+	if(onceADayFlag && ! justReset){
+
+		var move_all_cards_in_range = function(from, to){
+			for (var c in from.cards) {
+				var card = from.cards[c];
+				if(card.date > to.start && card.date < to.end) {
+					to.takeCardFrom(card, from);
+				}
+			}
+		}
+		// move all cards to inbox
+		// move_all_cards_in_range(0, lists["Today"].start, lists["Today"], lists["Inbox"]);
+		move_all_cards_in_range(lists["Tomorrow"], lists["Today"]);
+		move_all_cards_in_range(lists["Week"], lists["Tomorrow"]);
+	}
+
+	var ok = true;
+
+	for(var a in asserts){
+		var assert = asserts[a];
+		console.log(a);
+		ok = ok && assert(lists, scheduler)
+
+	}
+	if(! ok){
+		document.getElementById("p1").innerHTML = globalError;
+		return renderStage(lists);
+	}
+	var aaaux = "You currently have <b>" + g_data.errorCount + "</b> errors<br>" +
+	"Inbox costs around <b>" + lists["Inbox"].sumTicks + "</b> hours <br/> ";
+	if(listthatneed !== undefined) {
+		aaaux = aaaux + listthatneed + " needs at least <b>" + timethatlistneed + "</b> hours <br/> " ;
+	}
+
+	/* add it to the begining */
+	globalWarning = aaaux + globalWarning;
+	renderStage(lists);
+
 	setInterval(function() {window.location.reload();}, 1000*60*10);
 }
 
-var scheduler = new Scheduler(schedulerInitEnded);
+GclientInit();
+var scheduler;
+var done = function(){
+ scheduler = new Scheduler(schedulerInitEnded);
+}
 
 	</script>
 	<script src="https://cdn.plot.ly/plotly-latest.min.js">

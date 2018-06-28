@@ -68,16 +68,24 @@ var Time = function(dummy) {
 	this.tomorrow.start  = this.today.start + this.dayLenghtInMs;
 	this.today.end       = this.tomorrow.start;
 	this.tomorrow.end    = this.today.start + 2 * this.dayLenghtInMs;
-	this.week.start      = this.tomorrow.end;
+	/* compute week.end, then reset week.start */
 	this.week.end        = this.week.start  + 7 * this.dayLenghtInMs;
+	this.week.start      = this.tomorrow.end;
 	if(this.week.end === this.tomorrow.start) {
 		this.week.end = this.week.end + 7 * this.dayLenghtInMs;
 	}
+
 	this.month.end   = this.today.start +          31 * this.dayLenghtInMs;
 	this._3month.end = this.today.start +      3 * 31 * this.dayLenghtInMs;
 	this._6month.end = this.today.start +      6 * 31 * this.dayLenghtInMs;
 	this.year.end    = this.today.start +     12 * 31 * this.dayLenghtInMs;
 	this._3year.end  = this.today.start + 3 * 12 * 31 * this.dayLenghtInMs;
+
+	this.month.start = this.week.end;
+	this._3month.start = this.month.end;
+	this._6month.start = this._3month.start;
+	this.year.start = this._6month.end;
+	this._3year.start = this.year.end;
 
 	this.daysInThisWeek = (this.week.end - this.today.start) / this.dayLenghtInMs;
 
@@ -101,17 +109,20 @@ var Time = function(dummy) {
 		var yearInt;
 		var _3yearEnd;
 
-		var computeDate = function (monthInt, yearInt, monthPush, min)
+		var computeDate = function (monthInt, yearInt, monthPush, min, minLen)
 		{;
 			var ret;
-			ret = new Date(0);
-			while(ret < min) {
+			ret = new Date(0).getTime();
+			if(minLen === undefined) {
+				minLen = 0;
+			}
+			while(ret - min < minLen) {
 				monthInt = monthInt + monthPush;
 				while(monthInt > 12){
 					yearInt = yearInt + 1;
 					monthInt = monthInt - 12;
 				}
-				ret = new Date(monthInt+"/1/"+yearInt+" GMT");
+				ret = new Date(monthInt+"/1/"+yearInt+" GMT").getTime();
 			}
 			return ret;
 		}
@@ -123,7 +134,7 @@ var Time = function(dummy) {
 				return a;
 			return b;
 		}
-		this.month.end = computeDate(baseMonthInt, baseYearInt, 1, this.week.end).getTime();
+		this.month.end = computeDate(baseMonthInt, baseYearInt, 1, this.week.end, this.weekLengthInMs);
 
 		if(this.month.end - this.week.end < 7 * this.dayLenghtInMs) {
 			this.month.len = this.week.len;
@@ -134,15 +145,21 @@ var Time = function(dummy) {
 		}
 		this.month.end = aux;
 
-		this._3month.end = computeDate(baseMonthInt, baseYearInt, 3,  this.week.end).getTime();
-		this._6month.end = computeDate(baseMonthInt, baseYearInt, 6,  this.week.end).getTime();
-		this.year.end    = computeDate(baseMonthInt, baseYearInt, 12, this.week.end).getTime();
-		this._3year.end  = computeDate(baseMonthInt, baseYearInt, 36, this.week.end).getTime();
+		this._3month.end = computeDate(baseMonthInt, baseYearInt, 3,  this.week.end, this.weekLengthInMs*4);
+		this._6month.end = computeDate(baseMonthInt, baseYearInt, 6,  this.week.end, this.weekLengthInMs*9);
+		this.year.end    = computeDate(baseMonthInt, baseYearInt, 12, this.week.end, this.weekLengthInMs*13);
+		this._3year.end  = computeDate(baseMonthInt, baseYearInt, 36, this.week.end);
 
 		this._3month.end = max(this._3month.end,   this.month.end);
 		this._6month.end = max(this._3month.end, this._6month.end);
 		this.year.end    = max(   this.year.end, this._6month.end);
 		this._3year.end  = max( this._3year.end,    this.year.end);
+
+		this.month.start = this.week.end;
+		this._3month.start = this.month.end;
+		this._6month.start = this._3month.end;
+		this.year.start = this._6month.end;
+		this._3year.start = this.year.end;
 
 		this.month.len    = baseDay * getDays(   this.month.end, this.today.start, this) + weekHabbitOffset;
 		this._3month.len  = baseDay * getDays( this._3month.end, this.today.start, this) + weekHabbitOffset;

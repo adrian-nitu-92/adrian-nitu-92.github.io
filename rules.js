@@ -138,12 +138,6 @@ asserts["check sane @time"] = function(lists) {
 
     for (var l in scheduler.requiredLists) {
         var name = scheduler.requiredLists[l];
-        var list = lists[name];
-        var nextList = lists[list.next];
-        graph.mergeList(name, list.next);
-    }
-    for (var l in scheduler.requiredLists) {
-        var name = scheduler.requiredLists[l];
         var res = lists[name].reasign_card_to_proper_list(lists);
         if(!res){
             return res;
@@ -158,7 +152,7 @@ var inbox_schedule = function(lists) {
         var card = cards[c];
         var targetList = lists["One Day"];
         var skip = true;
-        if(card.date === undefined) {
+        if(card.due === null) {
             continue;
         }
         if(card.date < lists["Today"].start){
@@ -177,6 +171,7 @@ var inbox_schedule = function(lists) {
                     }
                     else {
                         card.deleteGoogleEvent();
+                        break;
                     }
                 }
             }

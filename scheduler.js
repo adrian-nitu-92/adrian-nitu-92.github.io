@@ -14,6 +14,22 @@ var Scheduler = function (initEndedCallback) {
 		return [];
 	}
 
+	this.almost_done = function() {
+		if(scheduler.listsWaiting !== 0) {
+			return;
+		}
+	    for (var n in scheduler.requiredLists) {
+	        var name = scheduler.requiredLists[n];
+	        var list = scheduler.lists[name];
+			list.mergeList();
+		}
+
+		if(scheduler.initEndedCallback !== undefined)
+		{
+			setTimeout(scheduler.initEndedCallback(scheduler), 500);
+		}
+	}
+
 	this._network_boardSelect = function(){
 		var lists = this.lists;
 		var curry = function(listName){
@@ -21,27 +37,13 @@ var Scheduler = function (initEndedCallback) {
 			tarray.push("Done");
 			if( ! tarray.includes(listName) ){
 				scheduler.listsWaiting = scheduler.listsWaiting - 1;
-				if(scheduler.initEndedCallback !== undefined && scheduler.listsWaiting === 0)
-				{
-					setTimeout(scheduler.initEndedCallback(scheduler), 100);
-				}
-				return done;
+				return scheduler.almost_done;
 			}
 			return function(answer, list) {
-				var cards = {};
-				for(var i in answer){
-					var card = answer[i];
-					cards[card.id] = new Card(card, lists[listName], lists["Inbox"], lists["Done"]);
-				}
-				lists[listName].cards = cards;
-				lists[listName].cardCount = Object.keys(cards).length;
+				lists[listName].setCards(answer);
 				scheduler.listsWaiting = scheduler.listsWaiting - 1;
-				if(scheduler.initEndedCallback !== undefined && scheduler.listsWaiting === 0)
-				{
-					setTimeout(scheduler.initEndedCallback(scheduler), 100);
-				}
-				done();
 
+				scheduler.almost_done();
 			};
 		};
 
@@ -92,7 +94,6 @@ var Scheduler = function (initEndedCallback) {
 		this.lists["Inbox"]    = new List("Inbox",         time.max,       NEVER,       null,      null, sortScore,                               maxInt, undefined, time);
 		this.lists["Done"]     = new List("Done",          time.max,       NEVER,       null,      null, sortScore,                               maxInt, undefined, time);
 		this._network_boardSelect();
-
 	}
 
 	this.getOverdue = function(){
@@ -122,21 +123,21 @@ var Scheduler = function (initEndedCallback) {
 	}
 
 	this.doOver = function(name){
-		if(this.moved){
+		if(this.moved || incrementator[name] === arraySortedBySize[name].length){
 			// dont sort if at least one card has been moved
+			this.listsSorting -= 1;
 			return;
 		}
-		if(incrementator[name] < arraySortedBySize[name].length){
-			var card = arraySortedBySize[name][incrementator[name]];
-			incrementator[name] = incrementator[name] +1;
-			var cVal = arraySortedByPos[name].indexOf(card);
-			var value = "bottom";
 
-			debug(sortingDebug, "Sorting");
-			debug(sortingDebug, card.name + " " + card.size);
-			Trello.put('/cards/' + card.id + "/pos",{"value":value},
-				function(){scheduler.doOver(name)}, console.log);
-		}
+		var card = arraySortedBySize[name][incrementator[name]];
+		incrementator[name] = incrementator[name] +1;
+		var cVal = arraySortedByPos[name].indexOf(card);
+		var value = "bottom";
+
+		debug(sortingDebug, "Sorting");
+		debug(sortingDebug, card.name + " " + card.size);
+		Trello.put('/cards/' + card.id + "/pos",{"value":value},
+			function(){setTimeout(scheduler.doOver(name), (this.listsSorting-1)*100);}, console.log);
 	}
 
 	this.sort = function(list) {
@@ -159,16 +160,18 @@ var Scheduler = function (initEndedCallback) {
         if (s1 != s2) {
             console.log(name + " is not sorted!");
             incrementator[name] = 0;
+            this.listsSorting += 1;
             this.doOver(name);
             return true;
         }
 	}
 
 	/* init */
-	this.mode = CORE;
+	this.mode = AMBITIOUS;
 	this.moved = false;
 
 	this.listsWaiting = 0;
+	this.listsSorting = 0;
 
 	this.requiredLists = ["Today", "Tomorrow", "Week", "Month", "3 Month", "6 Month", "Year", "3 Year", "Inbox", "One Day"];
 
@@ -195,3 +198,9 @@ var incrementator = {};
 
 var arraySortedByPos = {};
 var arraySortedBySize = {};
+
+console.assert	= function(cond, text){
+	if( cond )	return;
+	if( console.assert.useDebugger )	debugger;
+	throw new Error(text || "Assertion failed!");
+};
