@@ -116,21 +116,18 @@ asserts["overlap warning"] = function(lists) {
                     if (nextCard.pass) {
                         continue;
                     }
-                    if (card.mit ^ nextCard.mit) {
-                        continue;
-                    }
                     if (nextCard.due) {
                         var _2 = new Date(nextCard.due).getTime();
                         if (card.tick * 1000 * 60 * 60 + _1 > _2) {
                             count = count + 1;
-                            addWarning("");
                         }
                     }
                 }
             }
         }
     }
-    addWarning("Overlap warning for <b>" + count + "</b> cards.<br/>");
+
+    addWarning("Overlap warning for <b>" + count + "</b> cards.<br/>", count);
 
     return true;
 }
@@ -186,44 +183,31 @@ var inbox_schedule = function(lists) {
     return true;
 }
 asserts["validate MIT count "] = function(lists) {
-    var count = 0;
+    var added = false;
     for (var n in scheduler.requiredLists) {
         var name = scheduler.requiredLists[n];
         var list = lists[name];
-        if(list.maxMitCount === undefined){
-            continue;
-        }
-        addMessage("For <b>" + list.name + "</b> try to focus on:<br/>");
+        addMessage("For <b>" + list.name + "</b> try to focus on:");
         var cards = list.cards;
         for (var c in cards) {
             var card = cards[c];
-            if(card.mit || card.big || card.medium) {
+            if(card.big || card.medium || card.small) {
                 if(card.due === null){
-                    addError(card.name + " has no due date<br/>");
+                    addError(card.name + " has no due date");
                     return false;
                 }
-                if(! card.dueComplete){
-                    addMessage(card.name + "<br/>");
-                    mitMe(card.name);
-                }
+                addMessage(card.name);
+                mitMe(card.name);
             }
         }
-        if (list.mitCount != list.maxMitCount) {
-            if(count < 1) {
+        if(added == false) {
+            if (!(list.bigCount === 1 && list.medCount === 3 && list.smallCount === 5)) {
                 addWarning("Consider running quick scheduler <br/>");
-                count = count + 1;
-            } else {
-                addWarning("");
+                added = true;
             }
         }
+        addMessage("");
     }
     return true;
 }
-asserts["scrub"] = function(lists) {
-    var cards = lists["Scrub"].cards;
-    for (var c in cards) {
-        var card = cards[c];
-        card._network_scrub();
-    }
-    return true;
-}
+

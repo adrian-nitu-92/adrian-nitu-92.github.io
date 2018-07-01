@@ -1,0 +1,197 @@
+<html>
+<head>
+<title>Quick task schedule!</title>
+	<link href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css" rel="stylesheet">
+		</link>
+
+    <script type="text/javascript" src="const.js" ></script>
+    <script type="text/javascript" src="libs/jquery-1.11.1.min.js" ></script>
+    <script type="text/javascript" src="libs/underscore-min.js" ></script>
+    <script type="text/javascript" src="libs/backbone-min.js" ></script>
+	<script src="libs/jquery-ui.js">
+	</script>
+	<script src="libs/pretty-json-min.js">
+	</script>
+	<script src="https://api.trello.com/1/client.js?key=83fbbffdca68e9e5655f409d9b204618">
+	</script>
+	<script src="https://apis.google.com/js/api.js">
+	</script>
+	<script src="rules.js">
+	</script>
+	<script src="google-common.js">
+	</script>
+	<script src="sheets.js">
+	</script>
+	<script src="calendar.js">
+	</script>
+	<script src="list.js">
+	</script>
+	<script src="trello.js">
+	</script>
+	<script src="card.js">
+	</script>
+	<script src="graph.js">
+	</script>
+	<script src="time.js">
+	</script>
+	<script src="scheduler.js">
+	</script>
+</head>
+<body>
+<div id="airea"></div>
+
+<a href="/">Home</a>
+
+<div id="error"></div>
+<script type="text/javascript">
+
+var addMessage = function(message){
+	document.getElementById('airea').innerHTML += message;
+}
+
+var addWarning = console.log;
+
+var addError = function(message){
+	document.getElementById('error').innerHTML = document.getElementById('error').innerHTML + message + "<br\>";
+}
+
+var techDebt = true;
+
+var done = function(){}
+
+var base = function(time, string){
+	return function(){
+		document.getElementById('airea').innerHTML =  `You have ${time} minutes? ${string}`;
+	}
+}
+
+var tag = function(){
+	//TODO ask me to tag a untagged card (choose the ones that are big first)
+	var time = 5;
+	var untaggedList = scheduler.getUntagged();
+	var untagged;
+	untagged = untaggedList[0];
+	if(untagged === undefined){
+		return null;
+	}
+	return function(){
+		document.getElementById('airea').innerHTML =  `You have ${time} minutes? tag stuffs + ${untagged}`;
+	}
+}
+
+var processFunction;
+
+var prioritise = function(){
+	var time = 5;
+	var firstListNotPriod = scheduler.getFirstNotPrioList();
+	if(firstListNotPriod === undefined)
+		return null;
+
+	var buttonSizes = ["Big", "Medium", "Small"]
+
+	var renderRow = function(card) {
+		var html = '';
+		html += '<tr><td> ';
+		html += card.name;
+		html += ' </td><td>';
+		for (var bs = 0; bs < buttonSizes.length; bs ++ ){
+			var buttonSize = buttonSizes[bs];
+			html += '<button id="'+buttonSize+card.id+'" style="display: inline;">'+buttonSize+'</button>';
+		}
+		html += '</td></tr>';
+		return(html);
+	}
+
+	return function(){
+		processFunction = function(size, list, cardID) {
+			console.log(size + " "+ list.name + " " + cardID);
+			list.cards[cardID].setLabel(size);
+		}
+
+		var table = '';
+		table +=('<table style=\"width:100%\">');
+		for (var i in firstListNotPriod.cards){
+			var card = firstListNotPriod.cards[i];
+			table += renderRow(card);
+		}
+		table += '</table>';
+		addMessage(table);
+		for (var i in firstListNotPriod.cards){
+			var card = firstListNotPriod.cards[i];
+			for (var bs = 0; bs < buttonSizes.length; bs ++ ){
+				var buttonSize = buttonSizes[bs];
+				document.getElementById(buttonSize+card.id).setAttribute("onclick",
+					'processFunction("'+buttonSize+'", scheduler.lists["'+firstListNotPriod.name+'"], "'+card.id+'");');
+			}
+		}
+	}
+}
+
+
+var projects = function(){
+	return function(){
+		document.getElementById('airea').innerHTML =  `You have 5 minutes? Review
+<a href="https://docs.google.com/spreadsheets/d/1S20YvTFcT5kxSQgpWK9y691nIKYZktMFJnXgQq-YqN0/edit#gid=0">
+projects</a>`;
+	}
+}
+
+//TODO: location? home
+var schedulerInitEnded = function(scheduler){
+
+	var stuffs = [null,
+	base(5, "Try to clean something!"),
+	base(5, "Call your parents!"),
+	base(5, "Take an eye break!"),
+	base(5, "Drink some water!"),
+	base(5, "Drink some tea!"),
+	base(5, "Log money today!"),
+	base(5, "Rest your mind"),
+	base(5, "Ensure things are charged"),
+	base(5, "Clean your glasses"),
+	base(5, "Check your appearance"),
+	base(5, "Meditate"),
+	base(5, "Check your posture"),
+	base(5, "Play a short game"),
+	null];
+
+	//TODO
+	var stuff;
+	if(techDebt) {
+		stuff = stuffs[0];
+		while(stuff === null){
+			var x = Math.random() * stuffs.length;
+			stuff = stuffs[parseInt(x + "")];
+		}
+	} else {
+		stuff = stuffs.choice();
+	}
+
+	stuff();
+}
+
+var scheduler = new Scheduler(schedulerInitEnded);
+//else
+/*
+todo: prioritise these 5 tasks (choose only 3)
+	-- pick a list that is overbooked
+	-- choose 3 least interesting tasks in the list, and 2 most interesting tasks in inbox
+	-- the three tasks chosen move to the list, last 2 tasks drop to inbox
+	-- also allow me not to vote at this time
+Create and or update the checklist for an MIT
+Approve creating dummy tasks for me to reach the load values for a list (not today) that
+	match what I noticed over the last (other list)
+ask me to approve splitting a week task to 5*8h tasks
+ask me to approve converting a checklist to a list of tasks
+	-- condition: number of checklist tasks >= 2*task duration, in hours
+ask me to approve moving a card from an overlap to a free location.
+	-- Don't move cards that I've tagged as unmovable.
+	-- Tag cards that I refuse to move as unmovable.
+	-- On weekly and daily marked as done, drop unmovable tag.
+on overbooked lists: pick 3/5 tasks that would get pushed out.
+*/
+
+</script>
+
+</body>
+</html>

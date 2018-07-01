@@ -40,7 +40,10 @@
 </head>
 <body>
 	<div id="mit"></div>
-	<div id="quick" style="display: none;"><a href="./quick.html"> quick </a></div>
+	<div id="quick" style="display: none;">
+		<a href="./work.html"> work </a><br/>
+		<a href="./relax.html"> relax </a>
+	</div>
 
     <textarea id="airea" rows="1" cols="25">Other</textarea>
 	<button id="start-button" >Start</button>
@@ -64,11 +67,6 @@
 	<script>
 
 "use strict";
-var debug = function( ar, mesage){
-	if(ar){
-		console.log(mesage);
-	}
-}
 
 var authorizeButton = document.getElementById('authorize-button');
 
@@ -108,21 +106,25 @@ var timethatlistneed;
 var graph = new Graph();
 
 var addMessage = function(message){
-	globalWarning = globalWarning + message;
+	globalWarning = globalWarning + message + "<br/>";
 }
 
-var addWarning = function(message){
-	globalWarning = globalWarning + message;
-	g_data.errorCount = g_data.errorCount + 1;
+var addWarning = function(message, errCount){
+	if(errCount === undefined){
+		errCount = 1;
+	}
+	globalWarning = globalWarning + message + "<br/>";
+	g_data.errorCount = g_data.errorCount + errCount;
 }
 
-var addError = function(message){
-	globalWarning = globalWarning + message;
+var addError = function(message, errCount){
+	if(errCount === undefined){
+		errCount = 1;
+	}
+	globalWarning = globalWarning + message + "<br/>";
 	globalError = globalError + message;
-	g_data.errorCount = g_data.errorCount + 1;
+	g_data.errorCount = g_data.errorCount + errCount;
 }
-
-var sortingDebug = true;
 
 var process_card = function(a, b){
 	console.log(reallyOverdue[a].name + b);
@@ -132,7 +134,7 @@ var renderStage = function(lists){
 	document.getElementById("p1").innerHTML = document.getElementById("p1").innerHTML + globalWarning;
 	globalWarning = "";
 
-	if(lists.Today.ticks > lists.Today.sumTicks){
+	if(lists.Today.maxTicks > lists.Today.sumTicks){
 		document.getElementById('quick').style.display = "";
 	}
 
@@ -236,9 +238,8 @@ var schedulerInitEnded = function(scheduler){
 
 	for(var a in asserts){
 		var assert = asserts[a];
-		console.log(a);
-		ok = ok && assert(lists, scheduler)
-
+		ok = ok && assert(lists, scheduler);
+		console.log(a + " " + ok);
 	}
 	if(! ok){
 		document.getElementById("p1").innerHTML = globalError;
@@ -259,7 +260,7 @@ var schedulerInitEnded = function(scheduler){
 
 GclientInit();
 var scheduler;
-var done = function(){
+var done = function() {
  scheduler = new Scheduler(schedulerInitEnded);
 }
 

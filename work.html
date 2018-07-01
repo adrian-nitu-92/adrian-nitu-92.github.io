@@ -82,17 +82,25 @@ var tag = function(){
 var processFunction;
 
 var prioritise = function(){
+
+	for (var l in scheduler.requiredLists) {
+        var name = scheduler.requiredLists[l];
+        var list = scheduler.lists[name];
+        scheduler.sort(list);
+    }
+
 	var time = 5;
 	var firstListNotPriod = scheduler.getFirstNotPrioList();
-	if(firstListNotPriod === undefined)
+	if(firstListNotPriod === null)
 		return null;
 
-	var buttonSizes = ["Big", "Medium", "Small"]
+	var buttonSizes = ["Big", "Medium", "Small"];
+	var cardVarName = ["big", "medium", "small"];
 
 	var renderRow = function(card) {
 		var html = '';
 		html += '<tr><td> ';
-		html += card.name;
+		html += card.name.substring(0, 45);
 		html += ' </td><td>';
 		for (var bs = 0; bs < buttonSizes.length; bs ++ ){
 			var buttonSize = buttonSizes[bs];
@@ -105,7 +113,9 @@ var prioritise = function(){
 	return function(){
 		processFunction = function(size, list, cardID) {
 			console.log(size + " "+ list.name + " " + cardID);
-			list.cards[cardID].setLabel(size);
+			var btn = document.getElementById(size+cardID);
+			list.cards[cardID].setLabel(size, btn.style.borderStyle!=='inset');
+			btn.style.borderStyle = (btn.style.borderStyle!=='inset' ? 'inset' : 'outset');
 		}
 
 		var table = '';
@@ -115,13 +125,20 @@ var prioritise = function(){
 			table += renderRow(card);
 		}
 		table += '</table>';
+		var bigrem = 1 - firstListNotPriod.bigCount;
+		var medrem = 3 - firstListNotPriod.medCount;
+		var smallrem = 5 - firstListNotPriod.smallCount;
+		addMessage(`You need ${bigrem} big ${medrem} med ${smallrem} small`);
 		addMessage(table);
 		for (var i in firstListNotPriod.cards){
 			var card = firstListNotPriod.cards[i];
+
 			for (var bs = 0; bs < buttonSizes.length; bs ++ ){
 				var buttonSize = buttonSizes[bs];
-				document.getElementById(buttonSize+card.id).setAttribute("onclick",
+				var btn = document.getElementById(buttonSize+card.id);
+				btn.setAttribute("onclick",
 					'processFunction("'+buttonSize+'", scheduler.lists["'+firstListNotPriod.name+'"], "'+card.id+'");');
+				btn.style.borderStyle = card[cardVarName[bs]] ? 'inset' : 'outset';
 			}
 		}
 	}
@@ -136,37 +153,51 @@ projects</a>`;
 	}
 }
 
+function shuffle(array) {
+    let counter = array.length;
+
+    // While there are elements in the array
+    while (counter > 0) {
+        // Pick a random index
+        let index = Math.floor(Math.random() * counter);
+
+        // Decrease counter by 1
+        counter--;
+
+        // And swap the last element with it
+        let temp = array[counter];
+        array[counter] = array[index];
+        array[index] = temp;
+    }
+
+    return array;
+}
+
 //TODO: location? home
 var schedulerInitEnded = function(scheduler){
 
-	var stuffs = [null,/*
-	base(5, "Try to clean something!"),
-	base(5, "Call your parents!"),
-	base(5, "Take an eye break!"),
-	base(5, "Drink some water!"),
-	base(5, "Drink some tea!"),
-	base(5, "Log money today!"),
-	base(5, "Rest your mind"),
-	base(5, "Ensure things are charged"),
-	base(5, "Clean your glasses"),
-	base(5, "Check your appearance"),
-	base(5, "Meditate"),
-	base(5, "Check your posture"),*/
+	var stuffs = [
 	tag(),
 	prioritise(),
 	projects(),
-	null];
+	];
 
 	//TODO
 	var stuff;
-	if(techDebt) {
-		stuff = stuffs[0];
-		while(stuff === null){
-			var x = Math.random() * stuffs.length;
-			stuff = stuffs[parseInt(x + "")];
+	stuffs = shuffle(stuffs);
+	console.log(stuffs);
+	stuff = null;
+	for (s in stuffs){
+		console.log(s);
+		if(stuffs[s] != null){
+			stuff = stuffs[s];
+			break;
 		}
-	} else {
-		stuff = stuffs.choice();
+	}
+
+	if(stuff == null){
+		base(5, "Done!")();
+		return;
 	}
 
 	stuff();

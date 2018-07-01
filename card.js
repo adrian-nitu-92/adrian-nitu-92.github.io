@@ -92,10 +92,10 @@ var Card = function(cardObject, list, inbox, done) {
 
 	this._parseLabels = function() {
 		var labelIsAType = function(label){
-			return ["Challenge", "MIT", "ImportantTask", "Pass", "Weekly", "Daily",
+			return ["ImportantTask", "Pass", "Weekly", "Daily",
 			"Big", "Medium", "Small"].indexOf(ln) == -1;
 		}
-		var specialLabelConv = {"Challenge":1000, "Grow":850, "Facultate": 750, "Health":600, "Work": 500, "Social":400, "Facultate-TA": 300, "Downtime":100 };
+		var specialLabelConv = {"Grow":850, "Facultate": 750, "Health":600, "Work": 500, "Social":400, "Facultate-TA": 300, "Downtime":100 };
 		var convert = {"30 minute task" : 0.5, "Hour task": 1, "2 hour task": 2, "3 hour task":3, "5 hour task":5, "8 hour task":8, "13 hour task":13, "Week":30,   "Month":4*5*8 , "3 Month":3*4*5*8 , "6 Month":6*4*5*8 , "Year":12*4*5*8 };
 		var convCal = {"30 minute task" : 0.5, "Hour task": 1, "2 hour task": 2, "3 hour task":3, "5 hour task":5, "8 hour task":8, "13 hour task":13, "Week":5*24, "Month":4*7*24, "3 Month":3*4*7*24, "6 Month":6*4*7*24, "Year":12*4*7*24};
 		var labels = this.labels;
@@ -111,16 +111,17 @@ var Card = function(cardObject, list, inbox, done) {
 			var tick = undefined;
 			var label = labels[i];
 			var ln = label.name;
-			if(ln == "MIT"){
-				this.mit = true;
-			} else if (ln == "Pass"){
+			if (ln == "Pass"){
 				this.pass = true;
 			} else if (ln == "Big"){
 				this.big = true;
+				scheduler.bigId = label.id;
 			} else if (ln == "Medium"){
 				this.medium = true;
+				scheduler.medId = label.id;
 			} else if (ln == "Small"){
 				this.small = true;
+				scheduler.smallId = label.id;
 			} else if (ln == "Weekly"){
 				this.repeating = true;
 				this.repeatAfter = 7 * 24 * 60 * 60 * 1000;
@@ -147,17 +148,17 @@ var Card = function(cardObject, list, inbox, done) {
 		if(labelToAdd.length == 0) {
 			labelToAdd.push("Unlabeled");
 		}
-		if(this.mit){
-			this.size = 1000;
-		}
 		if(this.big){
-			this.size += 100;
+			this.size += 1000;
+			this.list.bigCount += 1;
 		}
 		if(this.medium){
-			this.size += 50;
+			this.size += 500;
+			this.list.medCount += 1;
 		}
 		if(this.small){
-			this.size += 10;
+			this.size += 100;
+			this.list.smallCount += 1;
 		}
 		if(found > 1){
 			addError("Card " + JSON.stringify(this) + " is not labeled correctly <br/>");
@@ -178,6 +179,35 @@ var Card = function(cardObject, list, inbox, done) {
 			}
 			this.list.counts[ln] = x + 1;
 		}
+	}
+
+	this.setLabel = function(label, set){
+		console.log(this.name + " + " + label + " " +(set ? "on" : "off"));
+		var idLabels = {"Big":scheduler.bigId, "Medium":scheduler.medId, "Small":scheduler.smallId};
+
+		console.assert(idLabels[label] !== undefined);
+
+		console.log(this.labels);
+
+		if(set){
+			this.labels.push({"id":idLabels[label], "name":label});
+		} else {
+			var index = -1;
+			for (var i in this.labels){
+				if(this.labels[i].id == idLabels[label]) {
+					index = i;
+					break;
+				}
+			}
+			console.assert(index >= 0);
+			this.labels.splice(i, 1);
+		}
+		console.log(this.labels);
+
+		var networkLabels = this.labels.map(a => a.id);
+
+		console.log(networkLabels);
+		Trello.put('/cards/' + this.id + "/idLabels",{"value":networkLabels}, console.log, console.log);
 	}
 
 	this.listname = list.name;

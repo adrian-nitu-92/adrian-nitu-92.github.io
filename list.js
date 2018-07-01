@@ -6,7 +6,7 @@ var debugCanTakeCard = false;
 var debugReasign = false;
 
 var List = function(name, timeObject, updateFrequency, previous, next,
-	sortFunction, maxCount, maxMitCount, time) {
+	sortFunction, maxCount, time) {
 
 	this.shouldUpdate = function() {
 		return  this.sumTicks > this.maxTicks ||
@@ -20,9 +20,6 @@ var List = function(name, timeObject, updateFrequency, previous, next,
 		reqCounter = reqCounter +1;
 		this.sumTicks += card.tick;
 		this.cardCount += 1;
-		if(card.mit){
-			this.mitCount += 1;
-		}
 		if(list.end < this.end){
 			list.cardCount -= 1;
 			list.sumTicks -= card.tick;
@@ -68,7 +65,6 @@ var List = function(name, timeObject, updateFrequency, previous, next,
 		var lists = scheduler.lists;
 		var percGap = this.percGap;
 		var flatGap = this.flatGap;
-		var mitGap  = (this.maxMitCount * this.percGap);
 		var cardTick = 0.125;
 		debug(debugCanTakeCard, "debugging can take card for card:")
 		debug(debugCanTakeCard, card.name);
@@ -86,7 +82,6 @@ var List = function(name, timeObject, updateFrequency, previous, next,
 				// if the task must be done now, the gaps should be 0
 				percGap = 0.0;
 				flatGap = 0;
-				mitGap  = 0;
 			}
 			var nnlist = lists[this.next];
 			if(nnlist !== undefined && card.date > nnlist.end) {
@@ -95,13 +90,6 @@ var List = function(name, timeObject, updateFrequency, previous, next,
 			}
 			cardTick = card.tick;
 
-			if (card.mit &&
-				this.mitCount + 1 > (this.maxMitCount - mitGap)) {
-				debug(debugCanTakeCard, "mit check failed");
-				debug(debugCanTakeCard, this.mitCount);
-				debug(debugCanTakeCard, (this.maxMitCount - mitGap));
-				return false;
-			}
 		}
 		if (this.sumTicks + flatGap + cardTick > this.maxTicks){
 			debug(debugCanTakeCard, "flat tick check failed");
@@ -156,10 +144,6 @@ var List = function(name, timeObject, updateFrequency, previous, next,
 				if(prevList.canTakeCard(card)) {
 					prevList.takeCardFrom(card, this);
 				} else {
-					if(card.mit){
-						addError("MIT's must be moved. Make room for <b>" + card.name + "</b>");
-						return false;
-					}
 					inbox.takeCardFrom(card, this);
 				}
 			}
@@ -197,16 +181,6 @@ var List = function(name, timeObject, updateFrequency, previous, next,
 						} else {
 							debug(debugReasign, "count");
 						}
-						console.log(this.mitCount - 1);
-						console.log((this.maxMitCount * (1-this.percGap)));
-						if(card.mit &&
-							this.mitCount - 1 > (this.maxMitCount * (1-this.percGap))){
-							debug(debugReasign, "no mit count");
-							nnlist.takeCardFrom(card, this);
-							continue;
-						} else {
-							debug(debugReasign, "mit count");
-						}
 					}
 					if(flag &&
 					 (card.tick > prevList.maxTicks/4) &&
@@ -219,6 +193,7 @@ var List = function(name, timeObject, updateFrequency, previous, next,
 		return true;
 	}
 	this.setCards = function(cardsRaw){
+		console.assert(this.mergedList == false, "mergeList called too early");
 		var cards = {};
 		for(var i in cardsRaw){
 			var card = cardsRaw[i];
@@ -228,14 +203,29 @@ var List = function(name, timeObject, updateFrequency, previous, next,
 		this.cardCount += Object.keys(cards).length;
 	}
 
-	this.addLabel = function(label, size, extra){
+	this.addLabel = function(label, size, extra, sender){
 		var osize = size;
 		size = parseFloat("" + size);
-		if(size !== size){
+		if(size !== osize){
+			console.log(osize);
+			console.log(size);
 			console.assert(false, "size");
 		}
-		if(this.graphData.sumsCount[label] === undefined){
-			this.graphData.sumsCount[label] = 0;
+
+		if(["Daily", "Weekly", undefined].indexOf(extra) < 0){
+			console.assert(false, "extra");
+		}
+
+		var trace = function(label, name, size, sender){
+			if([""].indexOf(label) < 0){
+				return;
+			}
+			if(size == 0){
+				return;
+			}
+			var e = new Error();
+			console.log(e.stack);
+			console.log(name + " got " + size + " for " + label + " from " + sender);
 		}
 
 		/* We look at the 3 year to see what labels are valid,
@@ -245,21 +235,41 @@ var List = function(name, timeObject, updateFrequency, previous, next,
 			scheduler.lists["3 Year"].graphData.sumsCount[label] = 0;
 		}
 
-		this.graphData.sumsCount[label]  += size;
-		this.graphData.sumsCount["Free"] -= size;
+		if(this.graphData.sumsCount[label] === undefined){
+			this.graphData.sumsCount[label] = 0;
+		}
+
 		if(extra !== undefined) {
 			if(this.graphData.sumsCount[extra][label] === undefined) {
 				this.graphData.sumsCount[extra][label] = 0;
 			}
+
 			this.graphData.sumsCount[extra][label] += size;
+		} else {
+			trace(label, this.name, size, sender);
+			this.graphData.sumsCount[label]  += size;
+			this.graphData.sumsCount["Free"] -= size;
+			this.sumTicks += size;
 		}
-		this.sumTicks += size;
 	}
 
 	this.mergeList = function (){
 		var lists = scheduler.lists;
 
-		var whatIneedToFillInThisbunch = this.weekCount - 1;
+		if(this.next === null){
+			return;
+		}
+		var nextList = lists[this.next];
+
+		if(this.end === nextList.end && nextList.cardCount == 0){
+			addError("Ai o lista care nu ar trebui sa aiba carti: " + nextList.name);
+		}
+
+		nextList.cardCount += this.cardCount;
+
+		var whatIneedToFillInThisbunch = this.weekCount;
+
+		console.assert(whatIneedToFillInThisbunch >=0, "whatIneedToFillInThisbunch");
 
 		// TODO this is broken and way too aggresive
 		for(var t in this.graphData.sumsCount){
@@ -269,33 +279,21 @@ var List = function(name, timeObject, updateFrequency, previous, next,
 			if (t == "Weekly"){
 				continue;
 			}
-
 			if( this.graphData.sumsCount["Daily"][t] === undefined) {
 				this.graphData.sumsCount["Daily"][t] = 0;
 			}
 			if( this.graphData.sumsCount["Weekly"][t] === undefined) {
 				this.graphData.sumsCount["Weekly"][t] = 0;
 			}
+
 			if( this.graphData.sumsCount[t] === undefined) {
 				this.graphData.sumsCount[t] = 0;
 			}
-			//this.addLabel(t, 7 * whatIneedToFillInThisbunch * this.graphData.sumsCount["Daily"][t]);
-			//this.addLabel(t,     whatIneedToFillInThisbunch * this.graphData.sumsCount["Weekly"][t]);
+			this.addLabel(t, 7 * whatIneedToFillInThisbunch * this.graphData.sumsCount["Daily"][t], undefined, this.name);
+			this.addLabel(t,     whatIneedToFillInThisbunch * this.graphData.sumsCount["Weekly"][t], undefined, this.name);
 		}
 
-		if(this.next === null){
-			return;
-		}
-		var nextList = lists[this.next];
-
-		if(this.end === nextList.end){
-			console.assert(nextList.cardCount == 0);
-		}
-
-		nextList.cardCount += this.cardCount;
-
-		var extraAdd = nextList.weekCount - this.weekCount;
-		var order = scheduler.requiredLists;
+		var nextLists = scheduler.requiredLists.slice(scheduler.requiredLists.indexOf(this.name)+1, -2);
 
 		for(var t in this.graphData.sumsCount){
 			if (t == "Daily"){
@@ -305,7 +303,7 @@ var List = function(name, timeObject, updateFrequency, previous, next,
 				continue;
 			}
 
-			//nextList.addLabel(t, this.graphData.sumsCount[t]);
+			nextList.addLabel(t, this.graphData.sumsCount[t], undefined, this.name);
 
 			if(nextList.graphData.sumsCount["Daily"][t] === undefined) {
 			   nextList.graphData.sumsCount["Daily"][t] = 0;
@@ -313,19 +311,18 @@ var List = function(name, timeObject, updateFrequency, previous, next,
 			if(nextList.graphData.sumsCount["Weekly"][t] === undefined) {
 			   nextList.graphData.sumsCount["Weekly"][t] = 0;
 			}
+			if( this.graphData.sumsCount["Daily"][t] === undefined) {
+				this.graphData.sumsCount["Daily"][t] = 0;
+			}
+			if( this.graphData.sumsCount["Weekly"][t] === undefined) {
+				this.graphData.sumsCount["Weekly"][t] = 0;
+			}
 
-			//nextList.addLabel(t, 7 * extraAdd * this.graphData.sumsCount["Daily"][t]);
-			//nextList.addLabel(t,     extraAdd * this.graphData.sumsCount["Weekly"][t]);
+			for (var ll in nextLists){
 
-			for (var l in scheduler.lists){
-				var ll = scheduler.lists[l];
-				break;
-				if(order.indexOf(l) < 0){
-					continue;
-				}
-				if(order.indexOf(l) <= order.indexOf(this.name)){
-					continue;
-				}
+				var l = nextLists[ll];
+				var extraAdd = scheduler.lists[l].weekCount - scheduler.lists[scheduler.lists[l].previous].weekCount;
+
 				if(scheduler.lists[l].graphData.sumsCount["Daily"][t] === undefined) {
 				   scheduler.lists[l].graphData.sumsCount["Daily"][t] = 0;
 				}
@@ -333,11 +330,12 @@ var List = function(name, timeObject, updateFrequency, previous, next,
 				   scheduler.lists[l].graphData.sumsCount["Weekly"][t] = 0;
 				}
 
-				scheduler.lists[l].addLabel(t, 7 * extraAdd * this.graphData.sumsCount["Daily"][t]);
-				scheduler.lists[l].addLabel(t,     extraAdd * this.graphData.sumsCount["Weekly"][t]);
+				scheduler.lists[l].addLabel(t, 7 * extraAdd * this.graphData.sumsCount["Daily"][t], undefined, this.name);
+				scheduler.lists[l].addLabel(t,     extraAdd * this.graphData.sumsCount["Weekly"][t], undefined, this.name);
 
 			}
 		}
+		this.mergedList = true;
 
 	}
 
@@ -348,6 +346,7 @@ var List = function(name, timeObject, updateFrequency, previous, next,
 	this.endString = "" + new Date(timeObject.end);
 	this.maxTicks = timeObject.len;
 	this.sumTicks = 0;
+	this.bigCount = this.medCount = this.smallCount = 0;
 	this.updateFrequency = updateFrequency;
 	this.previous = previous;
 	this.next = next;
@@ -355,12 +354,11 @@ var List = function(name, timeObject, updateFrequency, previous, next,
 	this.cardCount = 0;
 	this.maxCount = Math.min(maxCount, 1.5 * this.maxTicks);
 	this.counts = {};
-	this.mitCount = 0;
-	this.maxMitCount = maxMitCount;
 	this.percGap = 0.1; // 10% default free
 	this.flatGap = 2;   // 2 hours free, by default
 
 	this.weekCount = 1;
+	this.mergedList = false;
 
 	this.graphData = {
 			"name"      : this.name,
@@ -385,6 +383,7 @@ var List = function(name, timeObject, updateFrequency, previous, next,
 			this.weekCount = this.weekCount + 1;
 		}
 	}
+	this.graphData.weekCount = this.weekCount;
 };
 
 var toTicks = function(x) {
