@@ -28,6 +28,13 @@ var Card = function(cardObject, list, inbox, done) {
 	}
 
 
+	this.setDone = function() {
+		Trello.put('/cards/' + this.id + "/dueComplete",{"value":true}, console.log, console.log);
+	}
+	this.setSkipped = function() {
+		Trello.put('/cards/' + this.id + "/idList",{"value":this.inbox.id}, console.log, console.log);
+	}
+
 	this._network_dueCompleteProcess = function() {
 		if(! this.dueComplete ){
 			return;

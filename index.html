@@ -128,6 +128,11 @@ var addError = function(message, errCount){
 
 var process_card = function(a, b){
 	console.log(reallyOverdue[a].name + b);
+	if(b === "done"){
+		reallyOverdue[a].setDone();
+	} else if (b === "skipped") {
+		reallyOverdue[a].setSkipped();
+	}
 }
 
 var renderStage = function(lists){
@@ -142,11 +147,11 @@ var renderStage = function(lists){
 	for(var ro in reallyOverdue){
 		var card = reallyOverdue[ro];
 
-		document.getElementById("p2").innerHTML = document.getElementById("p2").innerHTML + card.name + "<br/>";
+		document.getElementById("p2").innerHTML = document.getElementById("p2").innerHTML + card.name;
 		document.getElementById("p2").innerHTML = document.getElementById("p2").innerHTML +
-			'<button id="Done'+card.id+'" style="display: block;">Done</button>';
+			'<button id="Done'+card.id+'" style="display: inline;">Done</button>';
 		document.getElementById("p2").innerHTML = document.getElementById("p2").innerHTML +
-			'<button id="Skipped'+card.id+'" style="display: block;">Skipped</button>';
+			'<button id="Skipped'+card.id+'" style="display: inline;">Skipped</button><br/>';
 		document.getElementById("Done"+card.id).setAttribute("onclick", "process_card("+ro+", 'done');");
 		document.getElementById("Skipped"+card.id).setAttribute("onclick", "process_card("+ro+", 'skipped');");
 

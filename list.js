@@ -256,17 +256,6 @@ var List = function(name, timeObject, updateFrequency, previous, next,
 	this.mergeList = function (){
 		var lists = scheduler.lists;
 
-		if(this.next === null){
-			return;
-		}
-		var nextList = lists[this.next];
-
-		if(this.end === nextList.end && nextList.cardCount == 0){
-			addError("Ai o lista care nu ar trebui sa aiba carti: " + nextList.name);
-		}
-
-		nextList.cardCount += this.cardCount;
-
 		var whatIneedToFillInThisbunch = this.weekCount;
 
 		console.assert(whatIneedToFillInThisbunch >=0, "whatIneedToFillInThisbunch");
@@ -292,6 +281,17 @@ var List = function(name, timeObject, updateFrequency, previous, next,
 			this.addLabel(t, 7 * whatIneedToFillInThisbunch * this.graphData.sumsCount["Daily"][t], undefined, this.name);
 			this.addLabel(t,     whatIneedToFillInThisbunch * this.graphData.sumsCount["Weekly"][t], undefined, this.name);
 		}
+
+		if(this.next === null){
+			return;
+		}
+		var nextList = lists[this.next];
+
+		if(this.end === nextList.end && nextList.cardCount == 0){
+			addError("Ai o lista care nu ar trebui sa aiba carti: " + nextList.name);
+		}
+
+		nextList.cardCount += this.cardCount;
 
 		var nextLists = scheduler.requiredLists.slice(scheduler.requiredLists.indexOf(this.name)+1, -2);
 
