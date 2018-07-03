@@ -8,10 +8,13 @@ var Scheduler = function (initEndedCallback) {
 		for (var n in scheduler.requiredLists) {
 			var name = scheduler.requiredLists[n];
 			var list = scheduler.lists[name];
-			if(list.bigCount === 1 && list.medCount === 3 && list.smallCount === 5){
+			if(list.bigCount === 1 && list.medCount === 3 && list.smallCount === 5) {
 				continue;
 			}
-			if(list.bigCount + list.medCount + list.smallCount === Object.keys(list.cards).length){
+			if(list.bigCount + list.medCount + list.smallCount === Object.keys(list.cards).length) {
+				continue;
+			}
+			if(list.name === "Today" && this.time.currentHour >= 10) {
 				continue;
 			}
 			return list;
@@ -76,6 +79,16 @@ var Scheduler = function (initEndedCallback) {
 		};
 
 		var _network_document_success = function(answer) {
+			this.labels = {};
+			this.labelsNames = {};
+			for(var i in answer){
+				var label = answer[i];
+				this.labels[label.id] = label;
+				this.labelsNames[label.name] = label;
+			}
+		};
+
+		var _network_document_success = function(answer) {
 			for(var i in answer){
 				var list = answer[i];
 
@@ -97,6 +110,7 @@ var Scheduler = function (initEndedCallback) {
 		};
 
 		Trello.get('/boards/51d3f043a536c77a09000a40/lists', _network_document_success, console.log);
+		Trello.get('/boards/51d3f043a536c77a09000a40/labels', _network_label_success, console.log);
 
 		console.log(lists);
 

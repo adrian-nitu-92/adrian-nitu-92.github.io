@@ -14,20 +14,6 @@ var Card = function(cardObject, list, inbox, done) {
 		Trello.put('/cards/' + this.id + "/desc",{"value":val}, console.log, console.log);
 	}
 
-	this._network_setLabel = function(label){
-		this.auxObj.eventId = this.eventId;
-		this.auxObj.eraseMeNot = this.eraseMeNot;
-		var val = JSON.stringify(this.auxObj);
-		if(val === "{}"){
-			val = "";
-			if(this.desc === val) {
-				return;
-			}
-		}
-		Trello.put('/cards/' + this.id + "/desc",{"value":val}, console.log, console.log);
-	}
-
-
 	this.setDone = function() {
 		Trello.put('/cards/' + this.id + "/dueComplete",{"value":true}, console.log, console.log);
 	}
@@ -122,13 +108,10 @@ var Card = function(cardObject, list, inbox, done) {
 				this.pass = true;
 			} else if (ln == "Big"){
 				this.big = true;
-				scheduler.bigId = label.id;
 			} else if (ln == "Medium"){
 				this.medium = true;
-				scheduler.medId = label.id;
 			} else if (ln == "Small"){
 				this.small = true;
-				scheduler.smallId = label.id;
 			} else if (ln == "Weekly"){
 				this.repeating = true;
 				this.repeatAfter = 7 * 24 * 60 * 60 * 1000;
@@ -190,14 +173,15 @@ var Card = function(cardObject, list, inbox, done) {
 
 	this.setLabel = function(label, set){
 		console.log(this.name + " + " + label + " " +(set ? "on" : "off"));
-		var idLabels = {"Big":scheduler.bigId, "Medium":scheduler.medId, "Small":scheduler.smallId};
 
-		console.assert(idLabels[label] !== undefined);
+		console.assert(scheduler.labelsNames[label] !== undefined);
 
 		console.log(this.labels);
 
+		var id = scheduler.labelsNames[label].id;
+
 		if(set){
-			this.labels.push({"id":idLabels[label], "name":label});
+			this.labels.push({"id":id, "name":label});
 		} else {
 			var index = -1;
 			for (var i in this.labels){

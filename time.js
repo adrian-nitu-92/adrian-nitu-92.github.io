@@ -37,6 +37,8 @@ var Time = function(dummy) {
 		currentHour = 7;
 	}
 
+	this.currentHour = currentHour;
+
 	var aux = (this.today.start + 3.5 * this.dayLenghtInMs);
 
 	/* let weekStart be global */
