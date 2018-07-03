@@ -185,7 +185,7 @@ var Card = function(cardObject, list, inbox, done) {
 		} else {
 			var index = -1;
 			for (var i in this.labels){
-				if(this.labels[i].id == idLabels[label]) {
+				if(this.labels[i].id == scheduler.labelsNames[label].id) {
 					index = i;
 					break;
 				}

@@ -78,13 +78,13 @@ var Scheduler = function (initEndedCallback) {
 			};
 		};
 
-		var _network_document_success = function(answer) {
-			this.labels = {};
-			this.labelsNames = {};
+		var _network_label_success = function(answer) {
+			scheduler.labels = {};
+			scheduler.labelsNames = {};
 			for(var i in answer){
 				var label = answer[i];
-				this.labels[label.id] = label;
-				this.labelsNames[label.name] = label;
+				scheduler.labels[label.id] = label;
+				scheduler.labelsNames[label.name] = label;
 			}
 		};
 
@@ -257,3 +257,5 @@ var debug = function( ar, mesage){
 }
 
 var sortingDebug = true;
+var onceADayFlag = false;
+var onceAWeekFlag = false;
