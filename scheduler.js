@@ -23,8 +23,15 @@ var Scheduler = function (initEndedCallback) {
 	}
 
 	this.getUntagged = function(){
-		addError("unimplemented getUntagged");
-		return [];
+		for (var n in scheduler.requiredLists) {
+			var name = scheduler.requiredLists[n];
+			var list = scheduler.lists[name];
+			var untagged = list.getUntagged();
+			if(untagged.length != 0) {
+				return {"name":list.name, "cards":untagged};
+			}
+		}
+		return undefined;
 	}
 
 	this.almost_done = function() {
@@ -259,3 +266,14 @@ var debug = function( ar, mesage){
 var sortingDebug = true;
 var onceADayFlag = false;
 var onceAWeekFlag = false;
+
+var labelIsAType = function(label){
+	if(convert[label] !== undefined) {
+		return false;
+	}
+	return ["ImportantTask", "Pass", "Weekly", "Daily",
+	"Big", "Medium", "Small"].indexOf(label) == -1;
+}
+var specialLabelConv = {"Grow":850, "Facultate": 750, "Health":600, "Work": 500, "Social":400, "Facultate-TA": 300, "Downtime":100 };
+var convert = {"30 minute task" : 0.5, "Hour task": 1, "2 hour task": 2, "3 hour task":3, "5 hour task":5, "8 hour task":8, "13 hour task":13, "Week":30,   "Month":4*5*8 , "3 Month":3*4*5*8 , "6 Month":6*4*5*8 , "Year":12*4*5*8 };
+var convCal = {"30 minute task" : 0.5, "Hour task": 1, "2 hour task": 2, "3 hour task":3, "5 hour task":5, "8 hour task":8, "13 hour task":13, "Week":5*24, "Month":4*7*24, "3 Month":3*4*7*24, "6 Month":6*4*7*24, "Year":12*4*7*24};

@@ -65,21 +65,64 @@ var base = function(time, string){
 	}
 }
 
+var renderRow = function(card, buttonNames) {
+	var html = '';
+	html += '<tr><td> ';
+	html += card.name.substring(0, 45);
+	html += ' </td><td>';
+	for (var bs = 0; bs < buttonNames.length; bs ++ ){
+		var buttonName = buttonNames[bs];
+		html += '<button id="'+buttonName+card.id+'" style="display: inline;">'+buttonName+'</button>';
+	}
+	html += '</td></tr>';
+	return(html);
+}
+
 var tag = function(){
-	//TODO ask me to tag a untagged card (choose the ones that are big first)
 	var time = 5;
 	var untaggedList = scheduler.getUntagged();
-	var untagged;
-	untagged = untaggedList[0];
-	if(untagged === undefined){
+	if(untaggedList === undefined){
 		return null;
 	}
+
+	var listName = untaggedList.name;
+	untaggedList = untaggedList.cards;
+
+	var all_labels = Object.keys(scheduler.labelsNames).filter(labelIsAType);
+
 	return function(){
-		document.getElementById('airea').innerHTML =  `You have ${time} minutes? tag stuffs + ${untagged}`;
+		var table = '';
+		table +=('<table style=\"width:100%\">');
+		for (var i in untaggedList){
+			var card = untaggedList[i];
+			table += renderRow(card, all_labels);
+		}
+		table += '</table>';
+		addMessage(table);
+		for (var i in untaggedList){
+			var card = untaggedList[i];
+
+			for (var bs = 0; bs < all_labels.length; bs ++ ){
+				var buttonSize = all_labels[bs];
+				var btn = document.getElementById(buttonSize+card.id);
+				btn.setAttribute("onclick",
+					'processFunction("'+buttonSize+'", scheduler.lists["'+listName+'"], "'+card.id+'");');
+			}
+		}
 	}
 }
 
-var processFunction;
+var processFunction = function(size, list, cardID) {
+	console.log(size + " "+ list.name + " " + cardID);
+	var btn = document.getElementById(size+cardID);
+	if(size == "Skip"){
+		list.cards[cardID].setSkipped();
+		btn.style.borderStyle = 'inset';
+		return;
+	}
+	list.cards[cardID].setLabel(size, btn.style.borderStyle!=='inset');
+	btn.style.borderStyle = (btn.style.borderStyle!=='inset' ? 'inset' : 'outset');
+};
 
 var prioritise = function(){
 
@@ -94,35 +137,15 @@ var prioritise = function(){
 	if(firstListNotPriod === null)
 		return null;
 
-	var buttonSizes = ["Big", "Medium", "Small"];
-	var cardVarName = ["big", "medium", "small"];
-
-	var renderRow = function(card) {
-		var html = '';
-		html += '<tr><td> ';
-		html += card.name.substring(0, 45);
-		html += ' </td><td>';
-		for (var bs = 0; bs < buttonSizes.length; bs ++ ){
-			var buttonSize = buttonSizes[bs];
-			html += '<button id="'+buttonSize+card.id+'" style="display: inline;">'+buttonSize+'</button>';
-		}
-		html += '</td></tr>';
-		return(html);
-	}
+	var buttonSizes = ["Big", "Medium", "Small", "Skip"];
+	var cardVarName = ["big", "medium", "small", "skip"];
 
 	return function(){
-		processFunction = function(size, list, cardID) {
-			console.log(size + " "+ list.name + " " + cardID);
-			var btn = document.getElementById(size+cardID);
-			list.cards[cardID].setLabel(size, btn.style.borderStyle!=='inset');
-			btn.style.borderStyle = (btn.style.borderStyle!=='inset' ? 'inset' : 'outset');
-		}
-
 		var table = '';
 		table +=('<table style=\"width:100%\">');
 		for (var i in firstListNotPriod.cards){
 			var card = firstListNotPriod.cards[i];
-			table += renderRow(card);
+			table += renderRow(card, buttonSizes);
 		}
 		table += '</table>';
 		var bigrem = 1 - firstListNotPriod.bigCount;

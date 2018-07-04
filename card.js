@@ -84,13 +84,6 @@ var Card = function(cardObject, list, inbox, done) {
 	}
 
 	this._parseLabels = function() {
-		var labelIsAType = function(label){
-			return ["ImportantTask", "Pass", "Weekly", "Daily",
-			"Big", "Medium", "Small"].indexOf(ln) == -1;
-		}
-		var specialLabelConv = {"Grow":850, "Facultate": 750, "Health":600, "Work": 500, "Social":400, "Facultate-TA": 300, "Downtime":100 };
-		var convert = {"30 minute task" : 0.5, "Hour task": 1, "2 hour task": 2, "3 hour task":3, "5 hour task":5, "8 hour task":8, "13 hour task":13, "Week":30,   "Month":4*5*8 , "3 Month":3*4*5*8 , "6 Month":6*4*5*8 , "Year":12*4*5*8 };
-		var convCal = {"30 minute task" : 0.5, "Hour task": 1, "2 hour task": 2, "3 hour task":3, "5 hour task":5, "8 hour task":8, "13 hour task":13, "Week":5*24, "Month":4*7*24, "3 Month":3*4*7*24, "6 Month":6*4*7*24, "Year":12*4*7*24};
 		var labels = this.labels;
 		var found = 0;
 		this.tick = 0.125;
@@ -138,6 +131,7 @@ var Card = function(cardObject, list, inbox, done) {
 		if(labelToAdd.length == 0) {
 			labelToAdd.push("Unlabeled");
 		}
+		this.parsedLabels = labelToAdd;
 		if(this.big){
 			this.size += 1000;
 			this.list.bigCount += 1;
@@ -205,6 +199,7 @@ var Card = function(cardObject, list, inbox, done) {
 	this.list = list;
 	this.inbox = inbox;
 	this.done = done;
+	this.parsedLabels = [];
 
 	Object.assign(this, cardObject);
 

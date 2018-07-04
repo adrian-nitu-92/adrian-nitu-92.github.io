@@ -339,6 +339,17 @@ var List = function(name, timeObject, updateFrequency, previous, next,
 
 	}
 
+	this.getUntagged = function(){
+		var ret = [];
+		for(var c in this.cards){
+			var card = this.cards[c];
+			if(card.parsedLabels[0] === "Unlabeled"){
+				ret.push(card);
+			}
+		}
+		return ret;
+	}
+
 	this.name = name;
 	this.start = timeObject.start;
 	this.startString = "" + new Date(timeObject.start);
