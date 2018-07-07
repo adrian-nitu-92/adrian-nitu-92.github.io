@@ -41,6 +41,7 @@
 <div id="airea"></div>
 
 <a href="/">Home</a>
+<a onclick="next()" href="#">Next</a>
 
 <div id="error"></div>
 <script type="text/javascript">
@@ -79,6 +80,7 @@ var renderRow = function(card, buttonNames) {
 }
 
 var tag = function(){
+	document.getElementById('airea').innerHTML = "";
 	var time = 5;
 	var untaggedList = scheduler.getUntagged();
 	if(untaggedList === undefined){
@@ -125,7 +127,7 @@ var processFunction = function(size, list, cardID) {
 };
 
 var prioritise = function(){
-
+	document.getElementById('airea').innerHTML = "";
 	for (var l in scheduler.requiredLists) {
         var name = scheduler.requiredLists[l];
         var list = scheduler.lists[name];
@@ -196,34 +198,39 @@ function shuffle(array) {
     return array;
 }
 
+var stuffs = [
+	"tag",
+	"prioritise",
+	"projects",
+	];
+
 //TODO: location? home
 var schedulerInitEnded = function(scheduler){
 
-	var stuffs = [
-	tag(),
-	prioritise(),
-	projects(),
-	];
+	if(stuffs.length === 0){
+		base(5, "Done!")();
+		return;
+	}
+
+	var sMapping = {"tag" : tag(), "prioritise":prioritise(), "projects": projects()};
 
 	//TODO
 	var stuff;
 	stuffs = shuffle(stuffs);
 	console.log(stuffs);
-	stuff = null;
-	for (s in stuffs){
-		console.log(s);
-		if(stuffs[s] != null){
-			stuff = stuffs[s];
-			break;
-		}
+	stuff = sMapping[stuffs[0]];
+	while(stuff == null && stuffs.length != 0) {
+		stuffs.splice(0, 1);
+		stuff = sMapping[stuffs[0]];
 	}
 
-	if(stuff == null){
-		base(5, "Done!")();
-		return;
-	}
+	stuffs.splice(0, 1);
 
 	stuff();
+}
+
+var next = function() {
+	schedulerInitEnded(scheduler);
 }
 
 var scheduler = new Scheduler(schedulerInitEnded);

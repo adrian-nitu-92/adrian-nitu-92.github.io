@@ -176,6 +176,11 @@ var Card = function(cardObject, list, inbox, done) {
 
 		if(set){
 			this.labels.push({"id":id, "name":label});
+			if(this.parsedLabels.length === 1 && this.parsedLabels[0] === "Unlabeled") {
+				this.parsedLabels.splice(0, 1, label);
+			} else {
+				this.parsedLabels.push(label);
+			}
 		} else {
 			var index = -1;
 			for (var i in this.labels){
@@ -186,6 +191,20 @@ var Card = function(cardObject, list, inbox, done) {
 			}
 			console.assert(index >= 0);
 			this.labels.splice(i, 1);
+
+			index = -1;
+			for (var i in this.parsedLabels){
+				if(this.parsedLabels[i] == label) {
+					index = i;
+					break;
+				}
+			}
+			console.assert(index >= 0);
+			this.parsedLabels.splice(i, 1);
+
+			if(this.parsedLabels.length === 0) {
+				this.parsedLabels.push("Unlabeled");
+			}
 		}
 		console.log(this.labels);
 
