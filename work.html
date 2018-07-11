@@ -68,9 +68,9 @@ var base = function(time, string){
 
 var renderRow = function(card, buttonNames) {
 	var html = '';
-	html += '<tr><td> ';
+	html += '<tr style=\"outline: thin solid\"><td>';
 	html += card.name.substring(0, 45);
-	html += ' </td><td>';
+	html += '</td><td>';
 	for (var bs = 0; bs < buttonNames.length; bs ++ ){
 		var buttonName = buttonNames[bs];
 		html += '<button id="'+buttonName+card.id+'" style="display: inline;">'+buttonName+'</button>';
@@ -124,6 +124,7 @@ var processFunction = function(size, list, cardID) {
 	}
 	list.cards[cardID].setLabel(size, btn.style.borderStyle!=='inset');
 	btn.style.borderStyle = (btn.style.borderStyle!=='inset' ? 'inset' : 'outset');
+	btn.innerText = (btn.style.borderStyle!=='inset' ? size.toLowerCase() : size.toUpperCase());
 };
 
 var prioritise = function(){
@@ -164,8 +165,32 @@ var prioritise = function(){
 				btn.setAttribute("onclick",
 					'processFunction("'+buttonSize+'", scheduler.lists["'+firstListNotPriod.name+'"], "'+card.id+'");');
 				btn.style.borderStyle = card[cardVarName[bs]] ? 'inset' : 'outset';
+				btn.innerText = (btn.style.borderStyle!=='inset' ? buttonSize.toLowerCase() : buttonSize.toUpperCase());
 			}
 		}
+	}
+}
+
+var dateThemAllFunction = function (){
+	var undatedList = scheduler.lists.Today.getUndated();
+	for (var i in undatedList){
+		var card = undatedList[i];
+		card._network_reschedule();
+	}
+}
+
+var date = function(){
+	document.getElementById('airea').innerHTML = "";
+
+	var undatedList = scheduler.lists.Today.getUndated();
+	if(undatedList === null)
+		return null;
+
+	return function(){
+		document.getElementById('airea').innerHTML = '<button id="dateThemAll" style="display: inline;">dateThemAll</button>';
+		var btn = document.getElementById("dateThemAll");
+		btn.setAttribute("onclick",
+			'dateThemAllFunction();');
 	}
 }
 
@@ -202,6 +227,7 @@ var stuffs = [
 	"tag",
 	"prioritise",
 	"projects",
+	"date"
 	];
 
 //TODO: location? home
@@ -212,7 +238,7 @@ var schedulerInitEnded = function(scheduler){
 		return;
 	}
 
-	var sMapping = {"tag" : tag(), "prioritise":prioritise(), "projects": projects()};
+	var sMapping = {"tag" : tag(), "prioritise":prioritise(), "projects": projects(), "date": date()};
 
 	//TODO
 	var stuff;

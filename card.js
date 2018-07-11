@@ -192,15 +192,10 @@ var Card = function(cardObject, list, inbox, done) {
 			console.assert(index >= 0);
 			this.labels.splice(i, 1);
 
-			index = -1;
-			for (var i in this.parsedLabels){
-				if(this.parsedLabels[i] == label) {
-					index = i;
-					break;
-				}
+			index = this.parsedLabels.indexOf(label);
+			if(index >= 0) {
+				this.parsedLabels.splice(i, 1);
 			}
-			console.assert(index >= 0);
-			this.parsedLabels.splice(i, 1);
 
 			if(this.parsedLabels.length === 0) {
 				this.parsedLabels.push("Unlabeled");

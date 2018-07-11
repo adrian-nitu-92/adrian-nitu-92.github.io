@@ -350,6 +350,17 @@ var List = function(name, timeObject, updateFrequency, previous, next,
 		return ret;
 	}
 
+	this.getUndated = function(){
+		var ret = [];
+		for(var c in this.cards){
+			var card = this.cards[c];
+			if(card.due === null){
+				ret.push(card);
+			}
+		}
+		return ret;
+	}
+
 	this.name = name;
 	this.start = timeObject.start;
 	this.startString = "" + new Date(timeObject.start);
