@@ -19,7 +19,7 @@ var Time = function(dummy) {
 	var nowDate = new Date();
 	var now = nowDate.getTime() + this.timezoneOffset;
 
-	this.today.start = now - now % this.dayLenghtInMs;
+	this.today.start = now - now % this.dayLenghtInMs - this.timezoneOffset;
 
 	var currentHour = (now - this.today.start) / this.hourLengthInMs;
 	currentHour = Math.round(Number(currentHour*4))/4;
@@ -91,7 +91,7 @@ var Time = function(dummy) {
 
 	this.daysInThisWeek = (this.week.end - this.today.start) / this.dayLenghtInMs;
 
-	this.today.len    = 24 - currentHour;
+	this.today.len    = 24 - currentHour + 3;
 	this.tomorrow.len = normalDay;
 	this.week.len     = normalDay * (this.daysInThisWeek -1);
 	// add 30 hours as an overlap buffer -- this should protect from the need to push out a ww prematurely
