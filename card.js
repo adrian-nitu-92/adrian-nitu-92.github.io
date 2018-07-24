@@ -128,6 +128,14 @@ var Card = function(cardObject, list, inbox, done) {
 				}
 			}
 		}
+		var now = new Date().getTime();
+		var date = new Date(this.due).getTime();
+		if(now > date) {
+			this.tick -= (now - date) / (60 * 60 * 1000);
+		}
+		if(this.tick < 0) {
+			this.tick = 0;
+		}
 		if(labelToAdd.length == 0) {
 			labelToAdd.push("Unlabeled");
 		}
