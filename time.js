@@ -17,11 +17,11 @@ var Time = function(dummy) {
 	this._3year = {};
 
 	var nowDate = new Date();
-	var now = nowDate.getTime() + this.timezoneOffset;
+	var now = nowDate.getTime();
 
-	this.today.start = now - now % this.dayLenghtInMs - this.timezoneOffset;
+	this.today.start = now - now % this.dayLenghtInMs;
 
-	var currentHour = (now - this.today.start) / this.hourLengthInMs;
+	var currentHour = (now - this.today.start + this.timezoneOffset) / this.hourLengthInMs;
 	currentHour = Math.round(Number(currentHour*4))/4;
 	if(currentHour >= 24){
 		currentHour -= 24;
@@ -91,7 +91,7 @@ var Time = function(dummy) {
 
 	this.daysInThisWeek = (this.week.end - this.today.start) / this.dayLenghtInMs;
 
-	this.today.len    = 24 - currentHour + 3;
+	this.today.len    = 24 - currentHour;
 	this.tomorrow.len = normalDay;
 	this.week.len     = normalDay * (this.daysInThisWeek -1);
 	// add 30 hours as an overlap buffer -- this should protect from the need to push out a ww prematurely
