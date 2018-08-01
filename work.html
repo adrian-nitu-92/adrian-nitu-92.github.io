@@ -179,11 +179,22 @@ var dateThemAllFunction = function (){
 	}
 }
 
+var supporting = function () {
+	document.getElementById('airea').innerHTML = "";
+	var tcards = scheduler.lists.Tomorrow.cards;
+	var allCards = scheduler.cards;
+	for (var i in tcards){
+		var card = tcards[i];
+		console.log(card.supportingCard);
+	}
+	return function(){};
+}
+
 var date = function(){
 	document.getElementById('airea').innerHTML = "";
 
 	var undatedList = scheduler.lists.Today.getUndated();
-	if(undatedList === null)
+	if(undatedList.length === 0)
 		return null;
 
 	return function(){
@@ -194,8 +205,12 @@ var date = function(){
 	}
 }
 
-
+var once = false;
 var projects = function(){
+	if(once) {
+		return null;
+	}
+	once = true;
 	return function(){
 		document.getElementById('airea').innerHTML =  `You have 5 minutes? Review
 <a href="https://docs.google.com/spreadsheets/d/1S20YvTFcT5kxSQgpWK9y691nIKYZktMFJnXgQq-YqN0/edit#gid=0">
@@ -227,7 +242,8 @@ var stuffs = [
 	"tag",
 	"prioritise",
 	"projects",
-	"date"
+	"date",
+	"supporting"
 	];
 
 //TODO: location? home
@@ -238,7 +254,7 @@ var schedulerInitEnded = function(scheduler){
 		return;
 	}
 
-	var sMapping = {"tag" : tag(), "prioritise":prioritise(), "projects": projects(), "date": date()};
+	var sMapping = {"tag" : tag(), "prioritise":prioritise(), "projects": projects(), "date": date(), "supporting": supporting(),};
 
 	//TODO
 	var stuff;
@@ -249,8 +265,6 @@ var schedulerInitEnded = function(scheduler){
 		stuffs.splice(0, 1);
 		stuff = sMapping[stuffs[0]];
 	}
-
-	stuffs.splice(0, 1);
 
 	stuff();
 }
