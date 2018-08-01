@@ -146,8 +146,37 @@ var prioritise = function(){
 	return function(){
 		var table = '';
 		table +=('<table style=\"width:100%\">');
-		for (var i in firstListNotPriod.cards){
-			var card = firstListNotPriod.cards[i];
+		var customSort = function(a,b){
+			if(a.big && !b.big) {
+				return -1;
+			}
+			if(!a.big && b.big) {
+				return 1;
+			}
+			if(a.medium && !b.medium) {
+				return -1;
+			}
+			if(!a.medium && b.medium) {
+				return 1;
+			}
+			if(a.small && !b.small) {
+				return -1;
+			}
+			if(!a.small && b.small) {
+				return 1;
+			}
+			return a.pos - b.pos;
+		};
+
+		var ccards = firstListNotPriod.cards;
+		ccards = Object.keys(ccards).map(function(key) {
+			return ccards[key];
+		});
+
+		ccards.sort(customSort);
+
+		for (var i in ccards){
+			var card = ccards[i];
 			table += renderRow(card, buttonSizes);
 		}
 		table += '</table>';
@@ -156,8 +185,9 @@ var prioritise = function(){
 		var smallrem = 5 - firstListNotPriod.smallCount;
 		addMessage(`You need ${bigrem} big ${medrem} med ${smallrem} small`);
 		addMessage(table);
-		for (var i in firstListNotPriod.cards){
-			var card = firstListNotPriod.cards[i];
+
+		for (var i in ccards){
+			var card = ccards[i];
 
 			for (var bs = 0; bs < buttonSizes.length; bs ++ ){
 				var buttonSize = buttonSizes[bs];
@@ -185,7 +215,10 @@ var supporting = function () {
 	var allCards = scheduler.cards;
 	for (var i in tcards){
 		var card = tcards[i];
-		console.log(card.supportingCard);
+		if(card.big) {
+			console.log(card.supportingCard);
+		}
+
 	}
 	return function(){};
 }
