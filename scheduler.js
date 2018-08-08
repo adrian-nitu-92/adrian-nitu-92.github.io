@@ -80,7 +80,10 @@ var Scheduler = function (initEndedCallback) {
 				};
 			}
 			return function(answer, list) {
-				scheduler.cards = scheduler.cards.concat(answer);
+				for(var i in answer){
+					var card = answer[i];
+					scheduler.cards[card.id] = card;
+				}
 				lists[listName].setCards(answer);
 				setTimeout(scheduler.almost_done, 0);
 			};
@@ -227,7 +230,7 @@ var Scheduler = function (initEndedCallback) {
 	this.listsWaiting = 0;
 	this.listsSorting = 0;
 
-	this.cards = [];
+	this.cards = {};
 
 	this.requiredLists = ["Today", "Tomorrow", "Week", "Month", "3 Month", "6 Month", "Year", "3 Year", "Inbox", "One Day"];
 

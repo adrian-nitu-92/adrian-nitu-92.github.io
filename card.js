@@ -4,6 +4,7 @@ var Card = function(cardObject, list, inbox, done) {
 	this._network_updateDesc = function(){
 		this.auxObj.eventId = this.eventId;
 		this.auxObj.eraseMeNot = this.eraseMeNot;
+		this.auxObj.supporting = this.supporting;
 		var val = JSON.stringify(this.auxObj);
 		if(val === "{}"){
 			val = "";
@@ -193,6 +194,18 @@ var Card = function(cardObject, list, inbox, done) {
 			} else {
 				this.parsedLabels.push(label);
 			}
+			if(label === "Big"){
+				this.big = true;
+				this.list.bigCount += 1;
+			}
+			if(label === "Medium"){
+				this.medium = true;
+				this.list.medCount += 1;
+			}
+			if(label === "Small"){
+				this.small = true;
+				this.list.smallCount += 1;
+			}
 		} else {
 			var index = -1;
 			for (var i in this.labels){
@@ -212,6 +225,18 @@ var Card = function(cardObject, list, inbox, done) {
 			if(this.parsedLabels.length === 0) {
 				this.parsedLabels.push("Unlabeled");
 			}
+			if(label === "Big"){
+				this.big = false;
+				this.list.bigCount -= 1;
+			}
+			if(label === "Medium"){
+				this.medium = false;
+				this.list.medCount -= 1;
+			}
+			if(label === "Small"){
+				this.small = false;
+				this.list.smallCount -= 1;
+			}
 		}
 		console.log(this.labels);
 
@@ -221,22 +246,45 @@ var Card = function(cardObject, list, inbox, done) {
 		Trello.put('/cards/' + this.id + "/idLabels",{"value":networkLabels}, console.log, console.log);
 	}
 
+	this._parseSupporting = function (){
+		var card = this;
+		setTimeout(function(){
+			card.supportingCards = [];
+			for (var c in card.supporting){
+				var cardId = card.supporting[c];
+				var scard = scheduler.cards[cardId];
+				if(scard === undefined){
+					addWarning("Trebuie sa cureti cardul " + card.name + " " + card.shortUrl);
+				} else {
+					if(scard.date >= card.date) {
+						addWarning("supporting card " + scard.name + " e nefolositor");
+					}
+					card.supportingCards.push(scard);
+				}
+				card.supportingCards.push()
+			}
+		}, 500);
+	}
+
 	this.listname = list.name;
 	this.list = list;
 	this.inbox = inbox;
 	this.done = done;
 	this.parsedLabels = [];
+	this.supporting = [];
 
 	Object.assign(this, cardObject);
 
 	this._parseLabels();
 
 	try {
-		this.auxObj = JSON.parse(cardObject	.desc);
+		this.auxObj = JSON.parse(cardObject.desc);
 		Object.assign(this, this.auxObj);
 	} catch (err) {
 		this.auxObj = {};
 	}
+
+	this._parseSupporting();
 
 	if(this.auxObj.eventId === undefined && this.desc.indexOf("gdoc") != -1) {
 		this.eventId = this.desc.split(" -- ")[1];

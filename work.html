@@ -68,14 +68,14 @@ var base = function(time, string){
 
 var renderRow = function(card, buttonNames) {
 	var html = '';
-	html += '<tr style=\"outline: thin solid\"><td>';
+	html += '<tr style=\"outline: thin solid\">' + '<div align="left">';
 	html += card.name.substring(0, 45);
-	html += '</td><td>';
+	html += '</div><div align="right">';
 	for (var bs = 0; bs < buttonNames.length; bs ++ ){
 		var buttonName = buttonNames[bs];
 		html += '<button id="'+buttonName+card.id+'" style="display: inline;">'+buttonName+'</button>';
 	}
-	html += '</td></tr>';
+	html += '</div></tr>';
 	return(html);
 }
 
@@ -209,18 +209,36 @@ var dateThemAllFunction = function (){
 	}
 }
 
-var supporting = function () {
-	document.getElementById('airea').innerHTML = "";
-	var tcards = scheduler.lists.Tomorrow.cards;
-	var allCards = scheduler.cards;
-	for (var i in tcards){
-		var card = tcards[i];
-		if(card.big) {
-			console.log(card.supportingCard);
-		}
+var supportingValidate = function() {
+	// the same thing, but pick a big card and ask me if it's ok how it's supported.
+	return null;
+}
 
+var supporting = function () {
+	document.getElementById('airea').innerHTML = '<textarea rows="4" cols="50"></textarea><br/>';;
+
+	var targetLists = ["Tomorrow", "Week"];
+	for (var l in targetLists) {
+		var listName = targetLists[l];
+		var list = scheduler.lists[listName];
+		var tcards = list.cards;
+		for (var i in tcards){
+			var card = tcards[i];
+			if(card.big && card.supportingCards.length === 0) {
+				return function(){
+					addMessage("Please support card <a href = \"" +card.shortUrl + "\">" + card.name + "</a><br/>");
+					addMessage("<br/>Options<br/>");
+					var plist = scheduler.lists[list.previous];
+					for (var i in plist.cards){
+						var pcard = plist.cards[i];
+						addMessage('<div align="left">'+pcard.name + '</div> <div align="right">\"' + pcard.id + "\",</div>");
+					}
+				};
+			}
+
+		}
 	}
-	return function(){};
+	return supportingValidate();
 }
 
 var date = function(){
@@ -279,24 +297,39 @@ var stuffs = [
 	"supporting"
 	];
 
+var g_supported = false;
+
 //TODO: location? home
 var schedulerInitEnded = function(scheduler){
-
-	if(stuffs.length === 0){
-		base(5, "Done!")();
-		return;
+	if(!g_supported){
+		setTimeout(function() {
+			g_supported = true;
+		}, 600);
 	}
-
-	var sMapping = {"tag" : tag(), "prioritise":prioritise(), "projects": projects(), "date": date(), "supporting": supporting(),};
 
 	//TODO
 	var stuff;
 	stuffs = shuffle(stuffs);
 	console.log(stuffs);
+
+	if(stuffs[0] === "supporting" && !g_supported) {
+		setTimeout(function() {
+			schedulerInitEnded(scheduler);
+		}, 300);
+		return;
+	}
+	var sMapping = {"tag" : tag(), "prioritise":prioritise(), "projects": projects(), "date": date(), "supporting": supporting(),};
+
 	stuff = sMapping[stuffs[0]];
+
 	while(stuff == null && stuffs.length != 0) {
 		stuffs.splice(0, 1);
 		stuff = sMapping[stuffs[0]];
+	}
+
+	if(stuffs.length === 0){
+		base(5, "Done!")();
+		return;
 	}
 
 	stuff();
