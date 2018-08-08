@@ -117,6 +117,7 @@ var addWarning = function(message, errCount){
 	}
 	globalWarning = globalWarning + message + "<br/>";
 	g_data.errorCount = g_data.errorCount + errCount;
+	document.getElementById("p1").innerHTML = message +"<br/>"+ document.getElementById("p1").innerHTML;
 }
 
 var addError = function(message, errCount){

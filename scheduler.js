@@ -79,12 +79,12 @@ var Scheduler = function (initEndedCallback) {
 					setTimeout(scheduler.almost_done, 0);
 				};
 			}
-			return function(answer, list) {
-				for(var i in answer){
-					var card = answer[i];
+			return function(answer) {
+				lists[listName].setCards(answer);
+				for(var i in lists[listName].cards){
+					var card = lists[listName].cards[i];
 					scheduler.cards[card.id] = card;
 				}
-				lists[listName].setCards(answer);
 				setTimeout(scheduler.almost_done, 0);
 			};
 		};

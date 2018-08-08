@@ -254,16 +254,26 @@ var Card = function(cardObject, list, inbox, done) {
 				var cardId = card.supporting[c];
 				var scard = scheduler.cards[cardId];
 				if(scard === undefined){
-					addWarning("Trebuie sa cureti cardul " + card.name + " " + card.shortUrl);
+					addWarning("Trebuie sa cureti cardul " + card.get_link());
 				} else {
-					if(scard.date >= card.date) {
-						addWarning("supporting card " + scard.name + " e nefolositor");
+					var useless = false;
+					useless |= scard.date >= card.date;
+					useless |= card.big && !( scard.big || scard.medium);
+					useless |= card.medium && !( scard.big || scard.medium || scard.small);
+
+					if(useless){
+						console.log(scard);
+						addWarning("<b>supporting card " + scard.get_link() + " e nefolositor pentru "+card.get_link()+"</b>");
 					}
 					card.supportingCards.push(scard);
 				}
 				card.supportingCards.push()
 			}
 		}, 500);
+	}
+
+	this.get_link = function(){
+		return '<a href = "'+this.shortUrl+'" target="_blank">' + this.name + '</a>';
 	}
 
 	this.listname = list.name;
