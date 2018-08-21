@@ -4,10 +4,10 @@
 	<link href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css" rel="stylesheet">
 		</link>
 
-    <script type="text/javascript" src="const.js" ></script>
-    <script type="text/javascript" src="libs/jquery-1.11.1.min.js" ></script>
-    <script type="text/javascript" src="libs/underscore-min.js" ></script>
-    <script type="text/javascript" src="libs/backbone-min.js" ></script>
+	<script type="text/javascript" src="const.js" ></script>
+	<script type="text/javascript" src="libs/jquery-1.11.1.min.js" ></script>
+	<script type="text/javascript" src="libs/underscore-min.js" ></script>
+	<script type="text/javascript" src="libs/backbone-min.js" ></script>
 	<script src="libs/jquery-ui.js">
 	</script>
 	<script src="libs/pretty-json-min.js">
@@ -130,10 +130,10 @@ var processFunction = function(size, list, cardID) {
 var prioritise = function(){
 	document.getElementById('airea').innerHTML = "";
 	for (var l in scheduler.requiredLists) {
-        var name = scheduler.requiredLists[l];
-        var list = scheduler.lists[name];
-        scheduler.sort(list);
-    }
+		var name = scheduler.requiredLists[l];
+		var list = scheduler.lists[name];
+		scheduler.sort(list);
+	}
 
 	var time = 5;
 	var firstListNotPriod = scheduler.getFirstNotPrioList();
@@ -209,13 +209,32 @@ var dateThemAllFunction = function (){
 	}
 }
 
+var bigoCardo;
+var allSupporting = false;
+var skiplist = [];
+
+var skipthisone = function () {
+	skiplist.push(bigoCardo);
+	schedulerInitEnded(scheduler);
+}
+
+var allSupTru = function() {
+	allSupporting = true;
+	schedulerInitEnded(scheduler);
+}
+
+var processSupporting = function(a,b){
+	console.log(a,b, bigoCardo);
+	bigoCardo.addSupporting(b);
+}
+
 var supportingValidate = function() {
 	// the same thing, but pick a big card and ask me if it's ok how it's supported.
 	return null;
 }
 
 var supporting = function () {
-	document.getElementById('airea').innerHTML = '<textarea rows="4" cols="50"></textarea><br/>';;
+	document.getElementById('airea').innerHTML = '<textarea rows="4" cols="50"></textarea><br/>' + '<a onclick="allSupTru()" href="#">Advanced</a> <a onclick="skipthisone()" href="#">Skip</a><br/><br/>';
 
 	var targetLists = ["Tomorrow", "Week", "Month"];
 	for (var l in targetLists) {
@@ -223,15 +242,27 @@ var supporting = function () {
 		var list = scheduler.lists[listName];
 		var tcards = list.cards;
 		for (var i in tcards){
-			var card = tcards[i];
-			if(card.big && card.supportingCards.length === 0) {
+			bigoCardo = tcards[i];
+			if(skiplist.indexOf(bigoCardo) >= 0){
+				continue;
+			}
+			if(bigoCardo.big && bigoCardo.supportingCards.length === 0) {
 				return function(){
-					addMessage("Please support card <a href = \"" +card.shortUrl + "\">" + card.name + "</a><br/>");
+					addMessage("Please support card <a href = \"" +bigoCardo.shortUrl + "\">" + bigoCardo.name + "</a><br/>");
 					addMessage("<br/>Options<br/>");
 					var plist = scheduler.lists[list.previous];
+					if(allSupporting){
+						plist = scheduler;
+					}
 					for (var i in plist.cards){
 						var pcard = plist.cards[i];
-						addMessage('<div align="left">'+pcard.name + '</div> <div align="right">\"' + pcard.id + "\",</div>");
+						addMessage('<div align="left">'+ pcard.name + '</div> <div align="right"><button id='+pcard.id+'>Add</button></div>');
+					}
+					for (var i in plist.cards){
+						var pcard = plist.cards[i];
+						var btn = document.getElementById(pcard.id);
+						btn.setAttribute("onclick",
+							'processSupporting(scheduler.lists["'+list.name+'"], "'+pcard.id+'");');
 					}
 				};
 			}
@@ -270,23 +301,23 @@ projects</a>`;
 }
 
 function shuffle(array) {
-    let counter = array.length;
+	let counter = array.length;
 
-    // While there are elements in the array
-    while (counter > 0) {
-        // Pick a random index
-        let index = Math.floor(Math.random() * counter);
+	// While there are elements in the array
+	while (counter > 0) {
+		// Pick a random index
+		let index = Math.floor(Math.random() * counter);
 
-        // Decrease counter by 1
-        counter--;
+		// Decrease counter by 1
+		counter--;
 
-        // And swap the last element with it
-        let temp = array[counter];
-        array[counter] = array[index];
-        array[index] = temp;
-    }
+		// And swap the last element with it
+		let temp = array[counter];
+		array[counter] = array[index];
+		array[index] = temp;
+	}
 
-    return array;
+	return array;
 }
 
 var stuffs = [

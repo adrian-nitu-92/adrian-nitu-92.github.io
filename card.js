@@ -256,20 +256,42 @@ var Card = function(cardObject, list, inbox, done) {
 				if(scard === undefined){
 					addWarning("Trebuie sa cureti cardul " + card.get_link());
 				} else {
-					var useless = false;
-					useless |= scard.date >= card.date;
-					useless |= card.big && !( scard.big || scard.medium);
-					useless |= card.medium && !( scard.big || scard.medium || scard.small);
-
-					if(useless){
-						console.log(scard);
-						addWarning("<b>supporting card " + scard.get_link() + " e nefolositor pentru "+card.get_link()+"</b>");
+					var useless = function(reason) {
+						addWarning("<b>supporting card " + scard.get_link() + 
+							" e nefolositor pentru "+card.get_link()+"</b>" 
+							+ ' pentru ca ' + reason
+							+' <a onclick="scheduler.cards[\''+card.id+
+							'\'].dropSupporting(\''+scard.id+'\')" href="#">Drop</a>');
+					
+					}
+					if(scard.date >= card.date){
+						useless ("too late");
+					}
+					if(card.big && !( scard.big || scard.medium)){
+						useless ("too small");
+					}
+					if(card.medium && !( scard.big || scard.medium || scard.small)){
+						useless ("too small");
 					}
 					card.supportingCards.push(scard);
 				}
-				card.supportingCards.push()
 			}
 		}, 500);
+	}
+
+	this.addSupporting = function(cid) {
+		this.supporting.push(cid);
+		this._parseSupporting();
+		this._network_updateDesc();
+	}
+
+	this.dropSupporting = function (cid) {
+		const index = this.supporting.indexOf(cid);
+		if(index < 0) 
+			return;
+		this.supporting.splice(index, 1);
+		this._parseSupporting();
+		this._network_updateDesc();
 	}
 
 	this.get_link = function(){
