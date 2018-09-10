@@ -379,7 +379,7 @@ var List = function(name, timeObject, updateFrequency, previous, next,
 	this.percGap = 0.1; // 10% default free
 	this.flatGap = 2;   // 2 hours free, by default
 
-	this.weekCount = 1;
+	this.weekCount = 0;
 	this.mergedList = false;
 
 	this.graphData = {
