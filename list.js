@@ -259,7 +259,7 @@ var List = function(name, timeObject, updateFrequency, previous, next,
 		try {
 			dada = lists[this.previous].weekCount;
 		} catch (err){
-			;
+			console.log(err);
 		}
 
 		var whatIneedToFillInThisbunch = this.weekCount - dada;
