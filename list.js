@@ -255,7 +255,14 @@ var List = function(name, timeObject, updateFrequency, previous, next,
 	this.mergeList = function (){
 		var lists = scheduler.lists;
 
-		var whatIneedToFillInThisbunch = this.weekCount;
+		var dada = 0;
+		try {
+			dada = lists[this.previous].weekCount;
+		} catch (err){
+			;
+		}
+
+		var whatIneedToFillInThisbunch = this.weekCount - dada;
 
 		console.assert(whatIneedToFillInThisbunch >=0, "whatIneedToFillInThisbunch");
 
