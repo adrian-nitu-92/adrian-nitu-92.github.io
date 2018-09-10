@@ -245,12 +245,11 @@ var List = function(name, timeObject, updateFrequency, previous, next,
 			}
 
 			this.graphData.sumsCount[extra][label] += size;
-		} else {
-			trace(label, this.name, size, sender);
-			this.graphData.sumsCount[label]  += size;
-			this.graphData.sumsCount["Free"] -= size;
-			this.sumTicks += size;
 		}
+		trace(label, this.name, size, sender);
+		this.graphData.sumsCount[label]  += size;
+		this.graphData.sumsCount["Free"] -= size;
+		this.sumTicks += size;
 	}
 
 	this.mergeList = function (){
