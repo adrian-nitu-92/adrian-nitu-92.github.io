@@ -62,7 +62,7 @@ var Time = function(dummy) {
 		console.log("Already worked today");
 	}
 
-	var baseDay = 12;
+	var baseDay = 17;
 	var normalDay = 17;
 	var weekHabbitOffset = (normalDay - baseDay)*7;
 

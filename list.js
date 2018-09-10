@@ -204,6 +204,10 @@ var List = function(name, timeObject, updateFrequency, previous, next,
 	}
 
 	this.addLabel = function(label, size, extra, sender){
+		if(label === "Free")
+		{
+			return;
+		}
 		var osize = size;
 		size = parseFloat("" + size);
 		if(size !== osize){
@@ -217,7 +221,7 @@ var List = function(name, timeObject, updateFrequency, previous, next,
 		}
 
 		var trace = function(label, name, size, sender){
-			if([""].indexOf(label) < 0){
+			if(["3 Month"].indexOf(name) < 0){
 				return;
 			}
 			if(size == 0){
@@ -262,9 +266,19 @@ var List = function(name, timeObject, updateFrequency, previous, next,
 			console.log(err);
 		}
 
-		var whatIneedToFillInThisbunch = this.weekCount - dada;
+		var whatIneedToFillInThisbunch = this.weekCount - dada - 1;
+		if(whatIneedToFillInThisbunch < 0){
+			whatIneedToFillInThisbunch  = 0;
+		}
 
-		console.assert(whatIneedToFillInThisbunch >=0, "whatIneedToFillInThisbunch");
+		var mult = 7;
+		if(this.name === "Week")
+		{
+			mult = this.daysInThisWeek -2;
+			if(mult < 0){
+				mult = 0;
+			}
+		}
 
 		// TODO this is broken and way too aggresive
 		for(var t in this.graphData.sumsCount){
@@ -284,7 +298,8 @@ var List = function(name, timeObject, updateFrequency, previous, next,
 			if( this.graphData.sumsCount[t] === undefined) {
 				this.graphData.sumsCount[t] = 0;
 			}
-			this.addLabel(t, 7 * whatIneedToFillInThisbunch * this.graphData.sumsCount["Daily"][t], undefined, this.name);
+
+			this.addLabel(t, mult * whatIneedToFillInThisbunch * this.graphData.sumsCount["Daily"][t], undefined, this.name);
 			this.addLabel(t,     whatIneedToFillInThisbunch * this.graphData.sumsCount["Weekly"][t], undefined, this.name);
 		}
 
@@ -327,7 +342,14 @@ var List = function(name, timeObject, updateFrequency, previous, next,
 			for (var ll in nextLists){
 
 				var l = nextLists[ll];
-				var extraAdd = scheduler.lists[l].weekCount - scheduler.lists[scheduler.lists[l].previous].weekCount;
+				var dada = 0;
+				try {
+					dada = scheduler.lists[scheduler.lists[l].previous].weekCount;
+				} catch (err) {
+
+				}
+
+				var extraAdd = scheduler.lists[l].weekCount - dada;
 
 				if(scheduler.lists[l].graphData.sumsCount["Daily"][t] === undefined) {
 				   scheduler.lists[l].graphData.sumsCount["Daily"][t] = 0;
@@ -336,7 +358,7 @@ var List = function(name, timeObject, updateFrequency, previous, next,
 				   scheduler.lists[l].graphData.sumsCount["Weekly"][t] = 0;
 				}
 
-				scheduler.lists[l].addLabel(t, 7 * extraAdd * this.graphData.sumsCount["Daily"][t], undefined, this.name);
+				scheduler.lists[l].addLabel(t, mult * extraAdd * this.graphData.sumsCount["Daily"][t], undefined, this.name);
 				scheduler.lists[l].addLabel(t,     extraAdd * this.graphData.sumsCount["Weekly"][t], undefined, this.name);
 
 			}
@@ -368,6 +390,7 @@ var List = function(name, timeObject, updateFrequency, previous, next,
 	}
 
 	this.name = name;
+	this.daysInThisWeek = scheduler.time.daysInThisWeek;
 	this.start = timeObject.start;
 	this.startString = "" + new Date(timeObject.start);
 	this.end = timeObject.end;
@@ -406,7 +429,7 @@ var List = function(name, timeObject, updateFrequency, previous, next,
 	if(["Month", "3 Month", "6 Month", "Year", "3 Year"].indexOf(this.name) >= 0){
 		var aux = time.week.end;
 
-		while(aux + time.weekLengthInMs < this.end) {
+		while(aux + 0.5 * time.weekLengthInMs < this.end) {
 			aux = aux + time.weekLengthInMs;
 			this.weekCount = this.weekCount + 1;
 		}
