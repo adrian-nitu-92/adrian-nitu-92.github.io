@@ -164,7 +164,8 @@ var renderStage = function(lists){
 	var colorme = function (a, type) {
 		var colors = {"Work":'rgb(0,121,191)', "Unlabeled":'rgb(0,0,0)', "Free":'rgb(97,189,79)', "Facultate":'rgb(195,119,224)', "Facultate-TA":'rgb(195,119,224)', "DownTime":'rgb(0,194,224)', "Grow":'rgb(0,194,224)',
 		"Social":'rgb(255,128,206)', "Social - parents":'rgb(255,128,206)',
-		"Health":'rgb(81,232,152)', "Weekly":'rgb(211,211,211)',"Project":'rgb(242,214,0)'};
+		"Health":'rgb(81,232,152)', "Weekly":'rgb(211,211,211)',"Project":'rgb(242,214,0)', "Daily":'rgb(211,211,211)', "Musts":'rgb(255, 255, 102)', "Self Management & Happiness":'rgb(0, 204, 255)', "Live forever":'rgb(51, 204, 51)',
+		"Commuting":'rgb(255, 153, 0)', "NP time + energy":'rgb(204, 0, 0)', "Technical skills grow":'rgb(0, 153, 255)'};
 		return colors[type];
 	}
 	for(var type in graph.getLabels()){
