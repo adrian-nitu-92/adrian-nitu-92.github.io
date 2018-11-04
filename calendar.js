@@ -37,10 +37,14 @@ var _deleteGoogleEvent = function(eventId){
     request.execute(console.log);
 }
 
-var ceva = function(eventId, e, start, end, card){
-	if( start.getTime() != new Date(e.start.dateTime).getTime() ||
-		  end.getTime() != new Date(e.end.dateTime).getTime()   ||
-		 e.status === "cancelled" ) {
+var syncEntries = function(eventId, e, start, end, card){
+	var dateLastUpdatedCal = new Date(e.updated);
+	var dateLastUpdatedCard = new Date(card.dateLastActivity);
+	// start must be synced between them
+	if( start.getTime() != new Date(e.start.dateTime).getTime())
+	{
+		if(dateLastUpdatedCal <= dateLastUpdatedCard){
+//////////////////////////////		thrash code
 		e.start.dateTime = start;
 		e.end.dateTime = end;
 		e.reminder = {"useDefault":true};
@@ -56,6 +60,32 @@ var ceva = function(eventId, e, start, end, card){
         request.execute(function (ee) {
            //console.log(ee);
         });
+ ////////////////////////   
+		} else {
+			card.changeDate(e.start.dateTime);
+		}
+		return;
+	}
+	// end is only correct from trello's perspective
+	if( end.getTime() != new Date(e.end.dateTime).getTime()   ||
+		 e.status === "cancelled" ) {
+//////////////////////////////		thrash code
+		e.start.dateTime = start;
+		e.end.dateTime = end;
+		e.reminder = {"useDefault":true};
+		e.description = card.id;
+		e.summary = card.name;
+		e.status = "confirmed";
+		var request = gapi.client.calendar.events.patch({
+            'calendarId': 'qmo9nhu10p91olod32spqmjts8@group.calendar.google.com',
+            'eventId': eventId,
+            'resource': e,
+        });
+
+        request.execute(function (ee) {
+           //console.log(ee);
+        });
+ ////////////////////////       
     }
 };
 
@@ -74,11 +104,10 @@ var addToGcal = function(card){
 		if(card.eventId != "undefined"  && card.eventId !== undefined) {
 			var event = gapi.client.calendar.events.get(
 				{"calendarId": 'qmo9nhu10p91olod32spqmjts8@group.calendar.google.com', "eventId": card.eventId});
-			event.execute(function(e){
+					event.execute(function(e){
 				if(e.code === undefined) {
-					ceva(card.eventId, e, start, end, card);
+					syncEntries(card.eventId, e, start, end, card);
 				} else {
-					console.log(e);
 					if(event.code === 404) {
 						addWarning("Card " + card.name + " might not be in cal");
 					}

@@ -22,6 +22,13 @@ var Card = function(cardObject, list, inbox, done) {
 		Trello.put('/cards/' + this.id + "/idList",{"value":this.inbox.id}, console.log, console.log);
 	}
 
+	this.changeDate = function(date) {
+		this.date = date;
+		this.due = this.date;
+		Trello.put('/cards/' + this.id + "/due",{"value":this.due}, 
+			console.log, console.log);
+	}
+
 	this._network_dueCompleteProcess = function() {
 		if(! this.dueComplete ){
 			return;
@@ -32,7 +39,7 @@ var Card = function(cardObject, list, inbox, done) {
 			this.due = this.date;
 			addToGcal(this);
 			Trello.put('/cards/' + this.id + "/dueComplete",{"value":false}, console.log, console.log);
-			Trello.put('/cards/' + this.id + "/due",{"value":this.due}, console.log, console.log	);
+			Trello.put('/cards/' + this.id + "/due",{"value":this.due}, console.log, console.log);
 
 			this.inbox.takeCardFrom(this, list);
 		} else {
