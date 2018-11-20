@@ -138,8 +138,8 @@ var Scheduler = function (initEndedCallback) {
 		time.oneDay = {"start": time._3year.end, "end": maxInt, "len": maxInt};
 		time.max = {"start": 0, "end": maxInt, "len": maxInt};
 
-		this.lists["Today"]    = new List("Today",       time.today,  ONCE_A_DAY,       null,      null,  sortTime,                           maxTaskDay, time);
-		this.lists["Tomorrow"] = new List("Tomorrow", time.tomorrow,  ONCE_A_DAY,    "Today",    "Week", sortScore,                           maxTaskDay, time);
+		this.lists["Today"]    = new List("Today",       time.today,   EVERYTIME,       null,      null,  sortTime,                           maxTaskDay, time);
+		this.lists["Tomorrow"] = new List("Tomorrow", time.tomorrow,   EVERYTIME,    "Today",    "Week", sortScore,                           maxTaskDay, time);
 		this.lists["Week"]     = new List("Week",         time.week,  ONCE_A_DAY, "Tomorrow",   "Month", sortScore, maxTaskDay * (time.daysInThisWeek-1), time);
 		this.lists["Month"]    = new List("Month",       time.month, ONCE_A_WEEK,     "Week", "3 Month", sortScore,                                  200, time);
 		this.lists["3 Month"]  = new List("3 Month",   time._3month, ONCE_A_WEEK,    "Month", "6 Month", sortScore,                                  250, time);
