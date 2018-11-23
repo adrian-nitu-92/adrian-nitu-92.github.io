@@ -19,7 +19,11 @@ var List = function(name, timeObject, updateFrequency, previous, next,
 		console.assert(card !== undefined && list !== undefined, "Learn the api, please");
 		reqCounter = reqCounter +1;
 		this.sumTicks += card.tick;
-		this.cardCount += 1;
+		if(this.name != "Today" || (new Date(card.date).getTime() <= this.end)){
+			this.cardCount += 1;
+		} else {
+			console.log("didn't tick card "+card.name+"for " + this.name);
+		}
 		if(list.end < this.end){
 			list.cardCount -= 1;
 			list.sumTicks -= card.tick;
@@ -195,12 +199,17 @@ var List = function(name, timeObject, updateFrequency, previous, next,
 	this.setCards = function(cardsRaw){
 		console.assert(this.mergedList == false, "mergeList called too early");
 		var cards = {};
+		this.cardCount = 0;
 		for(var i in cardsRaw){
 			var card = cardsRaw[i];
 			cards[card.id] = new Card(card, this, scheduler.lists["Inbox"],  scheduler.lists["Done"]);
+			if(this.name != "Today" || (new Date(cards[card.id].date).getTime() <= this.end)){
+				this.cardCount += 1;
+			} else {
+				console.log("didn't tick card "+card.name+"for " + this.name);
+			}
 		}
 		this.cards = cards;
-		this.cardCount += Object.keys(cards).length;
 	}
 
 	this.addLabel = function(label, size, extra, sender){
