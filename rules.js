@@ -152,9 +152,6 @@ var inbox_schedule = function(lists) {
         if(card.due === null) {
             continue;
         }
-        if(card.date < lists["Today"].start){
-            card._network_reschedule();
-        }
         if(scheduler.mode == AMBITIOUS){
             for(var l in lists){
                 if(l === "Inbox" || l === "One Day" || l === "Done"){
@@ -174,11 +171,15 @@ var inbox_schedule = function(lists) {
             }
         }
         if(skip){
+            if(card.date < lists["Tomorrow"].start){
+                card._network_reschedule();
+            }
             continue;
+
         }
         targetList.takeCardFrom(card, lists["Inbox"]);
         addToGcal(card);
-        console.log(card.name + " moved to " + targetList.name );
+        console.log(card.name + " moved to " + targetList.name);
     }
     return true;
 }
@@ -210,4 +211,3 @@ asserts["validate MIT count "] = function(lists) {
     }
     return true;
 }
-

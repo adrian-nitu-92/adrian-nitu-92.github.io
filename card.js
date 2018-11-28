@@ -25,7 +25,7 @@ var Card = function(cardObject, list, inbox, done) {
 	this.changeDate = function(date) {
 		this.date = date;
 		this.due = this.date;
-		Trello.put('/cards/' + this.id + "/due",{"value":this.due}, 
+		Trello.put('/cards/' + this.id + "/due",{"value":this.due},
 			console.log, console.log);
 	}
 
@@ -53,7 +53,7 @@ var Card = function(cardObject, list, inbox, done) {
 			this._network_dueCompleteProcess();
 		} else {
 			var lists = scheduler.lists;
-			this.due = lists["Today"].start/2 + lists["Today"].end/2;
+			this.due = lists["Tomorrow"].end - 4 * 60 * 60 * 1000; // Maine pe la 10-11
 			this.date = this.due;
 			Trello.put('/cards/' + this.id + "/due",{"value":this.due}, console.log, console.log);
 		}
@@ -264,12 +264,12 @@ var Card = function(cardObject, list, inbox, done) {
 					addWarning("Trebuie sa cureti cardul " + card.get_link());
 				} else {
 					var useless = function(reason) {
-						addWarning("<b>supporting card " + scard.get_link() + 
-							" e nefolositor pentru "+card.get_link()+"</b>" 
+						addWarning("<b>supporting card " + scard.get_link() +
+							" e nefolositor pentru "+card.get_link()+"</b>"
 							+ ' pentru ca ' + reason
 							+' <a onclick="scheduler.cards[\''+card.id+
 							'\'].dropSupporting(\''+scard.id+'\')" href="#">Drop</a>');
-					
+
 					}
 					if(scard.date >= card.date){
 						useless ("too late");
@@ -294,7 +294,7 @@ var Card = function(cardObject, list, inbox, done) {
 
 	this.dropSupporting = function (cid) {
 		const index = this.supporting.indexOf(cid);
-		if(index < 0) 
+		if(index < 0)
 			return;
 		this.supporting.splice(index, 1);
 		this._parseSupporting();
