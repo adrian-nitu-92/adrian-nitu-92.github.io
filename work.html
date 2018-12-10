@@ -246,7 +246,7 @@ var supporting = function () {
 			if(skiplist.indexOf(bigoCardo) >= 0){
 				continue;
 			}
-			if(bigoCardo.big && bigoCardo.supportingCards.length === 0) {
+			if(bigoCardo.big && bigoCardo.supportingCards != undefined && bigoCardo.supportingCards.length === 0) {
 				return function(){
 					addMessage("Please support card <a href = \"" +bigoCardo.shortUrl + "\">" + bigoCardo.name + "</a><br/>");
 					addMessage("<br/>Options<br/>");
@@ -320,12 +320,17 @@ function shuffle(array) {
 	return array;
 }
 
+var schedule = function() {
+	return null;
+}
+
 var stuffs = [
-	"tag",
-	"prioritise",
-	"projects",
-	"date",
-	//"supporting"
+	//"tag",
+	//"prioritise",
+	//"projects",
+	//"date",
+	//"supporting",
+	"schedule"
 	];
 
 var g_supported = false;
@@ -349,7 +354,14 @@ var schedulerInitEnded = function(scheduler){
 		}, 300);
 		return;
 	}
-	var sMapping = {"tag" : tag(), "prioritise":prioritise(), "projects": projects(), "date": date(), "supporting": supporting(),};
+	var sMapping = {
+		        "tag" : tag(),
+                "prioritise":prioritise(),
+                "projects": projects(),
+                "date": date(),
+                "supporting": supporting(),
+                "schedule": schedule(),
+	            };
 
 	stuff = sMapping[stuffs[0]];
 

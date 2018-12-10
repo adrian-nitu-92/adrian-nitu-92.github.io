@@ -22,6 +22,24 @@ var Card = function(cardObject, list, inbox, done) {
 		Trello.put('/cards/' + this.id + "/idList",{"value":this.inbox.id}, console.log, console.log);
 	}
 
+	this.getCalName = function () {
+		var prefix = "";
+		for(var i in this.labels){
+			if(["Big", "Medium", "Small"].indexOf(this.labels[i].name) != - 1)
+			{
+				prefix = this.labels[i].name + " - ";
+			}
+		}
+		return prefix + this.name;
+	}
+
+	this.getCalColorId = function() {
+		if(this.big) return 11;
+		if(this.medium) return 5;
+		if(this.small) return 7;
+		return 8;
+	}
+
 	this.changeDate = function(date) {
 		this.date = date;
 		this.due = this.date;
