@@ -40,6 +40,8 @@
 <body>
 <div id="airea"></div>
 
+<a onclick="next()" href="#">Next</a>
+
 <a href="/">Home</a>
 
 <div id="error"></div>
@@ -59,10 +61,12 @@ var techDebt = true;
 
 var done = function(){}
 
-var base = function(time, string){
-	return function(){
-		document.getElementById('airea').innerHTML =  `You have ${time} minutes? ${string}`;
-	}
+var base = function(times, string){
+	var f = function(){
+		document.getElementById('airea').innerHTML =  `${string}`;
+	};
+	return new Array(times).fill(f);
+
 }
 
 var tag = function(){
@@ -136,38 +140,72 @@ projects</a>`;
 	}
 }
 
+function flattenDeep(arr1) {
+   return arr1.reduce((acc, val) => Array.isArray(val) ? acc.concat(flattenDeep(val)) : acc.concat(val), []);
+}
+
+
+function shuffle(array) {
+	let counter = array.length;
+
+	// While there are elements in the array
+	while (counter > 0) {
+		// Pick a random index
+		let index = Math.floor(Math.random() * counter);
+
+		// Decrease counter by 1
+		counter--;
+
+		// And swap the last element with it
+		let temp = array[counter];
+		array[counter] = array[index];
+		array[index] = temp;
+	}
+
+ 	return array;
+}
+
+var stuffs = [null,
+base(5, "Try to clean something!"),
+base(5, "Call your parents!"),
+base(5, "Take an eye break!"),
+base(5, "Drink some water!"),
+base(5, "Drink some tea!"),
+base(5, "Ensure things are charged"),
+base(5, "Clean your glasses"),
+base(5, "Check your appearance"),
+base(5, "Meditate"),
+base(5, "Check your posture"),
+base(5, "5 pushups"),
+base(1, "Play a short game"),
+null];
+
+stuffs = flattenDeep(stuffs);
+
+
 //TODO: location? home
 var schedulerInitEnded = function(scheduler){
 
-	var stuffs = [null,
-	base(5, "Try to clean something!"),
-	base(5, "Call your parents!"),
-	base(5, "Take an eye break!"),
-	base(5, "Drink some water!"),
-	base(5, "Drink some tea!"),
-	base(5, "Log money today!"),
-	base(5, "Rest your mind"),
-	base(5, "Ensure things are charged"),
-	base(5, "Clean your glasses"),
-	base(5, "Check your appearance"),
-	base(5, "Meditate"),
-	base(5, "Check your posture"),
-	base(5, "Play a short game"),
-	null];
+	stuffs = shuffle(stuffs);
 
 	//TODO
 	var stuff;
 	if(techDebt) {
 		stuff = stuffs[0];
-		while(stuff === null){
-			var x = Math.random() * stuffs.length;
-			stuff = stuffs[parseInt(x + "")];
+		while(stuff == null && stuffs.length != 0) {
+			stuffs.splice(0, 1);
+			stuff = stuffs[0];
 		}
+		stuffs = stuffs.filter(e => e !== stuff);
 	} else {
 		stuff = stuffs.choice();
 	}
 
 	stuff();
+}
+
+var next = function() {
+	schedulerInitEnded(scheduler);
 }
 
 var scheduler = new Scheduler(schedulerInitEnded);
