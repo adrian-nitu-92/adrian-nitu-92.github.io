@@ -71,7 +71,7 @@ var Card = function(cardObject, list, inbox, done) {
 			this._network_dueCompleteProcess();
 		} else {
 			var lists = scheduler.lists;
-			this.due = lists["Tomorrow"].end - 4 * 60 * 60 * 1000; // Maine pe la 10-11
+			this.due = lists["Today"].start/2 + lists["Today"].end/2;
 			this.date = this.due;
 			Trello.put('/cards/' + this.id + "/due",{"value":this.due}, console.log, console.log);
 		}
