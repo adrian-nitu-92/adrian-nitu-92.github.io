@@ -15,6 +15,34 @@ var Card = function(cardObject, list, inbox, done) {
 		Trello.put('/cards/' + this.id + "/desc",{"value":val}, console.log, console.log);
 	}
 
+	this.reschedule = function() {
+		var maxDate = this.list.end;
+		for(var j in this.supportingCards) {
+			if(maxDate > this.supportingCards[j].date) {
+				maxDate = this.supportingCards[j].date;
+			}
+		}
+		maxDate -= 60*60*1000;
+
+		var now = new Date().getTime();
+		var minDate = now - (now % (60*60*1000));
+
+		var newdate = this.list.getFirstFreeSlot(minDate, maxDate);
+
+		console.log("pulaaaaaaaa")
+		if(newdate === null && this.date < maxDate) {
+			return;
+		}
+		if(newdate === null) {
+			newdate = maxDate;
+		}
+
+		/* don't move if it's basically in the same spot */
+		if(newdate - this.date >= (60*60*1000) || newdate - this.date <= (60*60*1000) ) {
+			this.changeDate(newdate);
+		}
+	}
+
 	this.setDone = function() {
 		Trello.put('/cards/' + this.id + "/dueComplete",{"value":true}, console.log, console.log);
 	}
@@ -109,6 +137,26 @@ var Card = function(cardObject, list, inbox, done) {
 		}
 	}
 
+	this.breakdown = function(subtaskList) {
+
+		var schedLockedLabelId = '57ea264c84e677fd3691dd33';
+		var labelList = this.idLabels.splice( this.idLabels.indexOf(schedLockedLabelId), 1 );
+
+		for (var j in subtaskList){
+			var newCard = {
+			   name: subtaskList[j],
+			   desc: '{"supporting":["'+this.id+'"]}',
+			   pos: "top",
+			   due: this.due,
+			   idLabels: labelList,
+			   idList: this.list.id
+			};
+			console.log(newCard);
+			Trello.post('/cards/', newCard, console.log, console.log);
+		}
+
+	}
+
 	this._parseLabels = function() {
 		var labels = this.labels;
 		var found = 0;
@@ -125,6 +173,8 @@ var Card = function(cardObject, list, inbox, done) {
 			var ln = label.name;
 			if (ln == "Pass"){
 				this.pass = true;
+			} else if (ln == "SchedLocked"){
+				this.schedLocked = true;
 			} else if (ln == "Big"){
 				this.big = true;
 			} else if (ln == "Medium"){

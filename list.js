@@ -119,6 +119,54 @@ var List = function(name, timeObject, updateFrequency, previous, next,
 		return true;
 	}
 
+	this.getFirstFreeSlot = function(minDate, maxDate) {
+		if(minDate < this.start) {
+			minDate = this.start;
+		}
+		if(maxDate > this.end - (60*60*1000)) {
+			maxDate = this.end -(60*60*1000);
+		}
+		var ccards = this.cards;
+		var dada = Object.keys(ccards).map(function(key) {
+            return ccards[key];
+        });
+        var baba = dada.slice(0);
+        baba.sort(sortTime);
+        for(var j in baba) {
+			baba[j].date = baba[j].date - baba[j].date % (60*60*1000);
+        }
+        if(this.name === "Today") {
+			var ret = minDate;
+			for(var j in baba) {
+				if(baba[j].date < minDate || baba[j].date > maxDate) {
+					continue;
+				}
+				if(ret < baba[j].date) {
+					return ret;
+				}
+				ret = baba[j].date + 60*60*1000;
+			}
+			return null;
+		} else {
+			var ret = maxDate;
+			baba.reverse();
+			for(var j in baba) {
+				if(baba[j].date < minDate || baba[j].date > maxDate) {
+					continue;
+				}
+				if(ret - 60*60*1000 > baba[j].date) {
+					return ret;
+				}
+				ret = baba[j].date - 60*60*1000;
+			}
+			return null;
+		}
+
+
+
+
+	}
+
 	this.reasign_card_to_proper_list = function(lists) {
 		var prevListName = this.previous;
 		if(prevListName === null) {

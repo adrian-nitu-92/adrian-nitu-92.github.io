@@ -98,6 +98,7 @@ asserts["remove duplicate events"] = function(lists) {
 asserts["overlap warning"] = function(lists) {
     var cur = ["Today", "Tomorrow", "Week"];
     var now = new Date().getTime();
+    var nowplus1h = now + 60*60*1000;
     var count = 0;
     for (var l in cur) {
         var list = lists[cur[l]];
@@ -109,16 +110,18 @@ asserts["overlap warning"] = function(lists) {
         baba.sort(sortTime);
         for (var c = 0; c < baba.length - 1; c++) {
             var card = baba[c];
-            if (card.pass !== true) {
+            if (card.pass !== true || card.schedLocked !== true) {
                 if (card.due) {
                     var _1 = new Date(card.due).getTime();
-                    var nextCard = baba[c + 1];
-                    if (nextCard.pass) {
+                    if(nowplus1h > _1) {
+                        card.reschedule();
                         continue;
                     }
+                    var nextCard = baba[c + 1];
                     if (nextCard.due) {
                         var _2 = new Date(nextCard.due).getTime();
                         if (card.tick * 1000 * 60 * 60 + _1 > _2) {
+                            card.reschedule();
                             count = count + 1;
                         }
                     }
