@@ -97,7 +97,7 @@ asserts["remove duplicate events"] = function(lists) {
 }
 asserts["overlap warning"] = function(lists) {
     var cur = ["Today", "Tomorrow", "Week"];
-    var now = new Date().getTime();
+    var now = scheduler.time.now;
     var nowplus1h = now + 60*60*1000;
     var count = 0;
     for (var l in cur) {

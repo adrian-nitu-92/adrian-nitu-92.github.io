@@ -63,7 +63,7 @@ var syncEntries = function(eventId, e, start, end, card){
         });
  ////////////////////////
         } else {
-            card.changeDate(e.start.dateTime);
+            card.changeDate(e.start.dateTime, true);
         }
         return;
     }

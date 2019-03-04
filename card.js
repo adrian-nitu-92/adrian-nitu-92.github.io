@@ -16,6 +16,9 @@ var Card = function(cardObject, list, inbox, done) {
 	}
 
 	this.reschedule = function() {
+		if(this.schedLocked) {
+			return;
+		}
 		var maxDate = this.list.end;
 		for(var j in this.supportingCards) {
 			if(maxDate > this.supportingCards[j].date) {
@@ -24,7 +27,7 @@ var Card = function(cardObject, list, inbox, done) {
 		}
 		maxDate -= 60*60*1000;
 
-		var now = new Date().getTime();
+		var now = scheduler.time.now;
 		var minDate = now - (now % (60*60*1000));
 
 		var newdate = this.list.getFirstFreeSlot(minDate, maxDate);
@@ -39,7 +42,7 @@ var Card = function(cardObject, list, inbox, done) {
 
 		/* don't move if it's basically in the same spot */
 		if(newdate - this.date >= (60*60*1000) || newdate - this.date <= (60*60*1000) ) {
-			this.changeDate(newdate);
+			this.changeDate(newdate, false);
 		}
 	}
 
@@ -68,11 +71,14 @@ var Card = function(cardObject, list, inbox, done) {
 		return 8;
 	}
 
-	this.changeDate = function(date) {
+	this.changeDate = function(date, setSchedLocked) {
 		this.date = date;
 		this.due = this.date;
 		Trello.put('/cards/' + this.id + "/due",{"value":this.due},
 			console.log, console.log);
+		if(setSchedLocked) {
+			this.setLabel("SchedLocked", true);
+		}
 	}
 
 	this._network_dueCompleteProcess = function() {

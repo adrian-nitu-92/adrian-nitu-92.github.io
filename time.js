@@ -5,7 +5,6 @@ var Time = function(dummy) {
 	this.hourLengthInMs = (1000 * 60 * 60);
 	this.dayLenghtInMs = (this.hourLengthInMs * 24);
 	this.weekLengthInMs = (this.dayLenghtInMs * 7);
-	this.timezoneOffset = 2*60*60*1000; // We need 3 extra hours for the timezone setting
 	this.today = {};
 	this.yesterday = {};
 	this.tomorrow = {};
@@ -17,11 +16,12 @@ var Time = function(dummy) {
 	this._3year = {};
 
 	var nowDate = new Date();
-	var now = nowDate.getTime();
+	var now = nowDate.getTime() + nowDate.getTimezoneOffset();
+	this.now = now;
 
 	this.today.start = now - now % this.dayLenghtInMs;
 
-	var currentHour = (now - this.today.start + this.timezoneOffset) / this.hourLengthInMs;
+	var currentHour = (now - this.today.start) / this.hourLengthInMs;
 	currentHour = Math.round(Number(currentHour*4))/4;
 	if(currentHour >= 24){
 		currentHour -= 24;
