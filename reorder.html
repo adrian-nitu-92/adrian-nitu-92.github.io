@@ -1,0 +1,129 @@
+<html>
+<head>
+<meta charset="utf-8">
+</head>
+<body>
+
+<table>
+<tr><td>
+<textarea rows="40" cols="60" id="in"></textarea>
+</td><td>
+<div id="out"> ladida </div>
+</td></tr></table>
+<br/>
+<button onclick="work()">compute</button>
+
+<script>
+"use strict";
+
+var inputText = document.getElementById('in');
+var out = document.getElementById('out');
+
+var Task = function (name, parent, level) {
+	this.name = name;
+	this.parent = parent;
+	this.level = level;
+	this.subtasks = [];
+	this.printAll = function () {
+		var text = this.print();
+		for(var i = 0; i < this.subtasks.length; i++)
+		{
+			text = text + this.subtasks[i].print();
+		}
+		return text;
+	}
+	this.print = function () {
+		var parentName = "";
+		var indent = "&nbsp;".repeat(level * 4);
+		if(parent !== null) {
+			parentName = " (" + this.parent.name + ")"
+		}
+		var text = indent + this.name + parentName + "<br/>";
+		return text;
+	}
+}
+
+var RawTasks = function (inString) {
+	this.name = inString.trim();
+	this.level = (inString.length - inString.trimStart(" ").length) / 4;
+}
+
+var lastParentStack = [null];
+
+var Parser = function () {
+	this.raw = "";
+	this.parse = function () {
+		var lines = this.raw.split("\n");
+		this.rawTasks = lines.map(function(a) {return new RawTasks(a);});
+		this.tasks = [];
+
+		for (var i = 0; i < this.rawTasks.length; i++)
+		{
+			var rt = this.rawTasks[i];
+			var nt = new Task(rt.name, lastParentStack[rt.level], rt.level);
+			lastParentStack[rt.level + 1] = nt;
+			if(rt.level === 0) {
+				this.tasks.push(nt);
+			} else {
+				nt.parent.subtasks.push(nt);
+			}
+		}
+	}
+};
+
+var parsedIn = new Parser();
+
+var subjiggle = function (taskArray, counter)
+{
+	console.log(taskArray, counter);
+	var maxSize = taskArray.length;
+	var lastTask = taskArray[maxSize - 1];
+	// Bug: not technically true
+	maxSize = maxSize + lastTask.subtasks.length;
+	var cont = counter + 1 < taskArray.length;
+	var html = '';
+	for (var i = 0; i <= counter; i++)
+	{
+		if(taskArray[i].subtasks.length === 0)
+		{
+			if(i == counter)
+			{
+				html += taskArray[i].print();
+			}
+		}
+		else
+		{
+			if(taskArray[i].subtasks[counter - i] !== undefined)
+			{
+				html += taskArray[i].subtasks[counter - i].printAll();
+			}
+		}
+	}
+	return {"cont":cont, "html": html};
+}
+
+var jiggle = function (a)
+{
+	var html = '';
+	var counter = 0;
+	var cont = true;
+	while(cont)
+	{
+		var qq = subjiggle(a.tasks, counter);
+		cont = qq.cont;
+		html = html + qq.html;
+		counter = counter + 1;
+	}
+	return html;
+}
+
+var work = function()
+{
+	parsedIn.raw = inputText.value;
+	parsedIn.parse();
+	out.innerHTML = jiggle(parsedIn);
+}
+</script>
+
+</body>
+</hmtl>
