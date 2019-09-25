@@ -2,13 +2,169 @@
 <head>
 <meta charset="utf-8">
 </head>
+
+<style>
+body {
+  margin: 0;
+  min-width: 250px;
+}
+
+/* Include the padding and border in an element's total width and height */
+* {
+  box-sizing: border-box;
+}
+
+/* Remove margins and padding from the list */
+ul {
+  margin: 0;
+  padding: 0;
+}
+
+/* Style the list items */
+ul li {
+  cursor: pointer;
+  position: relative;
+  padding: 12px 8px 12px 40px;
+  list-style-type: none;
+  background: #eee;
+  font-size: 18px;
+  transition: 0.2s;
+
+  /* make the list items unselectable */
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+/* Set all odd list items to a different color (zebra-stripes) */
+ul li:nth-child(odd) {
+  background: #f9f9f9;
+}
+
+/* Darker background-color on hover */
+ul li:hover {
+  background: #ddd;
+}
+
+/* When clicked on, add a background color and strike out text */
+ul li.checked {
+  background: #888;
+  color: #fff;
+  text-decoration: line-through;
+}
+
+/* Add a "checked" mark when clicked on */
+ul li.checked::before {
+  content: '';
+  position: absolute;
+  border-color: #fff;
+  border-style: solid;
+  border-width: 0 2px 2px 0;
+  top: 10px;
+  left: 16px;
+  transform: rotate(45deg);
+  height: 15px;
+  width: 7px;
+}
+
+/* Style the close button */
+.close {
+  position: absolute;
+  right: 0;
+  top: 0;
+  padding: 12px 16px 12px 16px;
+}
+
+.close:hover {
+  background-color: #f44336;
+  color: white;
+}
+
+/* Style the header */
+.header {
+  background-color: #f44336;
+  padding: 30px 40px;
+  color: white;
+  text-align: center;
+}
+
+/* Clear floats after the header */
+.header:after {
+  content: "";
+  display: table;
+  clear: both;
+}
+
+/* Style the input */
+input {
+  margin: 0;
+  border: none;
+  border-radius: 0;
+  width: 75%;
+  padding: 10px;
+  float: left;
+  font-size: 16px;
+}
+
+/* Style the "Add" button */
+.addBtn {
+  padding: 10px;
+  width: 25%;
+  background: #d9d9d9;
+  color: #555;
+  float: left;
+  text-align: center;
+  font-size: 16px;
+  cursor: pointer;
+  transition: 0.3s;
+  border-radius: 0;
+}
+
+.addBtn:hover {
+  background-color: #bbb;
+}
+
+table { table-layout: fixed; }
+td { width: 33%; }
+</style>
 <body>
 
-<table>
-<tr><td>
-<textarea rows="40" cols="60" id="in"></textarea>
-</td><td>
-<div id="out"> ladida </div>
+<table style="table-layout:fixed; width: 100%; white-space: nowrap;">
+<tr>
+<td style="width:40%;">
+
+<ul id="myUL2">
+</ul>
+
+</td>
+
+<td style="width:40%;">
+<!--
+<div id="myDIV" class="header">
+  <h2 style="margin:5px">My To Do List</h2>
+  <input type="text" id="myInput" placeholder="Title...">
+  <span onclick="newElement()" class="addBtn">Add</span>
+</div>
+
+<ul id="myUL">
+  <li>Hit the gym</li>
+  <li class="checked">Pay bills</li>
+  <li>Meet George</li>
+  <li>Buy eggs</li>
+  <li>Read a book</li>
+  <li>Organize office</li>
+</ul>
+-->
+
+<ul id="myUL">
+</ul>
+
+</td>
+
+<td style="width:20%;">
+
+<textarea rows="40" cols="50" id="in" onchange="work()"></textarea>
 </td></tr></table>
 <br/>
 <button onclick="work()">compute</button>
@@ -19,11 +175,12 @@
 var inputText = document.getElementById('in');
 var out = document.getElementById('out');
 
-var Task = function (name, parent, level) {
+var Task = function (name, parent, level, i) {
 	this.name = name;
 	this.parent = parent;
 	this.level = level;
 	this.subtasks = [];
+  this.rawTasksI = i;
 	this.printAll = function () {
 		var text = this.print();
 		for(var i = 0; i < this.subtasks.length; i++)
@@ -41,6 +198,15 @@ var Task = function (name, parent, level) {
 		var text = indent + this.name + parentName + "<br/>";
 		return text;
 	}
+	this.htmlPrint = function() {
+		var parentName = "";
+		var indent = " ".repeat(level * 4);
+		if(parent !== null) {
+			parentName = " (" + this.parent.name + ")"
+		}
+		var text = indent + this.name + parentName;
+		return text
+	}
 }
 
 var RawTasks = function (inString) {
@@ -48,19 +214,25 @@ var RawTasks = function (inString) {
 	this.level = (inString.length - inString.trimStart(" ").length) / 4;
 }
 
-var lastParentStack = [null];
-
 var Parser = function () {
 	this.raw = "";
 	this.parse = function () {
 		var lines = this.raw.split("\n");
 		this.rawTasks = lines.map(function(a) {return new RawTasks(a);});
-		this.tasks = [];
+    this.processRawTasks();
+  }
 
+  this.processRawTasks = function () {
+    this.tasks = [];
+
+    document.getElementById("myUL").innerHTML = "";
+    document.getElementById("myUL2").innerHTML = "";
+    var lastParentStack = [null];
 		for (var i = 0; i < this.rawTasks.length; i++)
 		{
 			var rt = this.rawTasks[i];
-			var nt = new Task(rt.name, lastParentStack[rt.level], rt.level);
+			var nt = new Task(rt.name, lastParentStack[rt.level], rt.level, i);
+			newElement2(nt.htmlPrint(), "myUL", nt.rawTasksI);
 			lastParentStack[rt.level + 1] = nt;
 			if(rt.level === 0) {
 				this.tasks.push(nt);
@@ -75,20 +247,22 @@ var parsedIn = new Parser();
 
 var subjiggle = function (taskArray, counter)
 {
-	console.log(taskArray, counter);
 	var maxSize = taskArray.length;
 	var lastTask = taskArray[maxSize - 1];
 	// Bug: not technically true
 	maxSize = maxSize + lastTask.subtasks.length;
-	var cont = counter + 1 < taskArray.length;
 	var html = '';
 	for (var i = 0; i <= counter; i++)
 	{
+    if(taskArray[i] === undefined) {
+      break;
+    }
 		if(taskArray[i].subtasks.length === 0)
 		{
 			if(i == counter)
 			{
 				html += taskArray[i].print();
+				newElement2(taskArray[i].htmlPrint(), "myUL2", taskArray[i].rawTasksI);
 			}
 		}
 		else
@@ -96,10 +270,19 @@ var subjiggle = function (taskArray, counter)
 			if(taskArray[i].subtasks[counter - i] !== undefined)
 			{
 				html += taskArray[i].subtasks[counter - i].printAll();
+				if(taskArray[i].subtasks[counter - i].subtasks.length == 0)
+        {
+				  newElement2(taskArray[i].subtasks[counter - i].htmlPrint(), "myUL2",taskArray[i].subtasks[counter - i].rawTasksI);
+
+        }
+  			else
+        {
+  				newElement2(taskArray[i].subtasks[counter - i].printAll(), "myUL2",taskArray[i].subtasks[counter - i].rawTasksI);
+        }
 			}
 		}
 	}
-	return {"cont":cont, "html": html};
+	return {"html": html};
 }
 
 var jiggle = function (a)
@@ -107,12 +290,10 @@ var jiggle = function (a)
 	var html = '';
 	var counter = 0;
 	var cont = true;
-	while(cont)
+	for(var i = 0; i < parsedIn.rawTasks.length; i++)
 	{
-		var qq = subjiggle(a.tasks, counter);
-		cont = qq.cont;
+		var qq = subjiggle(a.tasks, i);
 		html = html + qq.html;
-		counter = counter + 1;
 	}
 	return html;
 }
@@ -121,7 +302,72 @@ var work = function()
 {
 	parsedIn.raw = inputText.value;
 	parsedIn.parse();
-	out.innerHTML = jiggle(parsedIn);
+	jiggle(parsedIn);
+}
+</script>
+
+
+<script>
+// Create a "close" button and append it to each list item
+var myNodelist = document.getElementsByTagName("LI");
+var i;
+for (i = 0; i < myNodelist.length; i++) {
+  var span = document.createElement("SPAN");
+  var txt = document.createTextNode("\u00D7");
+  span.className = "close";
+  span.appendChild(txt);
+  myNodelist[i].appendChild(span);
+}
+
+// Click on a close button to hide the current list item
+var close = document.getElementsByClassName("close");
+
+// Add a "checked" symbol when clicking on a list item
+var list = document.querySelector('ul');
+list.addEventListener('click', function(ev) {
+  if (ev.target.tagName === 'LI') {
+    ev.target.classList.toggle('checked');
+  }
+}, false);
+
+// Create a new list item when clicking on the "Add" button
+function newElement2(inputValue, ulName, rtI ) {
+  var li = document.createElement("li");
+
+  var t = document.createTextNode(inputValue);
+  li.appendChild(t);
+  document.getElementById(ulName).appendChild(li);
+
+  var span = document.createElement("SPAN");
+  var txt = document.createTextNode("\u00D7");
+  span.className = "close";
+  span.appendChild(txt);
+  li.appendChild(span);
+
+  //for (i = 0; i < close.length; i++) {
+
+    var closeOnClick = function(myRty) {
+      return function() {
+          console.log("rti" + myRty);
+          parsedIn.rawTasks.splice(myRty, 1);
+          parsedIn.processRawTasks();
+          jiggle(parsedIn);
+      }
+    }
+
+    span.onclick = closeOnClick(rtI);
+  // }
+}
+
+function newElement() {
+	var inputValue = document.getElementById("myInput").value;
+    document.getElementById("myInput").value = "";
+    if (inputValue === '') {
+    	alert("You must write something!");
+  	} else {
+
+	newElement2(inputValue, "myUL", fajkldfjakldjald);
+  }
 }
 </script>
 
