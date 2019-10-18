@@ -251,51 +251,33 @@ var subjiggle = function (taskArray, counter)
 	var lastTask = taskArray[maxSize - 1];
 	// Bug: not technically true
 	maxSize = maxSize + lastTask.subtasks.length;
-	var html = '';
+
 	for (var i = 0; i <= counter; i++)
 	{
     if(taskArray[i] === undefined) {
       break;
     }
+
 		if(taskArray[i].subtasks.length === 0)
 		{
 			if(i == counter)
 			{
-				html += taskArray[i].print();
 				newElement2(taskArray[i].htmlPrint(), "myUL2", taskArray[i].rawTasksI);
 			}
 		}
 		else
 		{
-			if(taskArray[i].subtasks[counter - i] !== undefined)
-			{
-				html += taskArray[i].subtasks[counter - i].printAll();
-				if(taskArray[i].subtasks[counter - i].subtasks.length == 0)
-        {
-				  newElement2(taskArray[i].subtasks[counter - i].htmlPrint(), "myUL2",taskArray[i].subtasks[counter - i].rawTasksI);
-
-        }
-  			else
-        {
-  				newElement2(taskArray[i].subtasks[counter - i].printAll(), "myUL2",taskArray[i].subtasks[counter - i].rawTasksI);
-        }
-			}
+      subjiggle(taskArray[i].subtasks, counter -i);
 		}
 	}
-	return {"html": html};
 }
 
 var jiggle = function (a)
 {
-	var html = '';
-	var counter = 0;
-	var cont = true;
 	for(var i = 0; i < parsedIn.rawTasks.length; i++)
 	{
-		var qq = subjiggle(a.tasks, i);
-		html = html + qq.html;
+		subjiggle(a.tasks, i);
 	}
-	return html;
 }
 
 var work = function()
